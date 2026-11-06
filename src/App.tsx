@@ -26,6 +26,8 @@ import Visit from './pages/Visit'
 import Music from './pages/Music'
 import Auth from './pages/Auth'
 import Organizer from './pages/Organizer'
+import Campaigns from './pages/Campaigns'
+import CampaignDetail from './pages/CampaignDetail'
 
 export default function App() {
   return (
@@ -42,6 +44,8 @@ export default function App() {
             <Route path="/talents/:id" element={<TalentDetail />} />
             <Route path="/votes" element={<Votes />} />
             <Route path="/tournee" element={<Tour />} />
+            <Route path="/campagnes" element={<Campaigns />} />
+            <Route path="/campagnes/:id" element={<CampaignDetail />} />
             <Route path="/prevention" element={<Prevention />} />
             <Route path="/partenaires" element={<Partners />} />
             <Route path="/reglement" element={<Rules />} />

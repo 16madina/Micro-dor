@@ -15,6 +15,7 @@ import {
   Users,
   Music2,
   KeyRound,
+  Megaphone,
   type LucideIcon,
 } from 'lucide-react'
 
@@ -33,6 +34,7 @@ export const PRIMARY_NAV: NavItem[] = [
 ]
 
 export const MORE_NAV: NavItem[] = [
+  { to: '/campagnes', label: 'Nos campagnes', icon: Megaphone },
   { to: '/musiques', label: 'Nos musiques', icon: Music2 },
   { to: '/votes', label: 'Votes', icon: Heart },
   { to: '/tournee', label: 'Tournée', icon: MapPinned },

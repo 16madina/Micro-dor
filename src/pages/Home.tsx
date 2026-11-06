@@ -1,49 +1,182 @@
+import { useEffect, useRef, useState, type ReactNode } from 'react'
 import { Link } from 'react-router-dom'
-import { ArrowRight, Clapperboard, GraduationCap, HeartHandshake, MapPin, Play, Route, ShieldCheck, Sparkles } from 'lucide-react'
+import { ArrowRight, ChevronLeft, ChevronRight, Clapperboard, GraduationCap, HeartHandshake, MapPin, Megaphone, Play, Route, ShieldCheck, Sparkles } from 'lucide-react'
 import { LIVE, PARTNERS, PHOTOS, REPLAYS, SCHOOLS, TALENTS, THEMES, UPCOMING, fmtDay, schoolById } from '../data'
 import StageArt from '../components/art/StageArt'
 import { PartnerLogo } from '../components/art/PartnerLogo'
 import { ShowCard, TalentCard } from '../components/cards'
-import { Button, HScroll, SectionHeader } from '../components/ui'
+import { Button, HScroll, SectionHeader, cx } from '../components/ui'
+import { FEATURED_CAMPAIGNS, type Campaign } from '../data/campaigns'
 import { useApp } from '../state/AppState'
 
 const THEME_ICON = { shield: ShieldCheck, cap: GraduationCap, heart: HeartHandshake, path: Route }
 
-function Hero() {
+const HERO_DELAY = 6500
+
+function SlideText({ active, children }: { active: boolean; children: ReactNode }) {
   return (
-    <section className="relative -mx-4 -mt-4 overflow-hidden lg:mx-0 lg:mt-0 lg:rounded-[28px] lg:border lg:border-white/[0.07] lg:shadow-stage">
+    <div
+      className={cx(
+        'absolute inset-x-0 bottom-0 p-5 pb-14 transition-opacity duration-500 lg:inset-y-0 lg:right-auto lg:flex lg:w-[78%] lg:flex-col lg:justify-center lg:p-10 lg:pb-14 xl:w-[60%] xl:p-14',
+        active ? 'opacity-100 [&_.reveal]:animate-fadeUp' : 'pointer-events-none opacity-0',
+      )}
+    >
+      {children}
+    </div>
+  )
+}
+
+function TalentSlide({ active }: { active: boolean }) {
+  return (
+    <>
+      <StageArt seed="hero" photo={PHOTOS.hero} palette="violet" pose="singer" animated className="absolute left-0 right-0 top-0 h-[62%] [&_img]:object-[60%_42%] lg:bottom-0 lg:left-[22%] lg:h-full lg:[&_img]:object-[62%_30%] lg:[mask-image:linear-gradient(90deg,transparent,#000_35%)]" />
+      <div className="absolute inset-0 bg-gradient-to-t from-ink from-40% via-ink/60 via-55% to-transparent to-75% lg:bg-gradient-to-r lg:from-0% lg:via-50% lg:to-100% lg:from-ink lg:via-ink/70 lg:to-transparent" />
+      <SlideText active={active}>
+        <div className="reveal mb-4 flex items-center gap-2">
+          <span className="inline-flex items-center gap-1.5 rounded-full border border-gold/40 bg-ink/50 px-3 py-1 text-[11px] font-bold uppercase tracking-[0.18em] text-goldlight backdrop-blur">
+            <Sparkles size={12} /> Saison 2026–2027
+          </span>
+        </div>
+        <h2 className="reveal font-display text-[54px] leading-[0.9] tracking-wide [animation-delay:.08s] lg:text-[64px] xl:text-[84px]">
+          Le Québec a<br />du talent.
+          <br />
+          <span className="text-gold-shine">MICRO D’OR lui</span>
+          <br />
+          <span className="text-gold-shine">donne une scène.</span>
+        </h2>
+        <p className="reveal mt-4 max-w-md text-[15px] leading-relaxed text-white/75 [animation-delay:.16s] lg:text-[17px]">
+          Chant, danse, théâtre, slam, rap conscience : découvre les talents des écoles secondaires du Québec.
+        </p>
+        <div className="reveal mt-6 flex flex-col gap-3 [animation-delay:.24s] sm:flex-row">
+          <Button to="/spectacles" size="lg" iconRight={<Play size={16} className="fill-ink" />}>
+            Découvrir les spectacles
+          </Button>
+          <Button to="/campagnes" size="lg" variant="outline" className="bg-ink/40 backdrop-blur" icon={<Megaphone size={16} />}>
+            Nos campagnes
+          </Button>
+        </div>
+      </SlideText>
+    </>
+  )
+}
+
+function CampaignSlide({ c, active }: { c: Campaign; active: boolean }) {
+  return (
+    <>
+      <div className="absolute left-0 right-0 top-0 h-[62%] overflow-hidden lg:bottom-0 lg:left-[22%] lg:h-full lg:[mask-image:linear-gradient(90deg,transparent,#000_35%)]">
+        <img src={c.photo} alt="" decoding="async" className={cx('h-full w-full object-cover', active && 'animate-kenburns')} />
+      </div>
+      <div className="absolute inset-0 opacity-40 mix-blend-color" style={{ background: `radial-gradient(80% 60% at 70% 30%, ${c.accent}, transparent 70%)` }} />
+      <div className="absolute inset-0 bg-gradient-to-t from-ink from-40% via-ink/60 via-55% to-transparent to-75% lg:bg-gradient-to-r lg:from-0% lg:via-50% lg:to-100% lg:from-ink lg:via-ink/70 lg:to-transparent" />
+      <SlideText active={active}>
+        <div className="reveal mb-4 flex flex-wrap items-center gap-2">
+          <span
+            className="inline-flex items-center gap-1.5 rounded-full border bg-ink/50 px-3 py-1 text-[11px] font-bold uppercase tracking-[0.18em] backdrop-blur"
+            style={{ borderColor: `${c.accent}99`, color: c.accent }}
+          >
+            <Megaphone size={12} /> {c.topic}
+          </span>
+        </div>
+        <h2 className="reveal font-display text-[46px] leading-[0.9] tracking-wide [animation-delay:.08s] lg:text-[64px] xl:text-[80px]">
+          {c.title}
+          <span className="mt-0.5 block pt-[0.14em] text-[30px] leading-[0.95] text-gold-shine lg:text-[40px] xl:text-[48px]">{c.slogan}</span>
+        </h2>
+        <p className="reveal mt-4 max-w-md text-[15px] leading-relaxed text-white/75 [animation-delay:.16s] lg:text-[17px]">{c.tagline}</p>
+        <div className="reveal mt-6 flex flex-col gap-3 [animation-delay:.24s] sm:flex-row">
+          <Button to={`/campagnes/${c.id}`} size="lg" iconRight={<ArrowRight size={16} />}>
+            Découvrir la campagne
+          </Button>
+          <Button to="/campagnes" size="lg" variant="outline" className="bg-ink/40 backdrop-blur">
+            Toutes nos campagnes
+          </Button>
+        </div>
+      </SlideText>
+    </>
+  )
+}
+
+function Hero() {
+  const count = 1 + FEATURED_CAMPAIGNS.length
+  const [i, setI] = useState(0)
+  const [paused, setPaused] = useState(false)
+  const touch = useRef<{ x: number; y: number } | null>(null)
+  const go = (n: number) => setI(((n % count) + count) % count)
+
+  useEffect(() => {
+    if (paused || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
+    const t = window.setTimeout(() => {
+      if (!document.hidden) setI((x) => (x + 1) % count)
+    }, HERO_DELAY)
+    return () => window.clearTimeout(t)
+  }, [i, paused, count])
+
+  return (
+    <section
+      aria-roledescription="carrousel"
+      aria-label="À la une"
+      className="group/hero relative -mx-4 -mt-4 overflow-hidden lg:mx-0 lg:mt-0 lg:rounded-[28px] lg:border lg:border-white/[0.07] lg:shadow-stage"
+      onMouseEnter={() => setPaused(true)}
+      onMouseLeave={() => setPaused(false)}
+      onFocusCapture={() => setPaused(true)}
+      onBlurCapture={() => setPaused(false)}
+      onTouchStart={(e) => (touch.current = { x: e.touches[0].clientX, y: e.touches[0].clientY })}
+      onTouchEnd={(e) => {
+        const s = touch.current
+        touch.current = null
+        if (!s) return
+        const dx = e.changedTouches[0].clientX - s.x
+        const dy = e.changedTouches[0].clientY - s.y
+        if (Math.abs(dx) > 45 && Math.abs(dx) > Math.abs(dy)) go(i + (dx < 0 ? 1 : -1))
+      }}
+    >
+      <h1 className="sr-only">MICRO D’OR : le Québec a du talent, MICRO D’OR lui donne une scène</h1>
       <div className="relative h-[680px] lg:h-[560px]">
-        <StageArt seed="hero" photo={PHOTOS.hero} palette="violet" pose="singer" animated className="absolute left-0 right-0 top-0 h-[62%] [&_img]:object-[60%_42%] lg:bottom-0 lg:left-[22%] lg:h-full lg:[&_img]:object-[62%_30%] lg:[mask-image:linear-gradient(90deg,transparent,#000_35%)]" />
+        <div className="flex h-full transition-transform duration-700 ease-[cubic-bezier(.65,0,.35,1)]" style={{ transform: `translateX(-${i * 100}%)` }}>
+          {Array.from({ length: count }, (_, n) => (
+            <div key={n} className="relative h-full w-full shrink-0" aria-hidden={n !== i} role="group" aria-roledescription="affiche" aria-label={`${n + 1} sur ${count}`}>
+              {n === 0 ? <TalentSlide active={i === 0} /> : <CampaignSlide c={FEATURED_CAMPAIGNS[n - 1]} active={i === n} />}
+            </div>
+          ))}
+        </div>
         {/* lumière balayante */}
         <div
           className="pointer-events-none absolute -top-20 left-1/2 h-[140%] w-40 origin-top animate-sweep opacity-40 mix-blend-screen"
           style={{ background: 'linear-gradient(180deg, rgba(244,215,140,.7), transparent 70%)', filter: 'blur(18px)' }}
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-ink from-40% via-ink/60 via-55% to-transparent to-75% lg:bg-gradient-to-r lg:from-0% lg:via-50% lg:to-100% lg:from-ink lg:via-ink/70 lg:to-transparent" />
-        <div className="absolute inset-x-0 bottom-0 p-5 pb-8 lg:inset-y-0 lg:right-auto lg:flex lg:w-[78%] lg:flex-col lg:justify-center lg:p-10 xl:w-[60%] xl:p-14">
-          <div className="mb-4 flex animate-fadeUp items-center gap-2">
-            <span className="inline-flex items-center gap-1.5 rounded-full border border-gold/40 bg-ink/50 px-3 py-1 text-[11px] font-bold uppercase tracking-[0.18em] text-goldlight backdrop-blur">
-              <Sparkles size={12} /> Saison 2026–2027
-            </span>
-          </div>
-          <h1 className="animate-fadeUp font-display text-[54px] leading-[0.9] tracking-wide [animation-delay:.08s] lg:text-[64px] xl:text-[84px]">
-            Le Québec a<br />du talent.
-            <br />
-            <span className="text-gold-shine">MICRO D’OR lui</span>
-            <br />
-            <span className="text-gold-shine">donne une scène.</span>
-          </h1>
-          <p className="mt-4 max-w-md animate-fadeUp text-[15px] leading-relaxed text-white/75 [animation-delay:.16s] lg:text-[17px]">
-            Chant, danse, théâtre, slam, rap conscience : découvre les talents des écoles secondaires du Québec.
-          </p>
-          <div className="mt-6 flex animate-fadeUp flex-col gap-3 [animation-delay:.24s] sm:flex-row">
-            <Button to="/spectacles" size="lg" iconRight={<Play size={16} className="fill-ink" />}>
-              Découvrir les spectacles
-            </Button>
-            <Button to="/talents" size="lg" variant="outline" className="bg-ink/40 backdrop-blur">
-              Explorer les talents
-            </Button>
-          </div>
+        <button
+          aria-label="Affiche précédente"
+          onClick={() => go(i - 1)}
+          className="absolute left-4 top-1/2 hidden h-11 w-11 -translate-y-1/2 place-items-center rounded-full border border-gold/40 bg-ink/70 text-goldlight opacity-0 backdrop-blur transition hover:bg-ink group-hover/hero:opacity-100 lg:grid"
+        >
+          <ChevronLeft size={22} />
+        </button>
+        <button
+          aria-label="Affiche suivante"
+          onClick={() => go(i + 1)}
+          className="absolute right-4 top-1/2 hidden h-11 w-11 -translate-y-1/2 place-items-center rounded-full border border-gold/40 bg-ink/70 text-goldlight opacity-0 backdrop-blur transition hover:bg-ink group-hover/hero:opacity-100 lg:grid"
+        >
+          <ChevronRight size={22} />
+        </button>
+        <div className="absolute bottom-5 left-5 flex gap-2 lg:left-10 xl:left-14">
+          {Array.from({ length: count }, (_, n) => (
+            <button
+              key={n}
+              aria-label={`Voir l’affiche ${n + 1}`}
+              aria-current={n === i}
+              onClick={() => go(n)}
+              className="group/dot relative h-6 py-2.5"
+            >
+              <span className={cx('block h-1 overflow-hidden rounded-full bg-white/25 transition-all duration-300', n === i ? 'w-10' : 'w-4 group-hover/dot:bg-white/45')}>
+                {n === i && (
+                  <span
+                    key={`${i}-${paused}`}
+                    className="block h-full rounded-full bg-gold-soft"
+                    style={{ animation: paused ? 'none' : `heroProgress ${HERO_DELAY}ms linear forwards`, width: paused ? '100%' : undefined }}
+                  />
+                )}
+              </span>
+            </button>
+          ))}
         </div>
       </div>
     </section>
