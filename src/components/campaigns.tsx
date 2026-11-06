@@ -6,7 +6,7 @@ import { cx } from './ui'
 
 /* ---------- Carrousel (défilement auto, glisser au doigt, pause au survol) ---------- */
 
-export const CAROUSEL_DELAY = 6500
+export const CAROUSEL_DELAY = 4000
 
 export function useCarousel(count: number, delay = CAROUSEL_DELAY) {
   const [i, setI] = useState(0)
