@@ -1,0 +1,98 @@
+@import '@fontsource/bebas-neue/400.css';
+@import '@fontsource/manrope/400.css';
+@import '@fontsource/manrope/500.css';
+@import '@fontsource/manrope/600.css';
+@import '@fontsource/manrope/700.css';
+@import '@fontsource/manrope/800.css';
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    color-scheme: dark;
+  }
+  html,
+  body,
+  #root {
+    min-height: 100%;
+  }
+  body {
+    @apply bg-ink text-white font-sans antialiased;
+    background-image: radial-gradient(1200px 600px at 80% -10%, rgba(104, 55, 181, 0.18), transparent 60%),
+      radial-gradient(900px 500px at -10% 10%, rgba(214, 172, 85, 0.07), transparent 60%);
+    background-attachment: fixed;
+  }
+  ::selection {
+    background: rgba(214, 172, 85, 0.4);
+  }
+  * {
+    -webkit-tap-highlight-color: transparent;
+  }
+}
+
+@layer components {
+  .text-gold-metal {
+    background: linear-gradient(180deg, #fbe7ad 0%, #f4d78c 30%, #d6ac55 55%, #9c7629 80%, #e9c877 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+  .text-gold-shine {
+    background: linear-gradient(110deg, #d6ac55 20%, #fff3c9 40%, #d6ac55 60%);
+    background-size: 200% 100%;
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    animation: shimmer 4s linear infinite;
+  }
+  .glass {
+    background: linear-gradient(180deg, rgba(22, 30, 54, 0.72), rgba(12, 15, 26, 0.72));
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+  }
+  .card {
+    @apply rounded-2xl border border-white/[0.07] bg-gradient-to-b from-night2/80 to-night/60 shadow-card;
+  }
+  .gold-border {
+    border: 1px solid transparent;
+    background: linear-gradient(#0d1120, #0d1120) padding-box,
+      linear-gradient(135deg, rgba(244, 215, 140, 0.8), rgba(156, 118, 41, 0.3), rgba(244, 215, 140, 0.7)) border-box;
+  }
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  .no-scrollbar {
+    scrollbar-width: none;
+  }
+  .eyebrow {
+    @apply text-[11px] font-bold uppercase tracking-[0.22em] text-gold;
+  }
+}
+
+/* Slim scrollbars on desktop */
+@media (min-width: 1024px) {
+  ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: rgba(214, 172, 85, 0.25);
+    border-radius: 999px;
+    border: 3px solid #08090e;
+  }
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

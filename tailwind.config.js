@@ -1,0 +1,68 @@
+/** @type {import('tailwindcss').Config} */
+export default {
+  content: ['./index.html', './src/**/*.{ts,tsx}'],
+  theme: {
+    extend: {
+      colors: {
+        ink: '#08090E',
+        night: '#10172B',
+        night2: '#161E36',
+        gold: '#D6AC55',
+        goldlight: '#F4D78C',
+        golddeep: '#9C7629',
+        stage: '#6837B5',
+        stagelight: '#9B6BE8',
+        live: '#E5384F',
+      },
+      fontFamily: {
+        display: ['"Bebas Neue"', 'Impact', 'sans-serif'],
+        sans: ['Manrope', 'system-ui', 'sans-serif'],
+      },
+      backgroundImage: {
+        'gold-metal': 'linear-gradient(135deg,#F4D78C 0%,#D6AC55 38%,#9C7629 62%,#F4D78C 100%)',
+        'gold-soft': 'linear-gradient(180deg,#F4D78C 0%,#D6AC55 100%)',
+      },
+      boxShadow: {
+        gold: '0 0 0 1px rgba(214,172,85,.35), 0 10px 40px -10px rgba(214,172,85,.45)',
+        stage: '0 20px 60px -20px rgba(104,55,181,.6)',
+        card: '0 12px 40px -12px rgba(0,0,0,.7)',
+      },
+      keyframes: {
+        sweep: { '0%,100%': { transform: 'rotate(-14deg)' }, '50%': { transform: 'rotate(14deg)' } },
+        sweep2: { '0%,100%': { transform: 'rotate(12deg)' }, '50%': { transform: 'rotate(-10deg)' } },
+        shimmer: { '0%': { backgroundPosition: '-200% 0' }, '100%': { backgroundPosition: '200% 0' } },
+        floaty: { '0%,100%': { transform: 'translateY(0)' }, '50%': { transform: 'translateY(-6px)' } },
+        fadeUp: { '0%': { opacity: 0, transform: 'translateY(14px)' }, '100%': { opacity: 1, transform: 'translateY(0)' } },
+        fadeIn: { '0%': { opacity: 0 }, '100%': { opacity: 1 } },
+        pulseLive: { '0%,100%': { opacity: 1 }, '50%': { opacity: 0.35 } },
+        eq: { '0%,100%': { transform: 'scaleY(.25)' }, '50%': { transform: 'scaleY(1)' } },
+        burst: { '0%': { transform: 'scale(.4)', opacity: 0 }, '30%': { opacity: 1 }, '100%': { transform: 'scale(1.6)', opacity: 0 } },
+        particle: {
+          '0%': { transform: 'translate(0,0) scale(1)', opacity: 1 },
+          '100%': { transform: 'translate(var(--dx),var(--dy)) scale(.2)', opacity: 0 },
+        },
+        slideUp: { '0%': { transform: 'translateY(100%)' }, '100%': { transform: 'translateY(0)' } },
+        rise: { '0%': { transform: 'translateY(0) scale(.8)', opacity: 0 }, '15%': { opacity: 1 }, '100%': { transform: 'translateY(-140px) scale(1.2)', opacity: 0 } },
+        kenburns: { '0%': { transform: 'scale(1.02) translate(0,0)' }, '100%': { transform: 'scale(1.14) translate(-1.5%,-1%)' } },
+        haze: { '0%,100%': { opacity: 0.35, transform: 'translateX(-4%)' }, '50%': { opacity: 0.6, transform: 'translateX(4%)' } },
+      },
+      animation: {
+        sweep: 'sweep 7s ease-in-out infinite',
+        sweep2: 'sweep2 8s ease-in-out infinite',
+        shimmer: 'shimmer 3.5s linear infinite',
+        floaty: 'floaty 5s ease-in-out infinite',
+        fadeUp: 'fadeUp .6s cubic-bezier(.2,.8,.2,1) both',
+        fadeIn: 'fadeIn .5s ease both',
+        pulseLive: 'pulseLive 1.4s ease-in-out infinite',
+        eq: 'eq 1s ease-in-out infinite',
+        burst: 'burst .9s ease-out forwards',
+        particle: 'particle 1s cubic-bezier(.1,.7,.3,1) forwards',
+        slideUp: 'slideUp .35s cubic-bezier(.2,.8,.2,1) both',
+        haze: 'haze 9s ease-in-out infinite',
+        rise: 'rise 1.6s ease-out forwards',
+        kenburns: 'kenburns 18s ease-in-out infinite alternate',
+      },
+    },
+  },
+  plugins: [],
+}
