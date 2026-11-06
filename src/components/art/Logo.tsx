@@ -28,9 +28,10 @@ export function MicEmblem({ className = '', glow = true, large = false }: { clas
 }
 
 export function Wordmark({ className = '' }: { className?: string }) {
+  // pr : marge pour que le « R » penché (italique) reste entièrement doré et ne soit pas coupé
   return (
     <span
-      className={`font-display leading-none tracking-[0.04em] text-gold-metal ${className}`}
+      className={`inline-block whitespace-nowrap pr-[0.14em] font-display leading-none tracking-[0.04em] text-gold-metal ${className}`}
       style={{ filter: 'drop-shadow(0 2px 10px rgba(214,172,85,.35))' }}
     >
       MICRO D’OR
@@ -42,8 +43,8 @@ export function Wordmark({ className = '' }: { className?: string }) {
 export function LogoInline({ className = '' }: { className?: string }) {
   return (
     <span className={`inline-flex items-center gap-1.5 ${className}`}>
-      <MicEmblem className="-my-1 h-10 w-7" glow={false} />
-      <Wordmark className="text-[26px] italic" />
+      <MicEmblem className="-my-1 h-9 w-6" glow={false} />
+      <Wordmark className="text-[23px] italic" />
     </span>
   )
 }

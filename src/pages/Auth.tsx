@@ -559,8 +559,8 @@ export default function Auth() {
           <img src={PHOTOS.hero} alt="" className="absolute inset-0 h-full w-full object-cover object-[60%_30%]" />
           <div className="absolute inset-0 bg-gradient-to-t from-ink via-ink/50 to-ink/20" />
           <div className="absolute inset-x-0 bottom-0 p-10">
-            <MicEmblem className="h-28 w-20" large />
-            <Wordmark className="mt-2 block text-[56px] italic" />
+            <MicEmblem className="h-24 w-16" large />
+            <Wordmark className="mt-2 block w-fit text-[48px] italic" />
             <p className="mt-2 max-w-sm text-[16px] text-white/75">Un seul compte pour suivre les spectacles, soutenir les talents et préparer ta prestation.</p>
             <ul className="mt-5 space-y-2 text-[13.5px] text-white/70">
               {['Élèves : répétitions, musiques et performances', 'Parents : spectacles, invitations et autorisations', 'Organisations : écoles, partenaires et médias', 'Organisateurs : musiques, boutique et événements'].map((t) => (
@@ -576,8 +576,8 @@ export default function Auth() {
         <div className="flex flex-col justify-center bg-ink/60 px-4 py-6 sm:px-10 lg:px-14 lg:py-10">
           <div className="mx-auto w-full max-w-md">
             <div className="mb-6 flex items-center gap-3 lg:hidden">
-              <MicEmblem className="h-14 w-10" />
-              <Wordmark className="text-[34px] italic" />
+              <MicEmblem className="h-12 w-8 shrink-0" />
+              <Wordmark className="text-[28px] italic" />
             </div>
             <h1 className="font-display text-[44px] leading-none tracking-wide">{mode === 'login' ? 'Bon retour !' : 'Créer un compte'}</h1>
             <p className="mt-2 text-[14px] text-white/55">{mode === 'login' ? 'Connecte-toi pour accéder à ton espace.' : 'Rejoins la scène MICRO D’OR en trois étapes.'}</p>

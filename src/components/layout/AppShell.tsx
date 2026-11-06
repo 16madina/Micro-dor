@@ -118,8 +118,8 @@ function Sidebar() {
   return (
     <aside className="fixed inset-y-0 left-0 z-40 hidden w-[260px] flex-col border-r border-white/[0.06] bg-ink/90 backdrop-blur-xl lg:flex">
       <Link to="/" className="flex flex-col items-center px-6 pb-4 pt-7">
-        <MicEmblem className="h-28 w-24" large />
-        <Wordmark className="mt-1 text-[38px] italic" />
+        <MicEmblem className="h-24 w-20" large />
+        <Wordmark className="mt-1 text-[34px] italic" />
         <span className="mt-1 text-[11px] font-semibold tracking-wide text-white/50">La scène des talents de demain</span>
       </Link>
       <nav className="no-scrollbar flex-1 space-y-0.5 overflow-y-auto px-3 pb-4">
@@ -196,8 +196,8 @@ function MobileHeader() {
             </IconButton>
           )}
           <Link to="/" aria-label="Accueil MICRO D’OR" className={cx('flex min-w-0 items-center gap-1', isRoot && 'pl-2.5')}>
-            <MicEmblem className="-my-1 h-10 w-7 shrink-0" glow={false} />
-            <Wordmark className={cx('truncate text-[23px] italic max-[359px]:text-[19px]', !isRoot && 'max-[389px]:hidden')} />
+            <MicEmblem className="-my-1 h-8 w-6 shrink-0" glow={false} />
+            <Wordmark className={cx('text-[20px] italic max-[359px]:text-[17px]', !isRoot && 'max-[389px]:hidden')} />
           </Link>
         </div>
         <div className="relative flex shrink-0 items-center">
@@ -284,8 +284,8 @@ function MoreMenu() {
       <aside className="absolute inset-y-0 right-0 flex w-[86%] max-w-[360px] animate-slideInRight flex-col overflow-y-auto overscroll-contain border-l border-gold/20 bg-ink pb-[max(16px,env(safe-area-inset-bottom))] pl-4 pr-[max(16px,env(safe-area-inset-right))] pt-[max(12px,env(safe-area-inset-top))] shadow-[-20px_0_60px_rgba(0,0,0,.6)]">
         <div className="mb-4 flex h-12 items-center justify-between">
           <span className="flex items-center gap-1">
-            <MicEmblem className="h-10 w-7" glow={false} />
-            <Wordmark className="text-[22px] italic" />
+            <MicEmblem className="h-9 w-6" glow={false} />
+            <Wordmark className="text-[20px] italic" />
           </span>
           <IconButton label="Fermer le menu" onClick={close}>
             <X size={22} />
