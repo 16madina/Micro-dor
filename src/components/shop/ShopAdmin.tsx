@@ -50,9 +50,9 @@ function Row({ p }: { p: Product }) {
           disabled={!dirty || !valid}
           icon={<Save size={14} />}
           className="disabled:opacity-40"
-          onClick={() => {
-            updateProduct(p.id, { price: toPrice(price), description: desc.trim() })
-            toast(`« ${p.name} » mis à jour`)
+          onClick={async () => {
+            const ok = await updateProduct(p.id, { price: toPrice(price), description: desc.trim() })
+            toast(ok ? `« ${p.name} » mis à jour` : 'Enregistrement refusé : vérifie que tu es connecté comme organisateur.', ok ? 'gold' : 'info')
           }}
         >
           Enregistrer
@@ -63,9 +63,9 @@ function Row({ p }: { p: Product }) {
               size="sm"
               variant="outline"
               className="!border-[#ff8a9a] !text-[#ffb3bf]"
-              onClick={() => {
-                removeProduct(p.id)
-                toast(`« ${p.name} » retiré de la boutique`, 'info')
+              onClick={async () => {
+                const ok = await removeProduct(p.id)
+                toast(ok ? `« ${p.name} » retiré de la boutique` : 'Suppression refusée : vérifie que tu es connecté comme organisateur.', 'info')
               }}
             >
               Confirmer
@@ -90,12 +90,12 @@ export default function ShopAdmin() {
   const [f, setF] = useState({ name: '', price: '', kind: 'tshirt' as Product['kind'], description: '', sizes: false, badge: '' })
   const [err, setErr] = useState<string | null>(null)
 
-  const submit = (e: FormEvent) => {
+  const submit = async (e: FormEvent) => {
     e.preventDefault()
     const price = toPrice(f.price)
     if (!f.name.trim()) return setErr('Donne un nom au produit.')
     if (Number.isNaN(price) || price < 0) return setErr('Entre un prix valide, par exemple 19,99.')
-    addProduct({
+    const ok = await addProduct({
       id: 'p' + Date.now(),
       name: f.name.trim(),
       price,
@@ -104,6 +104,7 @@ export default function ShopAdmin() {
       sizes: f.sizes ? ['S', 'M', 'L', 'XL'] : undefined,
       badge: f.badge.trim() || 'Nouveau',
     })
+    if (!ok) return setErr('Ajout refusé : vérifie que tu es connecté comme organisateur, puis réessaie.')
     toast(`« ${f.name.trim()} » ajouté à la boutique (${fmtPrice(price)})`)
     setF({ name: '', price: '', kind: 'tshirt', description: '', sizes: false, badge: '' })
     setErr(null)
@@ -114,8 +115,9 @@ export default function ShopAdmin() {
       <div className="flex items-start gap-3 rounded-2xl border border-gold/30 bg-gold/[0.06] p-4 text-[13px] leading-relaxed text-white/70">
         <KeyRound size={18} className="mt-0.5 shrink-0 text-gold" />
         <span>
-          <b className="text-goldlight">Espace organisateur — {user?.firstName}.</b> Les changements s’appliquent tout de suite à la boutique de cette session. Dans l’application
-          réelle, ils seraient enregistrés sur le serveur et visibles par tous.
+          <b className="text-goldlight">Espace organisateur — {user?.firstName}.</b> {user?.demo
+            ? 'Compte de démonstration : les changements restent dans cette fenêtre.'
+            : 'Les changements sont enregistrés en ligne et visibles par tous les visiteurs de la boutique.'}
         </span>
       </div>
 

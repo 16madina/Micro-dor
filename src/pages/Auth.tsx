@@ -2,7 +2,7 @@ import { useMemo, useState, type FormEvent, type ReactNode } from 'react'
 import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 import { ArrowLeft, ArrowRight, Building2, CheckCircle2, Eye, EyeOff, GraduationCap, KeyRound, Lock, ShieldCheck, Users } from 'lucide-react'
 import { CATEGORY_LABEL, PHOTOS, REGIONS, SCHOOLS, type Category } from '../data'
-import { ROLE_LABEL, isOrganizerCode, useApp, type Role } from '../state/AppState'
+import { ROLE_LABEL, useApp, type Role } from '../state/AppState'
 import { MicEmblem, Wordmark } from '../components/art/Logo'
 import { Button, cx } from '../components/ui'
 
@@ -72,7 +72,7 @@ const ageFrom = (iso: string) => {
 
 /* ------------------------------------------------------------------ connexion */
 function LoginForm({ onDone, toSignup }: { onDone: () => void; toSignup: () => void }) {
-  const { login, demoLogin, toast } = useApp()
+  const { login, demoLogin, resetPassword, toast } = useApp()
   const [email, setEmail] = useState('')
   const [pw, setPw] = useState('')
   const [err, setErr] = useState<string | null>(null)
@@ -86,8 +86,9 @@ function LoginForm({ onDone, toSignup }: { onDone: () => void; toSignup: () => v
     setBusy(true)
     const r = await login(email, pw)
     setBusy(false)
-    if (r === 'unknown') return setErr('Aucun compte n’existe avec ce courriel. Tu peux en créer un.')
-    if (r === 'wrong') return setErr('Mot de passe incorrect. Réessaie ou utilise « Mot de passe oublié ».')
+    if (r === 'invalid') return setErr('Courriel ou mot de passe incorrect. Vérifie-les, ou crée un compte si tu n’en as pas encore.')
+    if (r === 'tooMany') return setErr('Trop de tentatives. Patiente quelques minutes ou réinitialise ton mot de passe.')
+    if (r === 'error') return setErr('Connexion impossible pour le moment. Vérifie ta connexion Internet et réessaie.')
     toast('Connexion réussie')
     onDone()
   }
@@ -113,11 +114,21 @@ function LoginForm({ onDone, toSignup }: { onDone: () => void; toSignup: () => v
         {forgot !== 'closed' && (
           <div className="rounded-xl border border-white/10 bg-white/[0.03] p-3 text-[13px] text-white/70">
             {forgot === 'sent' ? (
-              <span>Si un compte existe pour ce courriel, un lien de réinitialisation sera envoyé. (Simulation : aucun courriel n’est envoyé.)</span>
+              <span>Si un compte existe pour ce courriel, tu vas recevoir un lien pour choisir un nouveau mot de passe. Pense à vérifier tes courriels indésirables.</span>
             ) : (
               <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
                 <span className="flex-1">Nous t’enverrons un lien pour choisir un nouveau mot de passe.</span>
-                <Button type="button" size="sm" variant="outline" onClick={() => (EMAIL_RE.test(email) ? setForgot('sent') : setErr('Entre d’abord ton courriel ci-dessus.'))}>
+                <Button
+                  type="button"
+                  size="sm"
+                  variant="outline"
+                  onClick={async () => {
+                    if (!EMAIL_RE.test(email)) return setErr('Entre d’abord ton courriel ci-dessus.')
+                    setErr(null)
+                    if (await resetPassword(email)) setForgot('sent')
+                    else setErr('Envoi impossible pour le moment. Réessaie dans quelques instants.')
+                  }}
+                >
                   Envoyer le lien
                 </Button>
               </div>
@@ -132,7 +143,7 @@ function LoginForm({ onDone, toSignup }: { onDone: () => void; toSignup: () => v
       <div className="mt-7">
         <div className="mb-3 flex items-center gap-3 text-[11px] font-bold uppercase tracking-[0.18em] text-white/35">
           <span className="h-px flex-1 bg-white/10" />
-          Comptes de démonstration
+          Comptes de démonstration (hors ligne)
           <span className="h-px flex-1 bg-white/10" />
         </div>
         <div className="grid grid-cols-2 gap-2">
@@ -191,7 +202,6 @@ function SignupFlow({ toLogin, onDone }: { toLogin: () => void; onDone: (role: R
     }
     if (role === 'organisateur') {
       if (!f.code?.trim()) e.code = 'Entre le code organisateur fourni par l’équipe.'
-      else if (!isOrganizerCode(f.code)) e.code = 'Code organisateur invalide.'
       if (!f.equipe) e.equipe = 'Choisis ton équipe.'
     }
     if (role === 'organisation') {
@@ -217,9 +227,16 @@ function SignupFlow({ toLogin, onDone }: { toLogin: () => void; onDone: (role: R
     const details: Form = {}
     for (const k of ['naissance', 'ecole', 'niveau', 'parentEmail', 'lien', 'enfant', 'telephone', 'type', 'organisation', 'fonction', 'ville', 'region', 'equipe']) if (f[k]) details[k] = f[k]
     if (disc.length) details.disciplines = disc.map((d) => CATEGORY_LABEL[d]).join(', ')
-    const r = await register({ role, firstName: f.prenom.trim(), lastName: f.nom.trim(), email: f.email, details }, f.pw)
+    if (needsParent) details.consentementParental = 'en_attente'
+    const r = await register({ role, firstName: f.prenom.trim(), lastName: f.nom.trim(), email: f.email, details }, f.pw, f.code)
     setBusy(false)
     if (r === 'exists') return setErrors({ email: 'Un compte existe déjà avec ce courriel. Connecte-toi plutôt.' })
+    if (r === 'weak') return setErrors({ pw: 'Mot de passe trop faible. Choisis-en un plus long.' })
+    if (r === 'badcode') {
+      setStep(2)
+      return setErrors({ code: 'Code organisateur invalide.' })
+    }
+    if (r === 'error') return setErrors({ form: 'Création du compte impossible pour le moment. Vérifie ta connexion Internet et réessaie.' })
     setStep(4)
   }
 
@@ -232,7 +249,7 @@ function SignupFlow({ toLogin, onDone }: { toLogin: () => void; onDone: (role: R
         <h2 className="mt-4 font-display text-[40px] leading-none tracking-wide">Bienvenue, {f.prenom} !</h2>
         <p className="mx-auto mt-2 max-w-sm text-[14px] text-white/65">
           Ton compte {ROLE_LABEL[role].toLowerCase()} est créé.
-          {needsParent && ' Un courriel de confirmation serait envoyé à ton parent ou tuteur pour approuver ton inscription.'}
+          {needsParent && ' Ton inscription reste en attente de la confirmation de ton parent ou tuteur.'}
         </p>
         <div className="mt-6 flex flex-col gap-2 sm:flex-row sm:justify-center">
           <Button size="lg" onClick={() => onDone(role)} iconRight={<ArrowRight size={16} />}>
@@ -510,6 +527,7 @@ function SignupFlow({ toLogin, onDone }: { toLogin: () => void; onDone: (role: R
               </span>
             </label>
             {errors.cgu && <p className="-mt-2 text-[12px] font-semibold text-[#ff8a9a]">{errors.cgu}</p>}
+            {errors.form && <p className="rounded-xl border border-[#ff8a9a]/30 bg-[#ff8a9a]/10 px-3 py-2 text-[13px] font-semibold text-[#ffb3bf]">{errors.form}</p>}
           </div>
           <div className="mt-6 flex gap-2">
             <Button type="button" variant="dark" size="lg" icon={<ArrowLeft size={16} />} onClick={() => setStep(2)}>
@@ -585,8 +603,8 @@ export default function Auth() {
 
             <p className="mt-8 flex items-start gap-2 rounded-xl border border-white/[0.07] bg-white/[0.02] p-3 text-[11.5px] leading-relaxed text-white/45">
               <Lock size={14} className="mt-0.5 shrink-0 text-gold/70" />
-              Prototype : les informations restent dans cette fenêtre et sont effacées au rechargement. Rien n’est envoyé à un serveur et le mot de passe n’est jamais
-              conservé en clair.
+              Comptes sécurisés par Firebase (Google) ; les profils sont hébergés à Montréal. Le mot de passe n’est jamais visible par l’équipe MICRO D’OR. Les
+              comptes de démonstration restent hors ligne.
             </p>
           </div>
         </div>

@@ -2,7 +2,7 @@
 
 Prototype visuel interactif de MICRO D’OR, une plateforme qui met en scène les talents des écoles secondaires du Québec (chant, danse, théâtre, slam, rap conscience) et porte un volet de prévention de la criminalité et du décrochage scolaire.
 
-> **Prototype de démonstration.** Les écoles, les talents, les spectacles, les dates, les votes et les partenaires sont fictifs. Il n’y a ni paiement réel, ni diffusion réelle, ni serveur : les comptes, les votes et les ajouts restent dans la fenêtre du navigateur et s’effacent au rechargement.
+> **Prototype de démonstration.** Les écoles, les talents, les spectacles, les dates et les partenaires sont fictifs. Les comptes et la boutique sont réels (Firebase) ; les votes, le panier et les musiques téléversées sont encore simulés dans le navigateur. Aucun paiement réel.
 
 ## Lancer le projet
 
@@ -20,6 +20,20 @@ Pour produire la version de mise en ligne (dossier `dist/`) :
 ```bash
 npm run build
 ```
+
+## Mise en ligne (Firebase)
+
+Le site est hébergé sur Firebase Hosting : **https://microdor-d7851.web.app**
+
+```bash
+npm run deploy
+```
+
+Cette commande compile l’application puis publie le site et les règles de sécurité (`firestore.rules`) sur le projet Firebase `microdor-d7851`. Il faut être connecté une fois avec `npx firebase-tools login`.
+
+- Comptes : Firebase Authentication (courriel + mot de passe).
+- Profils et boutique : Cloud Firestore, hébergé à Montréal (`northamerica-northeast1`).
+- Le code organisateur est vérifié par `firestore.rules`, jamais dans l’application.
 
 ## Ce que contient le prototype
 
@@ -45,5 +59,4 @@ React 19, TypeScript, Tailwind CSS 3, Vite, React Router (HashRouter), lucide-re
 ## Crédits et limites
 
 - Photos d’illustration : [Unsplash](https://unsplash.com) (licence Unsplash). Les personnes photographiées n’ont aucun lien avec les profils fictifs. Pour une version publique, prévoir des photos avec autorisation des modèles ou des photos de participants autorisés par leurs parents.
-- Le code organisateur est vérifié dans le navigateur : en production, il devra être vérifié par un serveur.
 - Avant toute collecte réelle de données d’élèves, respecter la Loi 25 (consentement parental avant 14 ans).

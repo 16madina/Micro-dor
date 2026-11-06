@@ -1,6 +1,16 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
+import {
+  createUserWithEmailAndPassword,
+  deleteUser,
+  onAuthStateChanged,
+  sendPasswordResetEmail,
+  signInWithEmailAndPassword,
+  signOut,
+} from 'firebase/auth'
+import { arrayRemove, arrayUnion, collection, deleteDoc, doc, getDoc, onSnapshot, serverTimestamp, setDoc, updateDoc, writeBatch } from 'firebase/firestore'
 import { PRODUCTS, TALENTS, type Product } from '../data'
 import type { MusicTrack } from '../data/music'
+import { auth, db } from '../lib/firebase'
 
 export interface CartItem {
   key: string
@@ -20,13 +30,16 @@ export interface Account {
   /** champs propres au profil (école, niveau, organisation…) */
   details: Record<string, string>
   createdAt: string
+  /** compte de démonstration hors ligne (pas de Firebase) */
+  demo?: boolean
 }
+
+export type RegisterResult = 'ok' | 'exists' | 'badcode' | 'weak' | 'error'
+export type LoginResult = 'ok' | 'invalid' | 'tooMany' | 'error'
 
 export const ROLE_LABEL: Record<Role, string> = { eleve: 'Élève', parent: 'Parent / tuteur', organisation: 'Organisation', organisateur: 'Organisateur' }
 
-/** Code d’accès des organisateurs (prototype : vérifié dans le navigateur ; à vérifier côté serveur en production) */
-export const ORGANIZER_CODE = 'MICRO'
-export const isOrganizerCode = (c: string) => c.trim().toUpperCase() === ORGANIZER_CODE
+/* Le code organisateur n’est PAS dans l’application : il est vérifié par les règles Firestore (firestore.rules). */
 
 export const DEMO_ACCOUNTS: Record<Role, Account> = {
   eleve: {
@@ -65,15 +78,6 @@ export const DEMO_ACCOUNTS: Record<Role, Account> = {
     details: { equipe: 'Coordination de la tournée' },
     createdAt: '2026-08-15',
   },
-}
-
-async function hash(pw: string) {
-  try {
-    const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode('microdor:' + pw))
-    return Array.from(new Uint8Array(buf), (b) => b.toString(16).padStart(2, '0')).join('')
-  } catch {
-    return 'x' + pw.length
-  }
 }
 
 interface Toast {
@@ -115,19 +119,24 @@ interface AppState {
   toggleTrack: (id: string) => void
   uploads: MusicTrack[]
   addUpload: (t: MusicTrack) => void
-  // compte (démonstration, en mémoire uniquement)
+  // compte (Firebase Authentication + profil Firestore ; comptes démo hors ligne)
   user: Account | null
-  register: (a: Omit<Account, 'id' | 'createdAt'>, password: string) => Promise<'ok' | 'exists'>
-  login: (email: string, password: string) => Promise<'ok' | 'unknown' | 'wrong'>
+  authReady: boolean
+  register: (a: Omit<Account, 'id' | 'createdAt' | 'demo'>, password: string, orgCode?: string) => Promise<RegisterResult>
+  login: (email: string, password: string) => Promise<LoginResult>
+  resetPassword: (email: string) => Promise<boolean>
   demoLogin: (role: Role) => void
   logout: () => void
   isOrganizer: boolean
-  // boutique modifiable par les organisateurs
+  // boutique (Firestore, modifiable par les organisateurs)
   products: Product[]
-  addProduct: (p: Product) => void
-  updateProduct: (id: string, patch: Partial<Product>) => void
-  removeProduct: (id: string) => void
+  addProduct: (p: Product) => Promise<boolean>
+  updateProduct: (id: string, patch: Partial<Product>) => Promise<boolean>
+  removeProduct: (id: string) => Promise<boolean>
 }
+
+const clean = <T,>(o: T) => JSON.parse(JSON.stringify(o)) as T
+const errCode = (e: unknown) => (e as { code?: string })?.code ?? ''
 
 const Ctx = createContext<AppState | null>(null)
 
@@ -145,8 +154,10 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const [myTracks, setMyTracks] = useState<string[]>([])
   const [uploads, setUploads] = useState<MusicTrack[]>([])
   const [user, setUser] = useState<Account | null>(null)
-  const [products, setProducts] = useState<Product[]>(PRODUCTS)
-  const accounts = useRef(new Map<string, { account: Account; pw: string }>())
+  const [authReady, setAuthReady] = useState(false)
+  const [liveProducts, setLiveProducts] = useState<Product[] | null>(null)
+  const [demoProducts, setDemoProducts] = useState<Product[]>(PRODUCTS)
+  const registering = useRef(false)
   const tid = useRef(0)
 
   const toast = useCallback((message: string, tone: Toast['tone'] = 'gold') => {
@@ -154,6 +165,55 @@ export function AppProvider({ children }: { children: ReactNode }) {
     setToasts((t) => [...t, { id, message, tone }])
     setTimeout(() => setToasts((t) => t.filter((x) => x.id !== id)), 2800)
   }, [])
+
+  // Session Firebase : restaure le compte et son profil au chargement
+  useEffect(
+    () =>
+      onAuthStateChanged(auth, async (fb) => {
+        if (!fb) {
+          setUser((u) => (u?.demo ? u : null))
+          setAuthReady(true)
+          return
+        }
+        if (registering.current) return
+        try {
+          const snap = await getDoc(doc(db, 'users', fb.uid))
+          if (snap.exists()) {
+            const d = snap.data()
+            setUser({
+              id: fb.uid,
+              role: d.role,
+              firstName: d.firstName,
+              lastName: d.lastName,
+              email: d.email,
+              details: d.details ?? {},
+              createdAt: d.createdAt?.toDate?.().toISOString().slice(0, 10) ?? '',
+            })
+            setMyTracks(d.musiques ?? [])
+          }
+        } catch {
+          /* hors ligne : on garde l’état actuel */
+        }
+        setAuthReady(true)
+      }),
+    [],
+  )
+
+  // Boutique partagée (lecture publique)
+  useEffect(
+    () =>
+      onSnapshot(
+        collection(db, 'produits'),
+        (snap) =>
+          setLiveProducts(
+            snap.docs
+              .map((d) => ({ ...(d.data() as Product & { ordre?: number }), id: d.id }))
+              .sort((a, b) => ((a as { ordre?: number }).ordre ?? 0) - ((b as { ordre?: number }).ordre ?? 0)),
+          ),
+        () => setLiveProducts(null),
+      ),
+    [],
+  )
 
   // Démo : les autres compteurs bougent doucement pour donner vie au classement
   useEffect(() => {
@@ -163,6 +223,14 @@ export function AppProvider({ children }: { children: ReactNode }) {
     }, 4500)
     return () => clearInterval(t)
   }, [])
+
+  /** La première modification d’un organisateur copie le catalogue de départ dans Firestore */
+  const seed = async () => {
+    if (liveProducts && liveProducts.length) return
+    const batch = writeBatch(db)
+    PRODUCTS.forEach((p, i) => batch.set(doc(db, 'produits', p.id), clean({ ...p, ordre: i })))
+    await batch.commit()
+  }
 
   const value = useMemo<AppState>(
     () => ({
@@ -195,43 +263,119 @@ export function AppProvider({ children }: { children: ReactNode }) {
       menuOpen,
       setMenuOpen,
       myTracks,
-      toggleTrack: (id) => setMyTracks((m) => (m.includes(id) ? m.filter((x) => x !== id) : [...m, id])),
+      toggleTrack: (id) => {
+        const had = myTracks.includes(id)
+        setMyTracks((m) => (had ? m.filter((x) => x !== id) : [...m, id]))
+        if (user && !user.demo) updateDoc(doc(db, 'users', user.id), { musiques: had ? arrayRemove(id) : arrayUnion(id) }).catch(() => {})
+      },
       uploads,
       addUpload: (t) => setUploads((u) => [t, ...u]),
       user,
-      register: async (a, password) => {
-        const key = a.email.trim().toLowerCase()
-        if (accounts.current.has(key) || Object.values(DEMO_ACCOUNTS).some((d) => d.email === key)) return 'exists'
-        const account: Account = { ...a, email: key, id: 'u' + Date.now(), createdAt: new Date().toISOString().slice(0, 10) }
-        accounts.current.set(key, { account, pw: await hash(password) })
-        setUser(account)
-        return 'ok'
+      authReady,
+      register: async (a, password, orgCode) => {
+        registering.current = true
+        try {
+          const cred = await createUserWithEmailAndPassword(auth, a.email.trim(), password)
+          const profile = {
+            role: a.role,
+            firstName: a.firstName,
+            lastName: a.lastName,
+            email: cred.user.email,
+            details: a.details,
+            musiques: [],
+            createdAt: serverTimestamp(),
+            ...(a.role === 'organisateur' ? { orgCode: (orgCode ?? '').trim().toUpperCase() } : {}),
+          }
+          try {
+            await setDoc(doc(db, 'users', cred.user.uid), profile)
+          } catch (e) {
+            await deleteUser(cred.user).catch(() => {})
+            return errCode(e) === 'permission-denied' && a.role === 'organisateur' ? 'badcode' : 'error'
+          }
+          setUser({ ...a, email: cred.user.email ?? a.email, id: cred.user.uid, createdAt: new Date().toISOString().slice(0, 10) })
+          setMyTracks([])
+          return 'ok'
+        } catch (e) {
+          const c = errCode(e)
+          return c === 'auth/email-already-in-use' ? 'exists' : c === 'auth/weak-password' ? 'weak' : 'error'
+        } finally {
+          registering.current = false
+          setAuthReady(true)
+        }
       },
       login: async (email, password) => {
-        const key = email.trim().toLowerCase()
-        const demo = Object.values(DEMO_ACCOUNTS).find((d) => d.email === key)
-        if (demo) {
-          setUser(demo)
+        try {
+          await signInWithEmailAndPassword(auth, email.trim(), password)
           return 'ok'
+        } catch (e) {
+          const c = errCode(e)
+          if (c === 'auth/invalid-credential' || c === 'auth/wrong-password' || c === 'auth/user-not-found' || c === 'auth/invalid-email') return 'invalid'
+          if (c === 'auth/too-many-requests') return 'tooMany'
+          return 'error'
         }
-        const rec = accounts.current.get(key)
-        if (!rec) return 'unknown'
-        if (rec.pw !== (await hash(password))) return 'wrong'
-        setUser(rec.account)
-        return 'ok'
       },
-      demoLogin: (role) => setUser(DEMO_ACCOUNTS[role]),
-      logout: () => setUser(null),
+      resetPassword: async (email) => {
+        try {
+          await sendPasswordResetEmail(auth, email.trim())
+          return true
+        } catch (e) {
+          // pour ne pas révéler quels courriels ont un compte, on ne signale que les erreurs techniques
+          return errCode(e) === 'auth/user-not-found' || errCode(e) === 'auth/invalid-email'
+        }
+      },
+      demoLogin: (role) => {
+        if (auth.currentUser) void signOut(auth)
+        setUser({ ...DEMO_ACCOUNTS[role], demo: true })
+      },
+      logout: () => {
+        if (user?.demo) setUser(null)
+        else void signOut(auth).then(() => setUser(null))
+        setMyTracks([])
+      },
       isOrganizer: user?.role === 'organisateur',
-      products,
-      addProduct: (p) => setProducts((x) => [...x, p]),
-      updateProduct: (id, patch) => setProducts((x) => x.map((p) => (p.id === id ? { ...p, ...patch } : p))),
-      removeProduct: (id) => {
-        setProducts((x) => x.filter((p) => p.id !== id))
+      products: user?.demo ? demoProducts : liveProducts && liveProducts.length ? liveProducts : PRODUCTS,
+      addProduct: async (p) => {
+        if (user?.demo) {
+          setDemoProducts((x) => [...x, p])
+          return true
+        }
+        try {
+          await seed()
+          await setDoc(doc(db, 'produits', p.id), clean({ ...p, ordre: Date.now() }))
+          return true
+        } catch {
+          return false
+        }
+      },
+      updateProduct: async (id, patch) => {
+        if (user?.demo) {
+          setDemoProducts((x) => x.map((p) => (p.id === id ? { ...p, ...patch } : p)))
+          return true
+        }
+        try {
+          await seed()
+          await updateDoc(doc(db, 'produits', id), clean(patch))
+          return true
+        } catch {
+          return false
+        }
+      },
+      removeProduct: async (id) => {
         setCart((c) => c.filter((i) => i.productId !== id))
+        if (user?.demo) {
+          setDemoProducts((x) => x.filter((p) => p.id !== id))
+          return true
+        }
+        try {
+          await seed()
+          await deleteDoc(doc(db, 'produits', id))
+          return true
+        } catch {
+          return false
+        }
       },
     }),
-    [extra, cart, cartOpen, toasts, toast, splashVisible, tourStep, searchOpen, menuOpen, myTracks, uploads, user, products],
+    [extra, cart, cartOpen, toasts, toast, splashVisible, tourStep, searchOpen, menuOpen, myTracks, uploads, user, authReady, liveProducts, demoProducts],
   )
   return <Ctx.Provider value={value}>{children}</Ctx.Provider>
 }

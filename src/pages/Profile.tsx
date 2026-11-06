@@ -15,7 +15,8 @@ const LINKS: { to: string; label: string; sub: string; icon: LucideIcon; accent?
 ]
 
 export default function Profile() {
-  const { hasSupported, replaySplash, startTour, cart, setCartOpen, user, logout, toast } = useApp()
+  const { hasSupported, replaySplash, startTour, cart, setCartOpen, user, logout, toast, authReady } = useApp()
+  if (!user && !authReady) return <div className="py-24 text-center text-white/50">Chargement du profil…</div>
   if (!user) return <Navigate to="/connexion?suite=/profil" replace />
   const initials = (user.firstName[0] ?? '') + (user.lastName[0] ?? '')
   const school = SCHOOLS.find((s) => s.id === user.details.ecole)
@@ -52,7 +53,7 @@ export default function Profile() {
               </div>
               <div className="mt-2 flex flex-wrap items-center gap-2 text-[12px] text-white/45">
                 {user.email}
-                <DemoPill>Compte de démonstration</DemoPill>
+                {user.demo && <DemoPill>Compte de démonstration (hors ligne)</DemoPill>}
                 <button
                   onClick={() => {
                     logout()
@@ -144,8 +145,8 @@ export default function Profile() {
           <ul className="relative mt-4 space-y-2 border-t border-white/[0.06] pt-4 text-[12.5px] leading-relaxed text-white/55">
             {[
               'Données entièrement fictives : écoles, talents, spectacles et chiffres sont inventés.',
-              'Compte de démonstration : il reste dans cette fenêtre, rien n’est envoyé à un serveur.',
-              'Aucune donnée collectée : vos actions restent dans cette page et disparaissent au rechargement.',
+              user.demo ? 'Compte de démonstration : il reste dans cette fenêtre, rien n’est envoyé à un serveur.' : 'Compte réel : connexion sécurisée par Firebase, profil hébergé à Montréal.',
+              'Votes et panier : encore simulés, ils restent dans cette page. Ton profil et ta sélection de musiques sont enregistrés avec ton compte.',
             ].map((t) => (
               <li key={t} className="flex gap-2">
                 <span className="mt-[7px] h-1.5 w-1.5 shrink-0 rounded-full bg-gold" />

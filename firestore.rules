@@ -1,0 +1,48 @@
+rules_version = '2';
+
+// Règles de sécurité MICRO D'OR
+// - Chaque personne ne voit et ne modifie que son propre profil.
+// - Le rôle « organisateur » exige le code d'accès, vérifié ici (jamais dans l'application).
+// - La boutique est lisible par tous, modifiable seulement par les organisateurs.
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    function isOrganizer() {
+      return signedIn()
+        && exists(/databases/$(database)/documents/users/$(request.auth.uid))
+        && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'organisateur';
+    }
+
+    match /users/{uid} {
+      allow read: if signedIn() && request.auth.uid == uid;
+
+      allow create: if signedIn()
+        && request.auth.uid == uid
+        && request.resource.data.role in ['eleve', 'parent', 'organisation', 'organisateur']
+        && request.resource.data.email == request.auth.token.email
+        && (request.resource.data.role != 'organisateur' || request.resource.data.orgCode == 'MICRO');
+
+      // le rôle et le code ne peuvent jamais être modifiés après la création
+      allow update: if signedIn()
+        && request.auth.uid == uid
+        && request.resource.data.role == resource.data.role
+        && request.resource.data.get('orgCode', null) == resource.data.get('orgCode', null);
+
+      allow delete: if false;
+    }
+
+    match /produits/{id} {
+      allow read: if true;
+      allow write: if isOrganizer();
+    }
+
+    // tout le reste est fermé
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

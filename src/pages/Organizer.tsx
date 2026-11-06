@@ -97,8 +97,7 @@ export default function Organizer() {
             ))}
           </ul>
           <p className="mt-4 text-[11.5px] leading-relaxed text-white/40">
-            Prototype : le code organisateur est vérifié dans le navigateur. En production, il sera vérifié par le serveur et chaque organisateur aura un compte
-            nominatif.
+            Le code organisateur est vérifié par les règles de sécurité de Firebase, jamais dans l’application. Chaque organisateur a son propre compte nominatif.
           </p>
         </div>
       </section>
