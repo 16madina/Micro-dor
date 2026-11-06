@@ -6,7 +6,7 @@ import { useApp } from '../state/AppState'
 import Portrait from '../components/art/Portrait'
 import { TalentCard } from '../components/cards'
 import { Button, CategoryTag, Chips, DemoPill, PageHero, cx } from '../components/ui'
-import { CAT_OPTIONS, SupportButton, type CatFilter } from '../components/talents/shared'
+import { CAT_OPTIONS, EngagementCounts, SupportButton, VoteButton, type CatFilter } from '../components/talents/shared'
 
 type Sort = 'populaires' | 'az'
 
@@ -50,17 +50,18 @@ function FeaturedBanner() {
           </Link>
         </div>
         <p className="mt-4 hidden max-w-md border-l-2 border-gold/60 pl-3 text-[14.5px] italic leading-relaxed text-white/80 sm:block">« {t.quote} »</p>
-        <div className="mt-4 flex items-center gap-1.5 text-[13px] font-extrabold">
-          <Heart size={14} className="fill-gold text-gold" />
-          {fmtNum(supportCount(t.id))}
-          <span className="font-semibold text-white/50">soutiens</span>
+        <div className="mt-4 flex flex-wrap items-center gap-x-3 gap-y-1 text-[12.5px] text-white/50">
+          <EngagementCounts talentId={t.id} className="text-white" />
+          <span>encouragements · votes</span>
         </div>
         <div className="mt-5 flex flex-wrap items-center gap-2.5">
           <Button to={`/talents/${t.id}`} size="sm" className="lg:h-11 lg:px-6 lg:text-sm">
             Voir le profil
           </Button>
-          <SupportButton talentId={t.id} label="Encourager" doneLabel="Encouragé ✓" size="sm" className="hidden sm:inline-flex" />
-          <SupportButton talentId={t.id} iconOnly size="sm" className="sm:hidden" label="Encourager" doneLabel="Encouragé" />
+          <SupportButton talentId={t.id} size="sm" className="hidden sm:inline-flex" />
+          <SupportButton talentId={t.id} iconOnly size="sm" className="sm:hidden" />
+          <VoteButton talentId={t.id} size="sm" className="hidden sm:inline-flex" />
+          <VoteButton talentId={t.id} iconOnly size="sm" className="sm:hidden" />
         </div>
       </div>
     </section>

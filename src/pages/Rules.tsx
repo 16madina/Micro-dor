@@ -108,20 +108,20 @@ const SECTIONS: Section[] = [
   },
   {
     id: 'votes',
-    title: 'Votes du public (simulés)',
+    title: 'Encouragements et votes du public',
     icon: Vote,
     body: (
       <>
-        <Note>Dans ce prototype, aucun vote réel n’est enregistré : les compteurs sont simulés et locaux à votre appareil.</Note>
-        <P>Dans une version réelle, les principes suivants sont envisagés :</P>
+        <P>Le public dispose de deux gestes distincts :</P>
         <UL
           items={[
-            'Le résultat final combine l’évaluation du jury (pondération envisagée : 60 %) et le vote du public (40 %).',
-            'Un nombre limité de votes par personne et par jour, sans achat ni contrepartie financière.',
-            'Des mécanismes de détection des votes automatisés ou abusifs.',
-            'Les votes encouragent tous les talents : aucun classement public humiliant n’est affiché.',
+            'Encourager : ouvert à tous, sans compte. Un encouragement par personne et par talent, que l’on peut retirer. Il n’a aucun effet sur le classement.',
+            'Voter : réservé aux personnes ayant un compte. Une seule voix par compte et par discipline (chant, danse, théâtre, slam, rap conscience), que l’on peut déplacer tant que le vote est ouvert.',
+            'Le résultat final envisagé combine l’évaluation du jury (pondération envisagée : 60 %) et le vote du public (40 %).',
+            'Aucun achat ni contrepartie financière ; des mécanismes de détection des votes automatisés ou abusifs sont prévus.',
           ]}
         />
+        <Note>Version de démonstration : les chiffres de départ affichés sont fictifs ; les encouragements et votes réels s’y ajoutent.</Note>
       </>
     ),
   },

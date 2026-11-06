@@ -1,6 +1,7 @@
-import { useLayoutEffect, useRef, type MouseEvent } from 'react'
-import { Heart } from 'lucide-react'
-import type { Category, Talent } from '../../data'
+import { useEffect, useLayoutEffect, useRef, useState, type MouseEvent } from 'react'
+import { useLocation, useNavigate } from 'react-router-dom'
+import { Heart, Trophy } from 'lucide-react'
+import { CATEGORY_LABEL, fmtNum, talentById, type Category, type Talent } from '../../data'
 import { useApp } from '../../state/AppState'
 import { useSvgId } from '../art/Logo'
 import Portrait from '../art/Portrait'
@@ -26,14 +27,13 @@ const BTN_SIZES = {
 }
 
 /**
- * Bouton de soutien simulé : incrémente le compteur local,
- * déclenche l’explosion dorée et le toast de remerciement.
- * Reste cliquable après un premier soutien.
+ * Bouton « Encourager » : un encouragement par personne et par talent (on peut le retirer).
+ * N’a aucun effet sur le classement.
  */
 export function SupportButton({
   talentId,
-  label = 'Je soutiens',
-  doneLabel = 'Soutenu ✓',
+  label = 'Encourager',
+  doneLabel = 'Encouragé ✓',
   size = 'md',
   className,
   iconOnly,
@@ -48,12 +48,14 @@ export function SupportButton({
   const { support, hasSupported, toast } = useApp()
   const [burst, fire] = useBurst()
   const done = hasSupported(talentId)
-  const onClick = (e: MouseEvent) => {
+  const onClick = async (e: MouseEvent) => {
     e.preventDefault()
     e.stopPropagation()
-    support(talentId)
-    fire()
-    toast(THANKS)
+    if (!done) fire()
+    const r = await support(talentId)
+    if (r === 'added') toast(THANKS)
+    else if (r === 'removed') toast('Encouragement retiré', 'info')
+    else toast('Impossible d’enregistrer pour le moment. Réessaie.', 'info')
   }
   return (
     <span className={cx('relative inline-flex', className)}>
@@ -62,19 +64,111 @@ export function SupportButton({
         onClick={onClick}
         aria-pressed={done}
         aria-label={iconOnly ? (done ? doneLabel : label) : undefined}
-        title={done ? 'Soutenir encore (simulé)' : undefined}
+        title={done ? 'Retirer mon encouragement' : 'Encourager (n’influence pas le classement)'}
         className={cx(
           'relative inline-flex w-full select-none items-center justify-center whitespace-nowrap rounded-full font-extrabold transition-all duration-200 active:scale-[.96]',
           iconOnly ? (size === 'lg' ? 'h-12 w-12' : size === 'md' ? 'h-11 w-11' : 'h-9 w-9') : BTN_SIZES[size],
-          done
-            ? 'border border-gold/70 bg-gold/[0.12] text-goldlight hover:bg-gold/20'
-            : 'bg-gold-soft text-ink shadow-gold hover:brightness-110',
+          done ? 'border border-gold/70 bg-gold/[0.12] text-goldlight hover:bg-gold/20' : 'bg-gold-soft text-ink shadow-gold hover:brightness-110',
         )}
       >
         <Heart size={size === 'xs' ? 13 : 16} className={cx(done ? 'fill-gold text-gold' : 'fill-ink/80')} />
         {!iconOnly && (done ? doneLabel : label)}
       </button>
       <GoldBurst trigger={burst} />
+    </span>
+  )
+}
+
+/**
+ * Bouton « Voter » : une voix par compte et par discipline, modifiable.
+ * Seuls les votes comptent pour le classement.
+ */
+export function VoteButton({
+  talentId,
+  size = 'md',
+  className,
+  iconOnly,
+}: {
+  talentId: string
+  size?: keyof typeof BTN_SIZES
+  className?: string
+  iconOnly?: boolean
+}) {
+  const { vote, myVote, toast, user } = useApp()
+  const nav = useNavigate()
+  const { pathname } = useLocation()
+  const [confirming, setConfirming] = useState(false)
+  const [busy, setBusy] = useState(false)
+  const t = talentById(talentId)
+  const current = myVote(t.category)
+  const mine = current === talentId
+  const cat = CATEGORY_LABEL[t.category]
+
+  useEffect(() => {
+    if (!confirming) return
+    const i = setTimeout(() => setConfirming(false), 4000)
+    return () => clearTimeout(i)
+  }, [confirming])
+
+  const onClick = async (e: MouseEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
+    if (mine) return toast(`${t.name} a déjà ta voix en ${cat}`, 'info')
+    if (!user) {
+      toast('Connecte-toi pour voter : une voix par compte et par discipline', 'info')
+      return nav('/connexion?suite=' + encodeURIComponent(pathname))
+    }
+    if (current && !confirming) return setConfirming(true)
+    setConfirming(false)
+    setBusy(true)
+    const r = await vote(talentId)
+    setBusy(false)
+    if (r === 'voted') toast(`Ta voix en ${cat} va à ${t.name}`)
+    else if (r === 'changed') toast(`Vote modifié : ta voix en ${cat} va maintenant à ${t.name}`)
+    else if (r === 'needAccount') nav('/connexion?suite=' + encodeURIComponent(pathname))
+    else if (r === 'error') toast('Vote non enregistré. Vérifie ta connexion et réessaie.', 'info')
+  }
+
+  const text = mine ? 'Mon vote ✓' : confirming ? 'Remplacer mon vote ?' : 'Voter'
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      disabled={busy}
+      aria-pressed={mine}
+      aria-label={iconOnly ? text : undefined}
+      title={mine ? `Ta voix en ${cat}` : current ? `Tu as déjà voté en ${cat} : un nouveau clic déplacera ta voix` : `Donner ta voix en ${cat} (1 par discipline)`}
+      className={cx(
+        'relative inline-flex select-none items-center justify-center whitespace-nowrap rounded-full font-extrabold transition-all duration-200 active:scale-[.96] disabled:opacity-60',
+        iconOnly ? (size === 'lg' ? 'h-12 w-12' : size === 'md' ? 'h-11 w-11' : 'h-9 w-9') : BTN_SIZES[size],
+        mine
+          ? 'bg-stage text-white shadow-[0_8px_24px_-8px_rgba(104,55,181,.9)]'
+          : confirming
+            ? 'border border-stagelight bg-stage/25 text-white'
+            : 'border border-stagelight/60 text-[#d9c6ff] hover:bg-stage/20',
+        className,
+      )}
+    >
+      <Trophy size={size === 'xs' ? 13 : 16} className={mine ? 'fill-white/30' : ''} />
+      {!iconOnly && text}
+    </button>
+  )
+}
+
+/** Les deux compteurs côte à côte : encouragements (♥) et votes (🏆) */
+export function EngagementCounts({ talentId, className, compact }: { talentId: string; className?: string; compact?: boolean }) {
+  const { supportCount, voteCount, hasSupported, myVote } = useApp()
+  const t = talentById(talentId)
+  return (
+    <span className={cx('inline-flex items-center gap-2.5 tabular-nums', compact ? 'text-[12px]' : 'text-[13px]', className)}>
+      <span className="inline-flex items-center gap-1 font-extrabold" title="Encouragements">
+        <Heart size={compact ? 12 : 13} className={cx('text-gold', hasSupported(talentId) && 'fill-gold')} />
+        {fmtNum(supportCount(talentId))}
+      </span>
+      <span className="inline-flex items-center gap-1 font-extrabold text-[#d9c6ff]" title="Votes">
+        <Trophy size={compact ? 12 : 13} className={cx('text-stagelight', myVote(t.category) === talentId && 'fill-stagelight/40')} />
+        {fmtNum(voteCount(talentId))}
+      </span>
     </span>
   )
 }

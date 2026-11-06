@@ -1,18 +1,21 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { ChevronDown, ChevronRight, Headphones, Heart, ScrollText, Sparkles, Trophy } from 'lucide-react'
-import { CATEGORY_LABEL, TALENTS, fmtNum, schoolById, type Talent } from '../data'
+import { CATEGORY_LABEL, TALENTS, fmtNum, schoolById, type Category, type Talent } from '../data'
 import { useApp } from '../state/AppState'
 import Portrait from '../components/art/Portrait'
 import { Button, CategoryTag, Chips, DemoPill, Stat, cx } from '../components/ui'
-import { CAT_OPTIONS, PortraitThumb, RankBadge, SupportButton, TrophyArt, useFlip, type CatFilter } from '../components/talents/shared'
+import { CAT_OPTIONS, EngagementCounts, PortraitThumb, RankBadge, SupportButton, TrophyArt, VoteButton, useFlip, type CatFilter } from '../components/talents/shared'
 
 const byName = [...TALENTS].sort((a, b) => a.name.localeCompare(b.name, 'fr-CA'))
 
+const CATS: Category[] = ['chant', 'danse', 'theatre', 'slam', 'rap']
+
 function Hero() {
-  const { supportCount, hasSupported } = useApp()
-  const total = TALENTS.reduce((s, t) => s + supportCount(t.id), 0)
-  const mine = TALENTS.filter((t) => hasSupported(t.id)).length
+  const { voteCount, supportCount, myVote, user } = useApp()
+  const totalVotes = TALENTS.reduce((s, t) => s + voteCount(t.id), 0)
+  const mine = CATS.filter((c) => myVote(c)).length
+  const fav = [...TALENTS].sort((a, b) => supportCount(b.id) - supportCount(a.id))[0]
   return (
     <section className="gold-border relative mb-6 overflow-hidden rounded-3xl p-5 shadow-stage animate-fadeUp sm:p-7 lg:mb-8 lg:p-10">
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(60%_90%_at_85%_20%,rgba(104,55,181,.5),transparent_65%),radial-gradient(40%_60%_at_10%_110%,rgba(214,172,85,.16),transparent_70%)]" />
@@ -25,7 +28,13 @@ function Hero() {
               <div className="eyebrow flex items-center gap-2">
                 <Sparkles size={13} /> Vote du public
               </div>
-              <DemoPill>Votes simulés — Prototype</DemoPill>
+              {user ? (
+                <DemoPill>Tes votes : {mine} / 5 disciplines</DemoPill>
+              ) : (
+                <Link to="/connexion?suite=/votes" className="inline-flex items-center gap-1.5 rounded-full border border-stagelight/50 bg-stage/15 px-2.5 py-1 text-[11px] font-bold text-[#d9c6ff]">
+                  <Trophy size={12} /> Connecte-toi pour voter
+                </Link>
+              )}
             </div>
             <TrophyArt className="-mr-2 -mt-3 h-28 w-28 shrink-0 animate-floaty lg:hidden" />
           </div>
@@ -33,25 +42,41 @@ function Hero() {
             TON <span className="text-gold-metal">SOUTIEN</span> PEUT FAIRE <span className="text-gold-shine">BRILLER</span> UN TALENT.
           </h1>
           <p className="mt-4 max-w-xl text-[14.5px] leading-relaxed text-white/65">
-            Encourage les voix qui te touchent. Chaque clic ajoute un soutien au compteur local de cette démonstration — aucun vote réel n’est enregistré.
+            <b className="text-goldlight">Encourage</b> autant de talents que tu veux : ça leur fait chaud au cœur, sans changer le classement.{' '}
+            <b className="text-[#d9c6ff]">Vote</b> pour ton talent préféré dans chaque discipline : une seule voix par compte, et c’est elle qui compte.
           </p>
           <div className="mt-6 grid max-w-md grid-cols-3 gap-2 rounded-2xl border border-white/[0.08] bg-ink/40 px-2 py-4 backdrop-blur">
-            <Stat value={fmtNum(total)} label="Soutiens" />
+            <Stat value={fmtNum(totalVotes)} label="Votes" />
             <Stat value={TALENTS.length} label="Talents" />
-            <Stat value={mine} label="Tes coups de cœur" />
+            <Stat value={`${mine}/5`} label="Tes votes" />
           </div>
         </div>
         <TrophyArt className="hidden h-auto w-full animate-floaty drop-shadow-[0_20px_40px_rgba(214,172,85,.25)] lg:block" />
       </div>
+      {/* Coup de cœur du public : le talent le plus encouragé (hors classement) */}
+      <Link
+        to={`/talents/${fav.id}`}
+        className="relative mt-5 flex items-center gap-3 rounded-2xl border border-gold/30 bg-ink/50 p-3 backdrop-blur transition hover:border-gold/60 lg:max-w-md"
+      >
+        <PortraitThumb talent={fav} className="h-12 w-12 ring-2 ring-gold" />
+        <span className="min-w-0 flex-1">
+          <span className="flex items-center gap-1.5 text-[10.5px] font-extrabold uppercase tracking-[0.16em] text-gold">
+            <Heart size={11} className="fill-gold" /> Coup de cœur du public
+          </span>
+          <span className="block truncate font-display text-[22px] leading-none tracking-wide">{fav.name}</span>
+          <span className="text-[11.5px] text-white/50">{fmtNum(supportCount(fav.id))} encouragements · hors classement</span>
+        </span>
+        <ChevronRight size={16} className="text-white/30" />
+      </Link>
     </section>
   )
 }
 
 function Leaderboard({ cat }: { cat: CatFilter }) {
-  const { supportCount, hasSupported } = useApp()
+  const { voteCount, myVote } = useApp()
   const [expanded, setExpanded] = useState(false)
   const ranked = TALENTS.filter((t) => cat === 'tous' || t.category === cat)
-    .map((t) => ({ t, c: supportCount(t.id) }))
+    .map((t) => ({ t, c: voteCount(t.id) }))
     .sort((a, b) => b.c - a.c || a.t.name.localeCompare(b.t.name))
     .slice(0, 10)
   const register = useFlip(ranked.map((r) => r.t.id))
@@ -62,13 +87,13 @@ function Leaderboard({ cat }: { cat: CatFilter }) {
         <div className="flex items-center justify-between gap-3">
           <div>
             <div className="eyebrow mb-1">Top 10 · {cat === 'tous' ? 'Toutes disciplines' : CATEGORY_LABEL[cat]}</div>
-            <h2 className="font-display text-[28px] leading-none tracking-wide">Classement de démonstration</h2>
+            <h2 className="font-display text-[28px] leading-none tracking-wide">Classement des votes</h2>
           </div>
           <Trophy size={26} className="shrink-0 text-gold" />
         </div>
         <div className="mt-2 flex items-center gap-1.5 text-[11px] font-semibold text-white/45">
           <span className="h-1.5 w-1.5 animate-pulseLive rounded-full bg-live" />
-          Mise à jour en direct · données simulées
+          Mise à jour en direct · seuls les votes comptent
         </div>
       </div>
 
@@ -97,15 +122,15 @@ function Leaderboard({ cat }: { cat: CatFilter }) {
                 <span className="min-w-0">
                   <span className="block truncate text-[14px] font-extrabold group-hover:text-goldlight">{t.name}</span>
                   <span className="flex items-center gap-1 truncate text-[11.5px] text-white/50">
-                    <Heart size={11} className={cx('shrink-0 text-gold', hasSupported(t.id) && 'fill-gold')} />
-                    <span key={c} className="animate-fadeIn font-bold tabular-nums text-goldlight">
-                      {fmtNum(c)}
+                    <Trophy size={11} className={cx('shrink-0 text-stagelight', myVote(t.category) === t.id && 'fill-stagelight/40')} />
+                    <span key={c} className="animate-fadeIn font-bold tabular-nums text-[#d9c6ff]">
+                      {fmtNum(c)} votes
                     </span>
                     <span className="truncate">· {school.shortName}</span>
                   </span>
                 </span>
               </Link>
-              <SupportButton talentId={t.id} size="xs" className="shrink-0" />
+              <VoteButton talentId={t.id} size="xs" className="shrink-0" />
             </li>
           )
         })}
@@ -125,14 +150,14 @@ function Leaderboard({ cat }: { cat: CatFilter }) {
 }
 
 function CandidateCard({ talent, rank }: { talent: Talent; rank: number }) {
-  const { supportCount, hasSupported } = useApp()
+  const { myVote } = useApp()
   const school = schoolById(talent.schoolId)
-  const done = hasSupported(talent.id)
+  const done = myVote(talent.category) === talent.id
   return (
     <article
       className={cx(
         'group flex flex-col rounded-2xl border bg-gradient-to-b from-night2/80 to-night/60 shadow-card transition duration-300',
-        done ? 'border-gold/40' : 'border-white/[0.08] hover:border-gold/30',
+        done ? 'border-stagelight/60' : 'border-white/[0.08] hover:border-gold/30',
       )}
     >
       <Link to={`/talents/${talent.id}`} className="relative block aspect-square overflow-hidden rounded-t-2xl" aria-label={`Voir le profil de ${talent.name}`}>
@@ -152,25 +177,24 @@ function CandidateCard({ talent, rank }: { talent: Talent; rank: number }) {
           {talent.name}
         </Link>
         <span className="mt-1 truncate text-[11.5px] text-white/55">{school.name}</span>
-        <span className="mt-2 flex items-center gap-1.5 text-[14px] font-extrabold">
-          <Heart size={14} className={cx('text-gold', done && 'fill-gold')} />
-          <span className="tabular-nums">{fmtNum(supportCount(talent.id))}</span>
-          <span className="text-[11px] font-semibold text-white/40">soutiens</span>
-        </span>
-        <SupportButton talentId={talent.id} size="sm" className="mt-3 w-full" />
+        <EngagementCounts talentId={talent.id} className="mt-2" />
+        <div className="mt-3 grid grid-cols-1 gap-1.5">
+          <SupportButton talentId={talent.id} size="sm" className="w-full" />
+          <VoteButton talentId={talent.id} size="sm" className="w-full" />
+        </div>
       </div>
     </article>
   )
 }
 
 export default function Votes() {
-  const { supportCount } = useApp()
+  const { voteCount, myVote } = useApp()
   const [cat, setCat] = useState<CatFilter>('tous')
 
   const pool = TALENTS.filter((t) => cat === 'tous' || t.category === cat)
   const rankOf = new Map(
     [...pool]
-      .sort((a, b) => supportCount(b.id) - supportCount(a.id) || a.name.localeCompare(b.name))
+      .sort((a, b) => voteCount(b.id) - voteCount(a.id) || a.name.localeCompare(b.name))
       .map((t, i) => [t.id, i + 1] as const),
   )
   const candidates = byName.filter((t) => cat === 'tous' || t.category === cat)
@@ -181,7 +205,15 @@ export default function Votes() {
 
       <div className="mb-5 flex flex-col gap-2 lg:mb-6 lg:flex-row lg:items-center lg:justify-between">
         <Chips options={CAT_OPTIONS} value={cat} onChange={setCat} />
-        <span className="text-[12px] font-semibold text-white/45">Tu peux soutenir plusieurs talents, autant de fois que tu veux (démo).</span>
+        <span className="text-[12px] font-semibold text-white/45">
+          {cat !== 'tous' && myVote(cat) ? (
+            <>
+              Ta voix en {CATEGORY_LABEL[cat]} : <b className="text-[#d9c6ff]">{TALENTS.find((t) => t.id === myVote(cat))?.name}</b> · tu peux la changer
+            </>
+          ) : (
+            'Encouragements illimités (1 par talent) · 1 vote par discipline'
+          )}
+        </span>
       </div>
 
       <div className="grid grid-cols-1 gap-8 lg:grid-cols-[minmax(0,1fr)_380px] lg:items-start lg:gap-8">
@@ -195,7 +227,7 @@ export default function Votes() {
           <div className="mb-4 flex items-end justify-between gap-4">
             <div>
               <div className="eyebrow mb-1.5">{candidates.length} talents en lice</div>
-              <h2 className="font-display text-[30px] leading-none tracking-wide lg:text-[38px]">Choisis tes coups de cœur</h2>
+              <h2 className="font-display text-[30px] leading-none tracking-wide lg:text-[38px]">Encourage et vote</h2>
             </div>
             <span className="shrink-0 text-[11px] font-semibold text-white/40">Ordre alphabétique</span>
           </div>
@@ -216,8 +248,8 @@ export default function Votes() {
         <div className="mt-5 grid gap-3 sm:grid-cols-3">
           {[
             { Icon: Headphones, t: 'Découvre', d: 'Écoute les extraits simulés et lis le parcours de chaque talent.' },
-            { Icon: Heart, t: 'Soutiens', d: 'Un clic sur « Je soutiens » ajoute un encouragement au compteur de démonstration.' },
-            { Icon: Trophy, t: 'Fais briller', d: 'Dans une version réelle, le vote du public serait encadré par le règlement officiel.' },
+            { Icon: Heart, t: 'Encourage', d: 'Ouvert à tous, sans compte : un encouragement par talent, à donner à autant de talents que tu veux. Il ne change pas le classement.' },
+            { Icon: Trophy, t: 'Vote', d: 'Avec ton compte : une voix par discipline (chant, danse, théâtre, slam, rap). Tu peux la déplacer tant que le vote est ouvert.' },
           ].map(({ Icon, t, d }, i) => (
             <div key={t} className="rounded-2xl border border-white/[0.07] bg-white/[0.03] p-4">
               <div className="flex items-center gap-3">

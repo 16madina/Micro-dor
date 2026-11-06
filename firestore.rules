@@ -40,6 +40,90 @@ service cloud.firestore {
       allow write: if isOrganizer();
     }
 
+    // ---------- Encouragements et votes ----------
+    function talentIds() {
+      return ['maya-l', 'karim-s', 'rosalie-d', 'sarah-m', 'jade-t', 'samuel-p', 'nathan-b', 'ines-b', 'theo-m', 'lea-r', 'olivier-g', 'chloe-v', 'malik-d', 'amira-h', 'felix-l', 'adam-k', 'alex-t', 'noemie-j', 'emma-c', 'yanis-a', 'william-r', 'zoe-p', 'mathis-c', 'aicha-n'];
+    }
+    function realAccount() {
+      return signedIn()
+        && request.auth.token.firebase.sign_in_provider != 'anonymous'
+        && exists(/databases/$(database)/documents/users/$(request.auth.uid));
+    }
+    function fanPath(tid) {
+      return /databases/$(database)/documents/talents/$(tid)/fans/$(request.auth.uid);
+    }
+    function votePath(cat) {
+      return /databases/$(database)/documents/votes/$(cat + '_' + request.auth.uid);
+    }
+    // l'encouragement ne bouge que de 1, et seulement avec la fiche « fan » correspondante
+    function encOk(tid) {
+      let d = request.resource.data.encouragements - resource.data.encouragements;
+      return d == 0
+        || (d == 1 && !exists(fanPath(tid)) && existsAfter(fanPath(tid)))
+        || (d == -1 && exists(fanPath(tid)) && !existsAfter(fanPath(tid)));
+    }
+    // le vote ne bouge que de 1, et seulement si le bulletin de la personne change vers / depuis ce talent
+    function voteOk(tid) {
+      let d = request.resource.data.votes - resource.data.votes;
+      let v = votePath(resource.data.category);
+      return d == 0
+        || (d == 1 && existsAfter(v) && getAfter(v).data.talentId == tid
+              && (!exists(v) || get(v).data.talentId != tid))
+        || (d == -1 && exists(v) && get(v).data.talentId == tid
+              && existsAfter(v) && getAfter(v).data.talentId != tid);
+    }
+
+    match /talents/{tid} {
+      allow read: if true;
+      allow create: if signedIn()
+        && tid in talentIds()
+        && request.resource.data.keys().hasOnly(['category', 'encouragements', 'votes'])
+        && request.resource.data.category in ['chant', 'slam', 'rap', 'danse', 'theatre']
+        && request.resource.data.encouragements == 0
+        && request.resource.data.votes == 0;
+      allow update: if signedIn()
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['encouragements', 'votes'])
+        && encOk(tid) && voteOk(tid);
+      allow delete: if false;
+
+      match /fans/{uid} {
+        allow read: if signedIn() && request.auth.uid == uid;
+        allow create: if signedIn() && request.auth.uid == uid
+          && request.resource.data.keys().hasOnly(['at'])
+          && getAfter(/databases/$(database)/documents/talents/$(tid)).data.encouragements
+             == get(/databases/$(database)/documents/talents/$(tid)).data.encouragements + 1;
+        allow delete: if signedIn() && request.auth.uid == uid
+          && getAfter(/databases/$(database)/documents/talents/$(tid)).data.encouragements
+             == get(/databases/$(database)/documents/talents/$(tid)).data.encouragements - 1;
+        allow update: if false;
+      }
+    }
+
+    // un bulletin par compte et par discipline : l'identifiant du document est « discipline_uid »
+    match /votes/{vid} {
+      // lisible seulement par son auteur (l'identifiant se termine par son uid), même s'il n'existe pas encore
+      allow read: if signedIn() && vid.split('_')[1] == request.auth.uid;
+      allow create: if realAccount()
+        && vid == request.resource.data.category + '_' + request.auth.uid
+        && request.resource.data.keys().hasOnly(['uid', 'category', 'talentId', 'at'])
+        && request.resource.data.uid == request.auth.uid
+        && get(/databases/$(database)/documents/talents/$(request.resource.data.talentId)).data.category == request.resource.data.category
+        && getAfter(/databases/$(database)/documents/talents/$(request.resource.data.talentId)).data.votes
+           == get(/databases/$(database)/documents/talents/$(request.resource.data.talentId)).data.votes + 1;
+      allow update: if realAccount()
+        && resource.data.uid == request.auth.uid
+        && request.resource.data.uid == request.auth.uid
+        && request.resource.data.category == resource.data.category
+        && request.resource.data.keys().hasOnly(['uid', 'category', 'talentId', 'at'])
+        && request.resource.data.talentId != resource.data.talentId
+        && get(/databases/$(database)/documents/talents/$(request.resource.data.talentId)).data.category == resource.data.category
+        && getAfter(/databases/$(database)/documents/talents/$(request.resource.data.talentId)).data.votes
+           == get(/databases/$(database)/documents/talents/$(request.resource.data.talentId)).data.votes + 1
+        && getAfter(/databases/$(database)/documents/talents/$(resource.data.talentId)).data.votes
+           == get(/databases/$(database)/documents/talents/$(resource.data.talentId)).data.votes - 1;
+      allow delete: if false;
+    }
+
     // tout le reste est fermé
     match /{document=**} {
       allow read, write: if false;

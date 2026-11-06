@@ -3,12 +3,13 @@ import {
   createUserWithEmailAndPassword,
   deleteUser,
   onAuthStateChanged,
+  signInAnonymously,
   sendPasswordResetEmail,
   signInWithEmailAndPassword,
   signOut,
 } from 'firebase/auth'
-import { arrayRemove, arrayUnion, collection, deleteDoc, doc, getDoc, onSnapshot, serverTimestamp, setDoc, updateDoc, writeBatch } from 'firebase/firestore'
-import { PRODUCTS, TALENTS, type Product } from '../data'
+import { arrayRemove, arrayUnion, collection, deleteDoc, doc, getDoc, increment, onSnapshot, serverTimestamp, setDoc, updateDoc, writeBatch } from 'firebase/firestore'
+import { PRODUCTS, TALENTS, talentById, type Category, type Product } from '../data'
 import type { MusicTrack } from '../data/music'
 import { auth, db } from '../lib/firebase'
 
@@ -86,11 +87,18 @@ interface Toast {
   tone: 'gold' | 'info'
 }
 
+export type EncourageResult = 'added' | 'removed' | 'error'
+export type VoteResult = 'voted' | 'changed' | 'same' | 'needAccount' | 'error'
+
 interface AppState {
-  // soutiens (simulés, locaux)
+  // encouragements : ouverts à tous, 1 par personne et par talent, sans effet sur le classement
   supportCount: (talentId: string) => number
   hasSupported: (talentId: string) => boolean
-  support: (talentId: string) => void
+  support: (talentId: string) => Promise<EncourageResult>
+  // votes : compte requis, 1 vote par discipline (modifiable), seuls à compter pour le classement
+  voteCount: (talentId: string) => number
+  myVote: (category: Category) => string | undefined
+  vote: (talentId: string) => Promise<VoteResult>
   // panier fictif
   cart: CartItem[]
   addToCart: (productId: string, size?: string) => void
@@ -135,15 +143,31 @@ interface AppState {
   removeProduct: (id: string) => Promise<boolean>
 }
 
+const toggleSet = (s: Set<string>, id: string) => {
+  const n = new Set(s)
+  if (n.has(id)) n.delete(id)
+  else n.add(id)
+  return n
+}
 const clean = <T,>(o: T) => JSON.parse(JSON.stringify(o)) as T
 const errCode = (e: unknown) => (e as { code?: string })?.code ?? ''
 
 const Ctx = createContext<AppState | null>(null)
 
-const BASE = Object.fromEntries(TALENTS.map((t) => [t.id, t.supports]))
+/**
+ * Chiffres de départ de la démonstration (fictifs). Les encouragements et votes réels
+ * enregistrés dans Firestore s’ajoutent à ces valeurs. Mettre à false avant le lancement réel.
+ */
+export const DEMO_BASE_COUNTS = true
+const BASE_ENC: Record<string, number> = Object.fromEntries(TALENTS.map((t) => [t.id, DEMO_BASE_COUNTS ? t.supports : 0]))
+const BASE_VOTES: Record<string, number> = Object.fromEntries(TALENTS.map((t) => [t.id, DEMO_BASE_COUNTS ? Math.round(t.supports * 0.27) : 0]))
 
 export function AppProvider({ children }: { children: ReactNode }) {
-  const [extra, setExtra] = useState<Record<string, number>>({})
+  const [live, setLive] = useState<Record<string, { e: number; v: number }>>({})
+  const [encouraged, setEncouraged] = useState<Set<string>>(new Set())
+  const [myVotes, setMyVotes] = useState<Partial<Record<Category, string>>>({})
+  const [demoDelta, setDemoDelta] = useState<Record<string, { e: number; v: number }>>({})
+  const [fbUid, setFbUid] = useState<string | null>(null)
   const [cart, setCart] = useState<CartItem[]>([])
   const [cartOpen, setCartOpen] = useState(false)
   const [toasts, setToasts] = useState<Toast[]>([])
@@ -170,12 +194,17 @@ export function AppProvider({ children }: { children: ReactNode }) {
   useEffect(
     () =>
       onAuthStateChanged(auth, async (fb) => {
+        setFbUid(fb?.uid ?? null)
         if (!fb) {
           setUser((u) => (u?.demo ? u : null))
           setAuthReady(true)
           return
         }
         if (registering.current) return
+        if (fb.isAnonymous) {
+          setAuthReady(true)
+          return
+        }
         try {
           const snap = await getDoc(doc(db, 'users', fb.uid))
           if (snap.exists()) {
@@ -215,14 +244,64 @@ export function AppProvider({ children }: { children: ReactNode }) {
     [],
   )
 
-  // Démo : les autres compteurs bougent doucement pour donner vie au classement
+  // Compteurs partagés (encouragements et votes) en temps réel
+  useEffect(
+    () =>
+      onSnapshot(
+        collection(db, 'talents'),
+        (snap) => {
+          const m: Record<string, { e: number; v: number }> = {}
+          snap.docs.forEach((d) => (m[d.id] = { e: d.data().encouragements ?? 0, v: d.data().votes ?? 0 }))
+          setLive(m)
+        },
+        () => {},
+      ),
+    [],
+  )
+
+  // Mes encouragements et mes votes (compte réel ou anonyme)
   useEffect(() => {
-    const t = setInterval(() => {
-      const pick = TALENTS[Math.floor(Math.random() * TALENTS.length)].id
-      setExtra((e) => ({ ...e, [pick + '#crowd']: (e[pick + '#crowd'] ?? 0) + 1 }))
-    }, 4500)
-    return () => clearInterval(t)
-  }, [])
+    if (!fbUid) {
+      setEncouraged(new Set())
+      setMyVotes({})
+      return
+    }
+    let alive = true
+    ;(async () => {
+      const enc = await Promise.all(
+        TALENTS.map((t) =>
+          getDoc(doc(db, 'talents', t.id, 'fans', fbUid))
+            .then((d) => (d.exists() ? t.id : null))
+            .catch(() => null),
+        ),
+      )
+      const cats: Category[] = ['chant', 'slam', 'rap', 'danse', 'theatre']
+      const votes = await Promise.all(
+        cats.map((c) =>
+          getDoc(doc(db, 'votes', `${c}_${fbUid}`))
+            .then((d) => (d.exists() ? ([c, d.data().talentId] as const) : null))
+            .catch(() => null),
+        ),
+      )
+      if (!alive) return
+      setEncouraged(new Set(enc.filter(Boolean) as string[]))
+      setMyVotes(Object.fromEntries(votes.filter(Boolean) as (readonly [Category, string])[]))
+    })()
+    return () => {
+      alive = false
+    }
+  }, [fbUid])
+
+  /** Identité Firebase pour encourager : compte réel, sinon compte anonyme créé à la volée */
+  const ensureUid = async () => auth.currentUser?.uid ?? (await signInAnonymously(auth)).user.uid
+
+  /** Crée le document de compteurs d’un talent au premier encouragement / vote */
+  const ensureTalent = async (id: string) => {
+    if (live[id]) return
+    const ref = doc(db, 'talents', id)
+    const snap = await getDoc(ref)
+    if (!snap.exists()) await setDoc(ref, { category: talentById(id).category, encouragements: 0, votes: 0 })
+  }
 
   /** La première modification d’un organisateur copie le catalogue de départ dans Firestore */
   const seed = async () => {
@@ -234,9 +313,63 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
   const value = useMemo<AppState>(
     () => ({
-      supportCount: (id) => (BASE[id] ?? 0) + (extra[id] ?? 0) + (extra[id + '#crowd'] ?? 0),
-      hasSupported: (id) => (extra[id] ?? 0) > 0,
-      support: (id) => setExtra((e) => ({ ...e, [id]: (e[id] ?? 0) + 1 })),
+      supportCount: (id) => (BASE_ENC[id] ?? 0) + (live[id]?.e ?? 0) + (demoDelta[id]?.e ?? 0),
+      hasSupported: (id) => encouraged.has(id),
+      support: async (id) => {
+        const had = encouraged.has(id)
+        if (user?.demo) {
+          setEncouraged((s) => toggleSet(s, id))
+          setDemoDelta((d) => ({ ...d, [id]: { e: (d[id]?.e ?? 0) + (had ? -1 : 1), v: d[id]?.v ?? 0 } }))
+          return had ? 'removed' : 'added'
+        }
+        setEncouraged((s) => toggleSet(s, id)) // affichage immédiat
+        try {
+          const uid = await ensureUid()
+          await ensureTalent(id)
+          const b = writeBatch(db)
+          const fan = doc(db, 'talents', id, 'fans', uid)
+          if (had) b.delete(fan)
+          else b.set(fan, { at: serverTimestamp() })
+          b.update(doc(db, 'talents', id), { encouragements: increment(had ? -1 : 1) })
+          await b.commit()
+          return had ? 'removed' : 'added'
+        } catch {
+          setEncouraged((s) => toggleSet(s, id)) // annule l’affichage
+          return 'error'
+        }
+      },
+      voteCount: (id) => (BASE_VOTES[id] ?? 0) + (live[id]?.v ?? 0) + (demoDelta[id]?.v ?? 0),
+      myVote: (c) => myVotes[c],
+      vote: async (id) => {
+        const cat = talentById(id).category
+        const prev = myVotes[cat]
+        if (prev === id) return 'same'
+        if (!user) return 'needAccount'
+        if (user.demo) {
+          setMyVotes((m) => ({ ...m, [cat]: id }))
+          setDemoDelta((d) => {
+            const n = { ...d, [id]: { e: d[id]?.e ?? 0, v: (d[id]?.v ?? 0) + 1 } }
+            if (prev) n[prev] = { e: n[prev]?.e ?? 0, v: (n[prev]?.v ?? 0) - 1 }
+            return n
+          })
+          return prev ? 'changed' : 'voted'
+        }
+        const uid = auth.currentUser?.uid
+        if (!uid) return 'needAccount'
+        try {
+          await ensureTalent(id)
+          if (prev) await ensureTalent(prev)
+          const b = writeBatch(db)
+          b.set(doc(db, 'votes', `${cat}_${uid}`), { uid, category: cat, talentId: id, at: serverTimestamp() })
+          b.update(doc(db, 'talents', id), { votes: increment(1) })
+          if (prev) b.update(doc(db, 'talents', prev), { votes: increment(-1) })
+          await b.commit()
+          setMyVotes((m) => ({ ...m, [cat]: id }))
+          return prev ? 'changed' : 'voted'
+        } catch {
+          return 'error'
+        }
+      },
       cart,
       addToCart: (productId, size) => {
         const key = productId + (size ? '-' + size : '')
@@ -326,11 +459,16 @@ export function AppProvider({ children }: { children: ReactNode }) {
       demoLogin: (role) => {
         if (auth.currentUser) void signOut(auth)
         setUser({ ...DEMO_ACCOUNTS[role], demo: true })
+        setEncouraged(new Set())
+        setMyVotes({})
       },
       logout: () => {
         if (user?.demo) setUser(null)
         else void signOut(auth).then(() => setUser(null))
         setMyTracks([])
+        setEncouraged(new Set())
+        setMyVotes({})
+        setDemoDelta({})
       },
       isOrganizer: user?.role === 'organisateur',
       products: user?.demo ? demoProducts : liveProducts && liveProducts.length ? liveProducts : PRODUCTS,
@@ -375,7 +513,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
         }
       },
     }),
-    [extra, cart, cartOpen, toasts, toast, splashVisible, tourStep, searchOpen, menuOpen, myTracks, uploads, user, authReady, liveProducts, demoProducts],
+    [live, encouraged, myVotes, demoDelta, cart, cartOpen, toasts, toast, splashVisible, tourStep, searchOpen, menuOpen, myTracks, uploads, user, authReady, liveProducts, demoProducts],
   )
   return <Ctx.Provider value={value}>{children}</Ctx.Provider>
 }

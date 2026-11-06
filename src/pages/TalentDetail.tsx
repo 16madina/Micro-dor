@@ -36,7 +36,7 @@ import StageArt from '../components/art/StageArt'
 import { MicEmblem } from '../components/art/Logo'
 import { ShowCard, TalentCard, poseFor } from '../components/cards'
 import { Button, CategoryTag, HScroll, SectionHeader, Tabs, cx } from '../components/ui'
-import { EqBars, SupportButton } from '../components/talents/shared'
+import { EqBars, SupportButton, VoteButton } from '../components/talents/shared'
 
 type Tab = 'performances' | 'prochain' | 'apropos'
 const EXCERPT = 30 // secondes d’extrait simulé
@@ -275,14 +275,15 @@ function NextShow({ talent }: { talent: Talent }) {
 }
 
 function About({ talent }: { talent: Talent }) {
-  const { supportCount } = useApp()
+  const { supportCount, voteCount } = useApp()
   const school = schoolById(talent.schoolId)
   const facts = [
     { k: 'Discipline', v: CATEGORY_LABEL[talent.category] },
     { k: 'École', v: school.name, to: `/ecoles/${school.id}` },
     { k: 'Ville', v: school.city },
     { k: 'Performances', v: String(talent.performances.length) },
-    { k: 'Soutiens (simulés)', v: fmtNum(supportCount(talent.id)) },
+    { k: 'Encouragements', v: fmtNum(supportCount(talent.id)) },
+    { k: 'Votes', v: fmtNum(voteCount(talent.id)) },
   ]
   return (
     <div className="grid grid-cols-1 gap-5 lg:grid-cols-2">
@@ -337,7 +338,7 @@ function About({ talent }: { talent: Talent }) {
 export default function TalentDetail() {
   const { id } = useParams()
   const talent = TALENTS.find((t) => t.id === id)
-  const { supportCount, hasSupported, toast } = useApp()
+  const { supportCount, hasSupported, voteCount, myVote, toast } = useApp()
   const [tab, setTab] = useState<Tab>('performances')
 
   if (!talent) return <NotFound />
@@ -345,6 +346,8 @@ export default function TalentDetail() {
   const school = schoolById(talent.schoolId)
   const others = talentsOfSchool(talent.schoolId).filter((t) => t.id !== talent.id)
   const count = supportCount(talent.id)
+  const votes = voteCount(talent.id)
+  const isMyVote = myVote(talent.category) === talent.id
 
   const share = async () => {
     const url = window.location.href
@@ -403,29 +406,44 @@ export default function TalentDetail() {
 
           <p className="mt-5 max-w-xl text-[15px] leading-relaxed text-white/75">{talent.bio}</p>
 
-          {/* soutien */}
-          <div className="glass mt-6 flex flex-wrap items-center justify-between gap-4 rounded-2xl border border-white/10 p-4 xl:flex-nowrap">
-            <div>
-              <div className="flex items-baseline gap-2">
-                <span key={count} className="animate-fadeIn font-display text-[44px] leading-none text-goldlight">
-                  {fmtNum(count)}
-                </span>
-                <Heart size={18} className={cx('text-gold', hasSupported(talent.id) && 'fill-gold')} />
+          {/* encouragements et votes */}
+          <div className="glass mt-6 rounded-2xl border border-white/10 p-4">
+            <div className="grid grid-cols-2 divide-x divide-white/10">
+              <div className="pr-4">
+                <div className="flex items-baseline gap-2">
+                  <span key={count} className="animate-fadeIn font-display text-[40px] leading-none text-goldlight">
+                    {fmtNum(count)}
+                  </span>
+                  <Heart size={17} className={cx('text-gold', hasSupported(talent.id) && 'fill-gold')} />
+                </div>
+                <div className="text-[12px] font-semibold text-white/50">encouragements</div>
               </div>
-              <div className="text-[12px] font-semibold text-white/50">soutiens · compteur simulé</div>
+              <div className="pl-4">
+                <div className="flex items-baseline gap-2">
+                  <span key={votes} className="animate-fadeIn font-display text-[40px] leading-none text-[#d9c6ff]">
+                    {fmtNum(votes)}
+                  </span>
+                  <Trophy size={17} className={cx('text-stagelight', isMyVote && 'fill-stagelight/40')} />
+                </div>
+                <div className="text-[12px] font-semibold text-white/50">votes · {CATEGORY_LABEL[talent.category]}</div>
+              </div>
             </div>
-            <div className="flex flex-1 items-center justify-end gap-2 sm:flex-none lg:flex-1 xl:flex-none">
-              <SupportButton talentId={talent.id} label="Encourager" doneLabel="Encouragé ✓" size="lg" className="flex-1 sm:flex-none" />
+            <div className="mt-4 flex items-center gap-2">
+              <SupportButton talentId={talent.id} size="md" className="flex-1" />
+              <VoteButton talentId={talent.id} size="md" className="flex-1" />
               <button
                 type="button"
                 onClick={share}
                 aria-label="Partager le profil"
                 title="Partager le profil"
-                className="grid h-12 w-12 shrink-0 place-items-center rounded-full border border-white/10 bg-white/[0.06] text-white/80 transition hover:border-gold/40 hover:text-goldlight"
+                className="grid h-11 w-11 shrink-0 place-items-center rounded-full border border-white/10 bg-white/[0.06] text-white/80 transition hover:border-gold/40 hover:text-goldlight"
               >
                 <Share2 size={18} />
               </button>
             </div>
+            <p className="mt-2.5 text-[11.5px] leading-snug text-white/45">
+              Encourager ne change pas le classement. Ta voix compte une fois par discipline{isMyVote ? ' : elle va à ' + talent.name + '.' : '.'}
+            </p>
           </div>
 
           {/* citation */}

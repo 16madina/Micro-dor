@@ -28,8 +28,8 @@ export const TOUR_STEPS = [
   },
   {
     to: '/votes',
-    title: 'Finalistes et soutiens',
-    text: 'Le public encourage les talents. Essayez « Je soutiens » : votes simulés, sans aucune donnée personnelle.',
+    title: 'Encourager et voter',
+    text: 'Tout le monde peut encourager un talent, sans compte et sans effet sur le classement. Le vote, lui, demande un compte : une voix par discipline, et c’est elle qui compte.',
   },
   {
     to: '/prevention',

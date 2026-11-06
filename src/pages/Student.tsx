@@ -111,7 +111,7 @@ export default function Student() {
             <div className="grid grid-cols-3 gap-2 rounded-2xl border border-white/[0.07] bg-ink/40 px-2 py-3 sm:w-[340px]">
               <div className="text-center">
                 <div className="font-display text-[28px] leading-none text-goldlight">{fmtNum(supportCount(alex.id))}</div>
-                <div className="mt-1 text-[10.5px] font-semibold uppercase tracking-wider text-white/45">Soutiens</div>
+                <div className="mt-1 text-[10.5px] font-semibold uppercase tracking-wider text-white/45">Encouragements</div>
               </div>
               <div className="text-center">
                 <div className="font-display text-[28px] leading-none text-goldlight">{alex.performances.length}</div>

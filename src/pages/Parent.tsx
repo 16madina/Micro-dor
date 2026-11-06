@@ -58,7 +58,7 @@ const NOTIFS: Notif[] = [
   { id: 'n2', icon: Mail, text: 'Nouvelle invitation : Grande finale MICRO D’OR', when: 'Il y a 2 h', anchor: 'invitations' },
   { id: 'n3', icon: ClipboardCheck, text: 'Rappel : une autorisation reste à confirmer', when: 'Hier', anchor: 'autorisations' },
   { id: 'n4', icon: HeartHandshake, text: 'Nouvelle capsule : Le trac, mon allié', when: 'Il y a 3 jours', to: '/prevention' },
-  { id: 'n5', icon: Sparkles, text: 'Maya L. a reçu de nouveaux soutiens (simulés)', when: 'Il y a 4 jours', to: '/talents/maya-l' },
+  { id: 'n5', icon: Sparkles, text: 'Maya L. a reçu de nouveaux encouragements', when: 'Il y a 4 jours', to: '/talents/maya-l' },
 ]
 
 function ShowRow({ show, featuring }: { show: Show; featuring: boolean }) {

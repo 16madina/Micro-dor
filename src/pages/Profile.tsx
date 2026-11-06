@@ -1,10 +1,11 @@
 import { Link, Navigate } from 'react-router-dom'
-import { ArrowRight, KeyRound, LogOut, Compass, FlaskConical, GraduationCap, Headphones, Heart, PlayCircle, ShoppingBag, Users, type LucideIcon } from 'lucide-react'
-import { SCHOOLS, TALENTS } from '../data'
+import { ArrowRight, KeyRound, LogOut, Trophy, Compass, FlaskConical, GraduationCap, Headphones, Heart, PlayCircle, ShoppingBag, Users, type LucideIcon } from 'lucide-react'
+import { CATEGORY_LABEL, SCHOOLS, TALENTS, type Category } from '../data'
 import { ROLE_LABEL, useApp } from '../state/AppState'
 import { TalentCard } from '../components/cards'
 import { Button, DemoPill, cx } from '../components/ui'
 import { BlockTitle } from '../components/spaces/SpaceUI'
+import { PortraitThumb } from '../components/talents/shared'
 
 const LINKS: { to: string; label: string; sub: string; icon: LucideIcon; accent?: boolean }[] = [
   { to: '/eleve', label: 'Espace élève', sub: 'Répétitions, ressources, événements', icon: GraduationCap, accent: true },
@@ -15,7 +16,7 @@ const LINKS: { to: string; label: string; sub: string; icon: LucideIcon; accent?
 ]
 
 export default function Profile() {
-  const { hasSupported, replaySplash, startTour, cart, setCartOpen, user, logout, toast, authReady } = useApp()
+  const { hasSupported, myVote, replaySplash, startTour, cart, setCartOpen, user, logout, toast, authReady } = useApp()
   if (!user && !authReady) return <div className="py-24 text-center text-white/50">Chargement du profil…</div>
   if (!user) return <Navigate to="/connexion?suite=/profil" replace />
   const initials = (user.firstName[0] ?? '') + (user.lastName[0] ?? '')
@@ -29,6 +30,8 @@ export default function Profile() {
         ? `Parent de ${user.details.enfant ?? '—'}${school ? ' · ' + school.name : ''}`
         : [user.details.niveau, school?.name].filter(Boolean).join(' · ')
   const supported = TALENTS.filter((t) => hasSupported(t.id))
+  const VOTE_CATS: Category[] = ['chant', 'danse', 'theatre', 'slam', 'rap']
+  const votedCount = VOTE_CATS.filter((c) => myVote(c)).length
   const inCart = cart.reduce((a, i) => a + i.qty, 0)
 
   return (
@@ -66,10 +69,14 @@ export default function Profile() {
               </div>
             </div>
           </div>
-          <div className="grid grid-cols-2 gap-2 rounded-2xl border border-white/[0.07] bg-ink/40 px-3 py-3 sm:w-[260px]">
+          <div className="grid grid-cols-3 gap-2 rounded-2xl border border-white/[0.07] bg-ink/40 px-3 py-3 sm:w-[330px]">
+            <div className="text-center">
+              <div className="font-display text-[30px] leading-none text-[#d9c6ff]">{votedCount}/5</div>
+              <div className="mt-1 text-[10.5px] font-semibold uppercase tracking-wider text-white/45">Votes</div>
+            </div>
             <div className="text-center">
               <div className="font-display text-[30px] leading-none text-goldlight">{supported.length}</div>
-              <div className="mt-1 text-[10.5px] font-semibold uppercase tracking-wider text-white/45">Talents soutenus</div>
+              <div className="mt-1 text-[10.5px] font-semibold uppercase tracking-wider text-white/45">Encouragés</div>
             </div>
             <button onClick={() => setCartOpen(true)} className="rounded-xl text-center transition hover:bg-white/5">
               <div className="font-display text-[30px] leading-none text-goldlight">{inCart}</div>
@@ -105,30 +112,61 @@ export default function Profile() {
       </section>
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,1fr)_380px] lg:gap-8">
-        {/* Talents soutenus */}
-        <section className="min-w-0">
-          <BlockTitle icon={Heart} aside={supported.length > 0 ? <Link to="/votes" className="text-[12.5px] font-semibold text-gold hover:text-goldlight">Voter encore →</Link> : undefined}>
-            Mes talents soutenus
-          </BlockTitle>
-          {supported.length > 0 ? (
-            <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 xl:grid-cols-4">
-              {supported.map((t) => (
-                <TalentCard key={t.id} talent={t} />
-              ))}
+        <div className="min-w-0 space-y-8">
+          {/* Mes votes */}
+          <section>
+            <BlockTitle icon={Trophy} aside={<Link to="/votes" className="text-[12.5px] font-semibold text-gold hover:text-goldlight">Classement →</Link>}>
+              Mes votes
+            </BlockTitle>
+            <div className="card divide-y divide-white/[0.06]">
+              {VOTE_CATS.map((c) => {
+                const t = TALENTS.find((x) => x.id === myVote(c))
+                return (
+                  <div key={c} className="flex items-center gap-3 px-4 py-3">
+                    <span className="w-28 shrink-0 text-[13px] font-bold text-white/60">{CATEGORY_LABEL[c]}</span>
+                    {t ? (
+                      <Link to={`/talents/${t.id}`} className="flex min-w-0 flex-1 items-center gap-2.5 hover:text-goldlight">
+                        <PortraitThumb talent={t} className="h-9 w-9 ring-1 ring-stagelight/60" />
+                        <span className="truncate text-[14px] font-extrabold">{t.name}</span>
+                        <Trophy size={14} className="ml-auto shrink-0 fill-stagelight/40 text-stagelight" />
+                      </Link>
+                    ) : (
+                      <Link to="/votes" className="flex-1 text-[13px] text-white/40 hover:text-white/70">
+                        Pas encore voté · choisir →
+                      </Link>
+                    )}
+                  </div>
+                )
+              })}
             </div>
-          ) : (
-            <div className="card flex flex-col items-center px-6 py-10 text-center">
-              <span className="grid h-16 w-16 place-items-center rounded-full border border-gold/30 bg-gold/10">
-                <Heart size={28} className="text-gold" />
-              </span>
-              <div className="mt-4 font-display text-[28px] leading-none tracking-wide">Aucun talent soutenu pour l’instant</div>
-              <p className="mt-2 max-w-sm text-[13px] text-white/55">Découvrez les finalistes et offrez-leur un soutien (simulé) : ils apparaîtront ici.</p>
-              <Button to="/votes" className="mt-5" icon={<Heart size={16} />}>
-                Aller voter
-              </Button>
-            </div>
-          )}
-        </section>
+            {user.demo && <p className="mt-2 text-[11.5px] text-white/40">Compte de démonstration : tes votes restent dans cette fenêtre.</p>}
+          </section>
+
+          {/* Mes encouragements */}
+          <section>
+            <BlockTitle icon={Heart} aside={supported.length > 0 ? <Link to="/talents" className="text-[12.5px] font-semibold text-gold hover:text-goldlight">Encourager d’autres talents →</Link> : undefined}>
+              Mes encouragements
+            </BlockTitle>
+            {supported.length > 0 ? (
+              <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 xl:grid-cols-4">
+                {supported.map((t) => (
+                  <TalentCard key={t.id} talent={t} />
+                ))}
+              </div>
+            ) : (
+              <div className="card flex flex-col items-center px-6 py-10 text-center">
+                <span className="grid h-16 w-16 place-items-center rounded-full border border-gold/30 bg-gold/10">
+                  <Heart size={28} className="text-gold" />
+                </span>
+                <div className="mt-4 font-display text-[28px] leading-none tracking-wide">Aucun talent encouragé pour l’instant</div>
+                <p className="mt-2 max-w-sm text-[13px] text-white/55">Encourage autant de talents que tu veux : ils apparaîtront ici. Ça ne change pas le classement.</p>
+                <Button to="/talents" className="mt-5" icon={<Heart size={16} />}>
+                  Découvrir les talents
+                </Button>
+              </div>
+            )}
+          </section>
+        </div>
 
         {/* Paramètres du prototype */}
         <section className="card relative h-fit overflow-hidden p-4 lg:p-5">

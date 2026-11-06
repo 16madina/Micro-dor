@@ -8,7 +8,7 @@ import { MORE_NAV, ORGANIZER_NAV, PRIMARY_NAV, SPACES_NAV, isActive, type NavIte
 
 const NOTIFS = [
   { t: 'Finale locale — Les Lumières est en direct (démo)', d: 'Il y a 5 min', to: '/spectacles/s1' },
-  { t: 'Maya L. a reçu 50 nouveaux soutiens (simulés)', d: 'Il y a 1 h', to: '/talents/maya-l' },
+  { t: 'Maya L. a reçu 50 nouveaux encouragements', d: 'Il y a 1 h', to: '/talents/maya-l' },
   { t: 'La tournée arrive à Laval le 20 novembre', d: 'Hier', to: '/tournee' },
   { t: 'Nouvelle capsule : Rester pour la scène', d: 'Il y a 2 jours', to: '/prevention' },
 ]

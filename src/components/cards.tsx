@@ -3,6 +3,7 @@ import { Heart, MapPin, Play, Users, CalendarDays } from 'lucide-react'
 import { CATEGORY_LABEL, PHOTOS, fmtDate, fmtNum, schoolById, showsOfSchool, talentsOfSchool, type Category, type School, type Show, type Talent } from '../data'
 import { useApp } from '../state/AppState'
 import StageArt, { type Pose } from './art/StageArt'
+import { EngagementCounts } from './talents/shared'
 import Portrait from './art/Portrait'
 import SchoolArt from './art/SchoolArt'
 import { CategoryTag, StatusBadge, cx } from './ui'
@@ -58,7 +59,6 @@ export function ShowCard({ show, className, size = 'md' }: { show: Show; classNa
 
 /** Carte talent portrait */
 export function TalentCard({ talent, className }: { talent: Talent; className?: string }) {
-  const { supportCount, hasSupported } = useApp()
   const school = schoolById(talent.schoolId)
   return (
     <Link
@@ -74,9 +74,8 @@ export function TalentCard({ talent, className }: { talent: Talent; className?: 
           <div className="font-display text-[24px] leading-none tracking-wide">{talent.name}</div>
           <div className="mt-1 text-[12px] font-bold text-gold">{CATEGORY_LABEL[talent.category]}</div>
           <div className="mt-0.5 truncate text-[11.5px] text-white/60">{school.name}</div>
-          <div className="mt-2 flex items-center justify-end gap-1 text-[13px] font-extrabold">
-            {fmtNum(supportCount(talent.id))}
-            <Heart size={13} className={cx('text-gold', hasSupported(talent.id) && 'fill-gold')} />
+          <div className="mt-2 flex justify-end">
+            <EngagementCounts talentId={talent.id} compact />
           </div>
         </div>
       </div>
