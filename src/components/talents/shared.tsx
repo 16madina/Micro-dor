@@ -156,11 +156,29 @@ export function VoteButton({
 }
 
 /** Les deux compteurs côte à côte : encouragements (♥) et votes (🏆) */
-export function EngagementCounts({ talentId, className, compact }: { talentId: string; className?: string; compact?: boolean }) {
+export function EngagementCounts({
+  talentId,
+  className,
+  compact,
+  spread,
+}: {
+  talentId: string
+  className?: string
+  compact?: boolean
+  /** encouragements à gauche, votes à droite (cartes) */
+  spread?: boolean
+}) {
   const { supportCount, voteCount, hasSupported, myVote } = useApp()
   const t = talentById(talentId)
   return (
-    <span className={cx('inline-flex items-center gap-2.5 tabular-nums', compact ? 'text-[12px]' : 'text-[13px]', className)}>
+    <span
+      className={cx(
+        'items-center tabular-nums',
+        spread ? 'flex w-full justify-between text-[13px]' : 'inline-flex gap-2.5',
+        !spread && (compact ? 'text-[12px]' : 'text-[13px]'),
+        className,
+      )}
+    >
       <span className="inline-flex items-center gap-1 font-extrabold" title="Encouragements">
         <Heart size={compact ? 12 : 13} className={cx('text-gold', hasSupported(talentId) && 'fill-gold')} />
         {fmtNum(supportCount(talentId))}

@@ -74,9 +74,7 @@ export function TalentCard({ talent, className }: { talent: Talent; className?: 
           <div className="font-display text-[24px] leading-none tracking-wide">{talent.name}</div>
           <div className="mt-1 text-[12px] font-bold text-gold">{CATEGORY_LABEL[talent.category]}</div>
           <div className="mt-0.5 truncate text-[11.5px] text-white/60">{school.name}</div>
-          <div className="mt-2 flex justify-end">
-            <EngagementCounts talentId={talent.id} compact />
-          </div>
+          <EngagementCounts talentId={talent.id} spread className="mt-2" />
         </div>
       </div>
     </Link>
