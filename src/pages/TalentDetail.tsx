@@ -338,7 +338,7 @@ function About({ talent }: { talent: Talent }) {
 export default function TalentDetail() {
   const { id } = useParams()
   const talent = TALENTS.find((t) => t.id === id)
-  const { supportCount, hasSupported, voteCount, myVote, toast } = useApp()
+  const { supportCount, hasSupported, voteCount, myVotesFor, toast } = useApp()
   const [tab, setTab] = useState<Tab>('performances')
 
   if (!talent) return <NotFound />
@@ -347,7 +347,8 @@ export default function TalentDetail() {
   const others = talentsOfSchool(talent.schoolId).filter((t) => t.id !== talent.id)
   const count = supportCount(talent.id)
   const votes = voteCount(talent.id)
-  const isMyVote = myVote(talent.category) === talent.id
+  const myVotes = myVotesFor(talent.id)
+  const isMyVote = myVotes > 0
 
   const share = async () => {
     const url = window.location.href
@@ -442,7 +443,7 @@ export default function TalentDetail() {
               </button>
             </div>
             <p className="mt-2.5 text-[11.5px] leading-snug text-white/45">
-              Encourager ne change pas le classement. Ta voix compte une fois par discipline{isMyVote ? ' : elle va à ' + talent.name + '.' : '.'}
+              Encourager est gratuit et ne change pas le classement. Voter est payant (dès 2 $, paiement simulé){isMyVote ? ` : tu as donné ${myVotes} vote${myVotes > 1 ? 's' : ''} à ${talent.name}.` : '.'}
             </p>
           </div>
 

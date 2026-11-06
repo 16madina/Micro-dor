@@ -116,7 +116,7 @@ const SECTIONS: Section[] = [
         <UL
           items={[
             'Encourager : ouvert à tous, sans compte. Un encouragement par personne et par talent, que l’on peut retirer. Il n’a aucun effet sur le classement.',
-            'Voter : réservé aux personnes ayant un compte. Une seule voix par compte et par discipline (chant, danse, théâtre, slam, rap conscience), que l’on peut déplacer tant que le vote est ouvert.',
+            'Voter : réservé aux personnes ayant un compte. Les votes sont payants, par forfaits (1 vote 2 $, 5 votes 8 $, 10 votes 15 $), avec un plafond de 10 votes par personne et par discipline (chant, danse, théâtre, slam, rap conscience). Les votes achetés sont définitifs. Avant 14 ans, un parent ou tuteur doit approuver le compte. (Prototype : paiement simulé.)',
             'Le résultat final envisagé combine l’évaluation du jury (pondération envisagée : 60 %) et le vote du public (40 %).',
             'Aucun achat ni contrepartie financière ; des mécanismes de détection des votes automatisés ou abusifs sont prévus.',
           ]}

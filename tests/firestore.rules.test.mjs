@@ -1,5 +1,5 @@
 /**
- * Tests des règles de sécurité Firestore (encouragements, votes, profils).
+ * Tests des règles de sécurité Firestore (encouragements, votes payants, profils).
  * Lancer : npm run test:rules   (nécessite Java ; utilise l’émulateur local, jamais la base réelle)
  */
 import { readFileSync } from 'node:fs'
@@ -28,6 +28,7 @@ const anon = env.authenticatedContext('anon1', { firebase: { sign_in_provider: '
 const anon2 = env.authenticatedContext('anon2', { firebase: { sign_in_provider: 'anonymous' } }).firestore()
 const alice = env.authenticatedContext('alice', { email: 'alice@exemple.ca', firebase: { sign_in_provider: 'password' } }).firestore()
 const bob = env.authenticatedContext('bob', { email: 'bob@exemple.ca', firebase: { sign_in_provider: 'password' } }).firestore()
+const kid = env.authenticatedContext('kid', { email: 'kid@exemple.ca', firebase: { sign_in_provider: 'password' } }).firestore()
 const ghost = env.authenticatedContext('ghost', { email: 'ghost@exemple.ca', firebase: { sign_in_provider: 'password' } }).firestore()
 const visitor = env.unauthenticatedContext().firestore()
 
@@ -35,6 +36,7 @@ await env.withSecurityRulesDisabled(async (ctx) => {
   const db = ctx.firestore()
   await setDoc(doc(db, 'users/alice'), { role: 'eleve', email: 'alice@exemple.ca' })
   await setDoc(doc(db, 'users/bob'), { role: 'parent', email: 'bob@exemple.ca' })
+  await setDoc(doc(db, 'users/kid'), { role: 'eleve', email: 'kid@exemple.ca', details: { consentementParental: 'en_attente' } })
 })
 
 const encourage = (db, uid, tid, add = true) => {
@@ -45,11 +47,12 @@ const encourage = (db, uid, tid, add = true) => {
   b.update(doc(db, 'talents', tid), { encouragements: increment(add ? 1 : -1) })
   return b.commit()
 }
-const vote = (db, uid, cat, tid, prev) => {
+// achat de qty votes : bulletin complet { total, parts } + compteur du talent
+const buy = (db, uid, cat, tid, qty, prev = { total: 0, parts: {} }, counterQty = qty) => {
   const b = writeBatch(db)
-  b.set(doc(db, 'votes', `${cat}_${uid}`), { uid, category: cat, talentId: tid, at: new Date() })
-  b.update(doc(db, 'talents', tid), { votes: increment(1) })
-  if (prev) b.update(doc(db, 'talents', prev), { votes: increment(-1) })
+  const parts = { ...prev.parts, [tid]: (prev.parts[tid] ?? 0) + qty }
+  b.set(doc(db, 'bulletins', `${cat}_${uid}`), { uid, category: cat, total: prev.total + qty, parts, dernier: tid, at: new Date() })
+  b.update(doc(db, 'talents', tid), { votes: increment(counterQty) })
   return b.commit()
 }
 
@@ -77,20 +80,44 @@ await test('un deuxième visiteur encourage aussi Sarah', () => assertSucceeds(e
 await test('retirer son encouragement', () => assertSucceeds(encourage(anon, 'anon1', 'sarah-m', false)))
 await test('refus : modifier les votes en encourageant', () => assertFails(writeBatch(anon).update(doc(anon, 'talents/sarah-m'), { votes: increment(1) }).commit()))
 
-console.log('\nVoter')
-await test('refus : un visiteur anonyme ne peut pas voter', () => assertFails(vote(anon, 'anon1', 'rap', 'sarah-m')))
-await test('refus : compte sans profil MICRO D’OR', () => assertFails(vote(ghost, 'ghost', 'rap', 'sarah-m')))
-await test('Alice vote pour Sarah en rap', () => assertSucceeds(vote(alice, 'alice', 'rap', 'sarah-m')))
-await test('refus : Alice revote pour Sarah (même voix)', () => assertFails(vote(alice, 'alice', 'rap', 'sarah-m')))
-await test('refus : deuxième voix en rap sans retirer la première', () => assertFails(vote(alice, 'alice', 'rap', 'karim-s')))
-await test('Alice déplace sa voix de Sarah vers Karim', () => assertSucceeds(vote(alice, 'alice', 'rap', 'karim-s', 'sarah-m')))
-await test('Alice vote aussi en chant (autre discipline)', () => assertSucceeds(vote(alice, 'alice', 'chant', 'maya-l')))
-await test('refus : voter pour un talent d’une autre discipline', () => assertFails(vote(alice, 'alice', 'chant', 'jade-t', 'maya-l')))
+console.log('\nVotes payants')
+await test('refus : un visiteur anonyme ne peut pas acheter de votes', () => assertFails(buy(anon, 'anon1', 'rap', 'sarah-m', 1)))
+await test('refus : compte sans profil MICRO D’OR', () => assertFails(buy(ghost, 'ghost', 'rap', 'sarah-m', 1)))
+await test('refus : élève de moins de 14 ans sans accord parental', () => assertFails(buy(kid, 'kid', 'rap', 'sarah-m', 1)))
+await test('refus : l’élève retire lui-même l’attente d’accord parental', () => assertFails(setDoc(doc(kid, 'users/kid'), { role: 'eleve', email: 'kid@exemple.ca', details: {} })))
+await test('Alice achète 1 vote pour Sarah (rap)', () => assertSucceeds(buy(alice, 'alice', 'rap', 'sarah-m', 1)))
+const a1 = { total: 1, parts: { 'sarah-m': 1 } }
+await test('Alice ajoute un forfait de 5 votes pour Sarah', () => assertSucceeds(buy(alice, 'alice', 'rap', 'sarah-m', 5, a1)))
+const a6 = { total: 6, parts: { 'sarah-m': 6 } }
+await test('refus : 3 votes (pas un forfait)', () => assertFails(buy(alice, 'alice', 'rap', 'sarah-m', 3, a6)))
+await test('refus : dépasser le plafond de 10 votes en rap', () => assertFails(buy(alice, 'alice', 'rap', 'sarah-m', 5, a6)))
+await test('refus : bulletin +1 mais compteur +5', () => assertFails(buy(alice, 'alice', 'rap', 'sarah-m', 1, a6, 5)))
 await test('refus : +1 vote sans bulletin', () => assertFails(writeBatch(bob).update(doc(bob, 'talents/jade-t'), { votes: increment(1) }).commit()))
-await test('refus : Bob écrit le bulletin d’Alice', () => assertFails(vote(bob, 'alice', 'danse', 'jade-t')))
-await test('refus : Bob lit le bulletin d’Alice', () => assertFails(getDoc(doc(bob, 'votes/rap_alice'))))
-await test('Alice lit son propre bulletin', () => assertSucceeds(getDoc(doc(alice, 'votes/rap_alice'))))
-await test('Bob consulte son bulletin de danse inexistant sans erreur', () => assertSucceeds(getDoc(doc(bob, 'votes/danse_bob'))))
+await test('refus : talent d’une autre discipline dans le bulletin rap', () => assertFails(buy(alice, 'alice', 'rap', 'jade-t', 1, a6)))
+await test('refus : retirer des votes déjà achetés', () => {
+  const b = writeBatch(alice)
+  b.set(doc(alice, 'bulletins/rap_alice'), { uid: 'alice', category: 'rap', total: 5, parts: { 'sarah-m': 5 }, dernier: 'sarah-m', at: new Date() })
+  b.update(doc(alice, 'talents/sarah-m'), { votes: increment(-1) })
+  return assertFails(b.commit())
+})
+await test('refus : déplacer ses votes vers un autre talent', () => {
+  const b = writeBatch(alice)
+  b.set(doc(alice, 'bulletins/rap_alice'), { uid: 'alice', category: 'rap', total: 7, parts: { 'karim-s': 7 }, dernier: 'karim-s', at: new Date() })
+  b.update(doc(alice, 'talents/karim-s'), { votes: increment(1) })
+  return assertFails(b.commit())
+})
+await test('refus : « dernier » ne correspond pas au talent modifié', () => {
+  const b = writeBatch(alice)
+  b.set(doc(alice, 'bulletins/rap_alice'), { uid: 'alice', category: 'rap', total: 7, parts: { 'sarah-m': 7 }, dernier: 'karim-s', at: new Date() })
+  b.update(doc(alice, 'talents/karim-s'), { votes: increment(1) })
+  return assertFails(b.commit())
+})
+await test('Alice achète aussi 1 vote pour Karim (même discipline, total 7)', () => assertSucceeds(buy(alice, 'alice', 'rap', 'karim-s', 1, a6)))
+await test('Alice achète 10 votes pour Maya en chant (autre plafond)', () => assertSucceeds(buy(alice, 'alice', 'chant', 'maya-l', 10)))
+await test('refus : Bob écrit le bulletin d’Alice', () => assertFails(buy(bob, 'alice', 'danse', 'jade-t', 1)))
+await test('refus : Bob lit le bulletin d’Alice', () => assertFails(getDoc(doc(bob, 'bulletins/rap_alice'))))
+await test('Alice lit son propre bulletin', () => assertSucceeds(getDoc(doc(alice, 'bulletins/rap_alice'))))
+await test('Bob consulte son bulletin de danse inexistant sans erreur', () => assertSucceeds(getDoc(doc(bob, 'bulletins/danse_bob'))))
 
 let final = {}
 await env.withSecurityRulesDisabled(async (ctx) => {
@@ -98,8 +125,8 @@ await env.withSecurityRulesDisabled(async (ctx) => {
   const g = async (id) => (await getDoc(doc(db, 'talents', id))).data()
   final = { sarah: await g('sarah-m'), karim: await g('karim-s'), maya: await g('maya-l') }
 })
-await test('compteurs finaux cohérents (Sarah : 1 enc. / 0 vote, Karim : 1 vote, Maya : 1 vote)', async () => {
-  const ok = final.sarah.encouragements === 1 && final.sarah.votes === 0 && final.karim.votes === 1 && final.maya.votes === 1
+await test('compteurs finaux cohérents (Sarah : 1 enc. / 6 votes, Karim : 1 vote, Maya : 10 votes)', async () => {
+  const ok = final.sarah.encouragements === 1 && final.sarah.votes === 6 && final.karim.votes === 1 && final.maya.votes === 10
   if (!ok) throw new Error(JSON.stringify(final))
 })
 

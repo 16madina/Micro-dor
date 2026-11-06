@@ -6,6 +6,7 @@ import { useApp } from '../../state/AppState'
 import { useSvgId } from '../art/Logo'
 import Portrait from '../art/Portrait'
 import { GoldBurst, cx, useBurst } from '../ui'
+import VoteCheckout from './VoteCheckout'
 
 export const THANKS = 'Merci d’encourager ce talent !'
 
@@ -80,7 +81,7 @@ export function SupportButton({
 }
 
 /**
- * Bouton « Voter » : une voix par compte et par discipline, modifiable.
+ * Bouton « Voter » : ouvre le paiement (simulé) d’un forfait de votes.
  * Seuls les votes comptent pour le classement.
  */
 export function VoteButton({
@@ -94,64 +95,42 @@ export function VoteButton({
   className?: string
   iconOnly?: boolean
 }) {
-  const { vote, myVote, toast, user } = useApp()
+  const { myVotesFor, toast, user } = useApp()
   const nav = useNavigate()
   const { pathname } = useLocation()
-  const [confirming, setConfirming] = useState(false)
-  const [busy, setBusy] = useState(false)
-  const t = talentById(talentId)
-  const current = myVote(t.category)
-  const mine = current === talentId
-  const cat = CATEGORY_LABEL[t.category]
+  const [open, setOpen] = useState(false)
+  const mine = myVotesFor(talentId)
 
-  useEffect(() => {
-    if (!confirming) return
-    const i = setTimeout(() => setConfirming(false), 4000)
-    return () => clearTimeout(i)
-  }, [confirming])
-
-  const onClick = async (e: MouseEvent) => {
+  const onClick = (e: MouseEvent) => {
     e.preventDefault()
     e.stopPropagation()
-    if (mine) return toast(`${t.name} a déjà ta voix en ${cat}`, 'info')
     if (!user) {
-      toast('Connecte-toi pour voter : une voix par compte et par discipline', 'info')
+      toast('Connecte-toi pour voter : les votes sont associés à ton compte', 'info')
       return nav('/connexion?suite=' + encodeURIComponent(pathname))
     }
-    if (current && !confirming) return setConfirming(true)
-    setConfirming(false)
-    setBusy(true)
-    const r = await vote(talentId)
-    setBusy(false)
-    if (r === 'voted') toast(`Ta voix en ${cat} va à ${t.name}`)
-    else if (r === 'changed') toast(`Vote modifié : ta voix en ${cat} va maintenant à ${t.name}`)
-    else if (r === 'needAccount') nav('/connexion?suite=' + encodeURIComponent(pathname))
-    else if (r === 'error') toast('Vote non enregistré. Vérifie ta connexion et réessaie.', 'info')
+    setOpen(true)
   }
 
-  const text = mine ? 'Mon vote ✓' : confirming ? 'Remplacer mon vote ?' : 'Voter'
+  const text = mine ? `${mine} vote${mine > 1 ? 's' : ''} ✓` : 'Voter'
   return (
-    <button
-      type="button"
-      onClick={onClick}
-      disabled={busy}
-      aria-pressed={mine}
-      aria-label={iconOnly ? text : undefined}
-      title={mine ? `Ta voix en ${cat}` : current ? `Tu as déjà voté en ${cat} : un nouveau clic déplacera ta voix` : `Donner ta voix en ${cat} (1 par discipline)`}
-      className={cx(
-        'relative inline-flex select-none items-center justify-center whitespace-nowrap rounded-full font-extrabold transition-all duration-200 active:scale-[.96] disabled:opacity-60',
-        iconOnly ? (size === 'lg' ? 'h-12 w-12' : size === 'md' ? 'h-11 w-11' : 'h-9 w-9') : BTN_SIZES[size],
-        mine
-          ? 'bg-stage text-white shadow-[0_8px_24px_-8px_rgba(104,55,181,.9)]'
-          : confirming
-            ? 'border border-stagelight bg-stage/25 text-white'
-            : 'border border-stagelight/60 text-[#d9c6ff] hover:bg-stage/20',
-        className,
-      )}
-    >
-      <Trophy size={size === 'xs' ? 13 : 16} className={mine ? 'fill-white/30' : ''} />
-      {!iconOnly && text}
-    </button>
+    <>
+      <button
+        type="button"
+        onClick={onClick}
+        aria-label={iconOnly ? text : undefined}
+        title={mine ? `Tu as donné ${mine} vote${mine > 1 ? 's' : ''} · en ajouter` : 'Acheter des votes (dès 2 $)'}
+        className={cx(
+          'relative inline-flex select-none items-center justify-center whitespace-nowrap rounded-full font-extrabold transition-all duration-200 active:scale-[.96]',
+          iconOnly ? (size === 'lg' ? 'h-12 w-12' : size === 'md' ? 'h-11 w-11' : 'h-9 w-9') : BTN_SIZES[size],
+          mine ? 'bg-stage text-white shadow-[0_8px_24px_-8px_rgba(104,55,181,.9)] hover:brightness-110' : 'border border-stagelight/60 text-[#d9c6ff] hover:bg-stage/20',
+          className,
+        )}
+      >
+        <Trophy size={size === 'xs' ? 13 : 16} className={mine ? 'fill-white/30' : ''} />
+        {!iconOnly && text}
+      </button>
+      <VoteCheckout talentId={talentId} open={open} onClose={() => setOpen(false)} />
+    </>
   )
 }
 
@@ -168,8 +147,7 @@ export function EngagementCounts({
   /** encouragements à gauche, votes à droite (cartes) */
   spread?: boolean
 }) {
-  const { supportCount, voteCount, hasSupported, myVote } = useApp()
-  const t = talentById(talentId)
+  const { supportCount, voteCount, hasSupported, myVotesFor } = useApp()
   return (
     <span
       className={cx(
@@ -184,7 +162,7 @@ export function EngagementCounts({
         {fmtNum(supportCount(talentId))}
       </span>
       <span className="inline-flex items-center gap-1 font-extrabold text-[#d9c6ff]" title="Votes">
-        <Trophy size={compact ? 12 : 13} className={cx('text-stagelight', myVote(t.category) === talentId && 'fill-stagelight/40')} />
+        <Trophy size={compact ? 12 : 13} className={cx('text-stagelight', myVotesFor(talentId) > 0 && 'fill-stagelight/40')} />
         {fmtNum(voteCount(talentId))}
       </span>
     </span>

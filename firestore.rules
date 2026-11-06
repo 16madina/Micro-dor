@@ -30,7 +30,9 @@ service cloud.firestore {
       allow update: if signedIn()
         && request.auth.uid == uid
         && request.resource.data.role == resource.data.role
-        && request.resource.data.get('orgCode', null) == resource.data.get('orgCode', null);
+        && request.resource.data.get('orgCode', null) == resource.data.get('orgCode', null)
+        && request.resource.data.get('details', {}).get('consentementParental', null)
+           == resource.data.get('details', {}).get('consentementParental', null);
 
       allow delete: if false;
     }
@@ -52,8 +54,8 @@ service cloud.firestore {
     function fanPath(tid) {
       return /databases/$(database)/documents/talents/$(tid)/fans/$(request.auth.uid);
     }
-    function votePath(cat) {
-      return /databases/$(database)/documents/votes/$(cat + '_' + request.auth.uid);
+    function ballotPath(cat) {
+      return /databases/$(database)/documents/bulletins/$(cat + '_' + request.auth.uid);
     }
     // l'encouragement ne bouge que de 1, et seulement avec la fiche « fan » correspondante
     function encOk(tid) {
@@ -62,15 +64,13 @@ service cloud.firestore {
         || (d == 1 && !exists(fanPath(tid)) && existsAfter(fanPath(tid)))
         || (d == -1 && exists(fanPath(tid)) && !existsAfter(fanPath(tid)));
     }
-    // le vote ne bouge que de 1, et seulement si le bulletin de la personne change vers / depuis ce talent
+    // les votes ne font que monter, du nombre exact de votes achetés dans le bulletin de la personne
     function voteOk(tid) {
       let d = request.resource.data.votes - resource.data.votes;
-      let v = votePath(resource.data.category);
+      let b = ballotPath(resource.data.category);
       return d == 0
-        || (d == 1 && existsAfter(v) && getAfter(v).data.talentId == tid
-              && (!exists(v) || get(v).data.talentId != tid))
-        || (d == -1 && exists(v) && get(v).data.talentId == tid
-              && existsAfter(v) && getAfter(v).data.talentId != tid);
+        || (d in [1, 5, 10] && existsAfter(b)
+            && getAfter(b).data.parts.get(tid, 0) == (exists(b) ? get(b).data.parts.get(tid, 0) : 0) + d);
     }
 
     match /talents/{tid} {
@@ -99,28 +99,51 @@ service cloud.firestore {
       }
     }
 
-    // un bulletin par compte et par discipline : l'identifiant du document est « discipline_uid »
-    match /votes/{vid} {
-      // lisible seulement par son auteur (l'identifiant se termine par son uid), même s'il n'existe pas encore
-      allow read: if signedIn() && vid.split('_')[1] == request.auth.uid;
-      allow create: if realAccount()
-        && vid == request.resource.data.category + '_' + request.auth.uid
-        && request.resource.data.keys().hasOnly(['uid', 'category', 'talentId', 'at'])
+    // ---------- Votes payants ----------
+    // Forfaits : 1, 5 ou 10 votes. Plafond : 10 votes par personne et par discipline.
+    // Paiement SIMULÉ pour l'instant. Avec un vrai paiement (Stripe), ces écritures
+    // passeront par une fonction serveur et seront fermées aux applications.
+    function canPay() {
+      return realAccount()
+        && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.get('details', {})
+             .get('consentementParental', 'ok') != 'en_attente';
+    }
+    function talentDoc(tid) {
+      return /databases/$(database)/documents/talents/$(tid);
+    }
+    // achat de n votes pour tid : bulletin, plafond et compteur du talent concordent
+    function purchaseOk(tid, oldPart, n) {
+      let b = request.resource.data;
+      return tid in talentIds()
+        && n in [1, 5, 10]
+        && b.parts[tid] == oldPart + n
+        && b.total <= 10
+        && get(talentDoc(tid)).data.category == b.category
+        && getAfter(talentDoc(tid)).data.votes == get(talentDoc(tid)).data.votes + n;
+    }
+
+    // un bulletin par compte et par discipline : l'identifiant est « discipline_uid »,
+    // « dernier » nomme le talent du dernier achat (le seul dont la part change)
+    match /bulletins/{bid} {
+      // lisible seulement par son auteur (même s'il n'existe pas encore)
+      allow read: if signedIn() && bid.split('_')[1] == request.auth.uid;
+      allow create: if canPay()
+        && bid == request.resource.data.category + '_' + request.auth.uid
+        && request.resource.data.keys().hasOnly(['uid', 'category', 'total', 'parts', 'dernier', 'at'])
         && request.resource.data.uid == request.auth.uid
-        && get(/databases/$(database)/documents/talents/$(request.resource.data.talentId)).data.category == request.resource.data.category
-        && getAfter(/databases/$(database)/documents/talents/$(request.resource.data.talentId)).data.votes
-           == get(/databases/$(database)/documents/talents/$(request.resource.data.talentId)).data.votes + 1;
-      allow update: if realAccount()
+        && request.resource.data.parts.keys().hasOnly([request.resource.data.dernier])
+        && purchaseOk(request.resource.data.dernier, 0, request.resource.data.total);
+      // on ne peut qu'ajouter des votes : jamais en retirer ni les déplacer
+      allow update: if canPay()
         && resource.data.uid == request.auth.uid
         && request.resource.data.uid == request.auth.uid
         && request.resource.data.category == resource.data.category
-        && request.resource.data.keys().hasOnly(['uid', 'category', 'talentId', 'at'])
-        && request.resource.data.talentId != resource.data.talentId
-        && get(/databases/$(database)/documents/talents/$(request.resource.data.talentId)).data.category == resource.data.category
-        && getAfter(/databases/$(database)/documents/talents/$(request.resource.data.talentId)).data.votes
-           == get(/databases/$(database)/documents/talents/$(request.resource.data.talentId)).data.votes + 1
-        && getAfter(/databases/$(database)/documents/talents/$(resource.data.talentId)).data.votes
-           == get(/databases/$(database)/documents/talents/$(resource.data.talentId)).data.votes - 1;
+        && request.resource.data.keys().hasOnly(['uid', 'category', 'total', 'parts', 'dernier', 'at'])
+        && request.resource.data.parts.diff(resource.data.parts).affectedKeys().hasOnly([request.resource.data.dernier])
+        && purchaseOk(
+             request.resource.data.dernier,
+             resource.data.parts.get(request.resource.data.dernier, 0),
+             request.resource.data.total - resource.data.total);
       allow delete: if false;
     }
 

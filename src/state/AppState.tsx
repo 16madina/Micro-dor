@@ -88,17 +88,34 @@ interface Toast {
 }
 
 export type EncourageResult = 'added' | 'removed' | 'error'
-export type VoteResult = 'voted' | 'changed' | 'same' | 'needAccount' | 'error'
+export type VoteResult = 'ok' | 'needAccount' | 'consent' | 'cap' | 'error'
+
+/** Forfaits de votes (paiement simulé pour l’instant) */
+export const VOTE_PACKS = [
+  { qty: 1, price: 2, label: '1 vote' },
+  { qty: 5, price: 8, label: '5 votes', tag: 'Populaire' },
+  { qty: 10, price: 15, label: '10 votes', tag: 'Meilleur prix' },
+] as const
+/** Plafond de votes par personne et par discipline (aussi vérifié par les règles Firestore) */
+export const VOTE_CAP = 10
+export interface Ballot {
+  total: number
+  parts: Record<string, number>
+}
+const EMPTY_BALLOT: Ballot = { total: 0, parts: {} }
 
 interface AppState {
   // encouragements : ouverts à tous, 1 par personne et par talent, sans effet sur le classement
   supportCount: (talentId: string) => number
   hasSupported: (talentId: string) => boolean
   support: (talentId: string) => Promise<EncourageResult>
-  // votes : compte requis, 1 vote par discipline (modifiable), seuls à compter pour le classement
+  // votes payants : compte requis, forfaits de 1, 5 ou 10, plafond de 10 par discipline, seuls à compter pour le classement
   voteCount: (talentId: string) => number
-  myVote: (category: Category) => string | undefined
-  vote: (talentId: string) => Promise<VoteResult>
+  ballot: (category: Category) => Ballot
+  myVotesFor: (talentId: string) => number
+  /** pourquoi la personne ne peut pas encore payer (null si elle peut) */
+  voteBlock: 'needAccount' | 'consent' | null
+  buyVotes: (talentId: string, qty: number) => Promise<VoteResult>
   // panier fictif
   cart: CartItem[]
   addToCart: (productId: string, size?: string) => void
@@ -165,7 +182,7 @@ const BASE_VOTES: Record<string, number> = Object.fromEntries(TALENTS.map((t) =>
 export function AppProvider({ children }: { children: ReactNode }) {
   const [live, setLive] = useState<Record<string, { e: number; v: number }>>({})
   const [encouraged, setEncouraged] = useState<Set<string>>(new Set())
-  const [myVotes, setMyVotes] = useState<Partial<Record<Category, string>>>({})
+  const [myVotes, setMyVotes] = useState<Partial<Record<Category, Ballot>>>({})
   const [demoDelta, setDemoDelta] = useState<Record<string, { e: number; v: number }>>({})
   const [fbUid, setFbUid] = useState<string | null>(null)
   const [cart, setCart] = useState<CartItem[]>([])
@@ -278,14 +295,14 @@ export function AppProvider({ children }: { children: ReactNode }) {
       const cats: Category[] = ['chant', 'slam', 'rap', 'danse', 'theatre']
       const votes = await Promise.all(
         cats.map((c) =>
-          getDoc(doc(db, 'votes', `${c}_${fbUid}`))
-            .then((d) => (d.exists() ? ([c, d.data().talentId] as const) : null))
+          getDoc(doc(db, 'bulletins', `${c}_${fbUid}`))
+            .then((d) => (d.exists() ? ([c, { total: d.data().total ?? 0, parts: d.data().parts ?? {} }] as const) : null))
             .catch(() => null),
         ),
       )
       if (!alive) return
       setEncouraged(new Set(enc.filter(Boolean) as string[]))
-      setMyVotes(Object.fromEntries(votes.filter(Boolean) as (readonly [Category, string])[]))
+      setMyVotes(Object.fromEntries(votes.filter(Boolean) as (readonly [Category, Ballot])[]))
     })()
     return () => {
       alive = false
@@ -339,33 +356,31 @@ export function AppProvider({ children }: { children: ReactNode }) {
         }
       },
       voteCount: (id) => (BASE_VOTES[id] ?? 0) + (live[id]?.v ?? 0) + (demoDelta[id]?.v ?? 0),
-      myVote: (c) => myVotes[c],
-      vote: async (id) => {
+      ballot: (c) => myVotes[c] ?? EMPTY_BALLOT,
+      myVotesFor: (id) => myVotes[talentById(id).category]?.parts[id] ?? 0,
+      voteBlock: !user ? 'needAccount' : user.details.consentementParental === 'en_attente' ? 'consent' : null,
+      buyVotes: async (id, qty) => {
         const cat = talentById(id).category
-        const prev = myVotes[cat]
-        if (prev === id) return 'same'
         if (!user) return 'needAccount'
+        if (user.details.consentementParental === 'en_attente') return 'consent'
+        const prev = myVotes[cat] ?? EMPTY_BALLOT
+        if (!VOTE_PACKS.some((p) => p.qty === qty) || prev.total + qty > VOTE_CAP) return 'cap'
+        const next: Ballot = { total: prev.total + qty, parts: { ...prev.parts, [id]: (prev.parts[id] ?? 0) + qty } }
         if (user.demo) {
-          setMyVotes((m) => ({ ...m, [cat]: id }))
-          setDemoDelta((d) => {
-            const n = { ...d, [id]: { e: d[id]?.e ?? 0, v: (d[id]?.v ?? 0) + 1 } }
-            if (prev) n[prev] = { e: n[prev]?.e ?? 0, v: (n[prev]?.v ?? 0) - 1 }
-            return n
-          })
-          return prev ? 'changed' : 'voted'
+          setMyVotes((m) => ({ ...m, [cat]: next }))
+          setDemoDelta((d) => ({ ...d, [id]: { e: d[id]?.e ?? 0, v: (d[id]?.v ?? 0) + qty } }))
+          return 'ok'
         }
         const uid = auth.currentUser?.uid
         if (!uid) return 'needAccount'
         try {
           await ensureTalent(id)
-          if (prev) await ensureTalent(prev)
           const b = writeBatch(db)
-          b.set(doc(db, 'votes', `${cat}_${uid}`), { uid, category: cat, talentId: id, at: serverTimestamp() })
-          b.update(doc(db, 'talents', id), { votes: increment(1) })
-          if (prev) b.update(doc(db, 'talents', prev), { votes: increment(-1) })
+          b.set(doc(db, 'bulletins', `${cat}_${uid}`), { uid, category: cat, total: next.total, parts: next.parts, dernier: id, at: serverTimestamp() })
+          b.update(doc(db, 'talents', id), { votes: increment(qty) })
           await b.commit()
-          setMyVotes((m) => ({ ...m, [cat]: id }))
-          return prev ? 'changed' : 'voted'
+          setMyVotes((m) => ({ ...m, [cat]: next }))
+          return 'ok'
         } catch {
           return 'error'
         }

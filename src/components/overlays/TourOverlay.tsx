@@ -29,7 +29,7 @@ export const TOUR_STEPS = [
   {
     to: '/votes',
     title: 'Encourager et voter',
-    text: 'Tout le monde peut encourager un talent, sans compte et sans effet sur le classement. Le vote, lui, demande un compte : une voix par discipline, et c’est elle qui compte.',
+    text: 'Tout le monde peut encourager un talent, sans compte et sans effet sur le classement. Le vote, lui, demande un compte et il est payant (forfaits dès 2 $, 10 votes max par discipline) : c’est lui qui fait le classement.',
   },
   {
     to: '/prevention',

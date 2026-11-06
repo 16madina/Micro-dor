@@ -1,7 +1,7 @@
 import { Link, Navigate } from 'react-router-dom'
 import { ArrowRight, KeyRound, LogOut, Trophy, Compass, FlaskConical, GraduationCap, Headphones, Heart, PlayCircle, ShoppingBag, Users, type LucideIcon } from 'lucide-react'
 import { CATEGORY_LABEL, SCHOOLS, TALENTS, type Category } from '../data'
-import { ROLE_LABEL, useApp } from '../state/AppState'
+import { ROLE_LABEL, VOTE_CAP, useApp } from '../state/AppState'
 import { TalentCard } from '../components/cards'
 import { Button, DemoPill, cx } from '../components/ui'
 import { BlockTitle } from '../components/spaces/SpaceUI'
@@ -11,12 +11,12 @@ const LINKS: { to: string; label: string; sub: string; icon: LucideIcon; accent?
   { to: '/eleve', label: 'Espace élève', sub: 'Répétitions, ressources, événements', icon: GraduationCap, accent: true },
   { to: '/parent', label: 'Espace parent', sub: 'Spectacles, invitations, autorisations', icon: Users },
   { to: '/eleve/repetition', label: 'Salle de répétition', sub: 'Beats, téléprompteur, prises simulées', icon: Headphones },
-  { to: '/votes', label: 'Votes', sub: 'Soutenir les talents (simulé)', icon: Heart },
+  { to: '/votes', label: 'Votes', sub: 'Voter pour les talents (paiement simulé)', icon: Heart },
   { to: '/boutique', label: 'Boutique', sub: 'Produits dérivés de démonstration', icon: ShoppingBag },
 ]
 
 export default function Profile() {
-  const { hasSupported, myVote, replaySplash, startTour, cart, setCartOpen, user, logout, toast, authReady } = useApp()
+  const { hasSupported, ballot, replaySplash, startTour, cart, setCartOpen, user, logout, toast, authReady } = useApp()
   if (!user && !authReady) return <div className="py-24 text-center text-white/50">Chargement du profil…</div>
   if (!user) return <Navigate to="/connexion?suite=/profil" replace />
   const initials = (user.firstName[0] ?? '') + (user.lastName[0] ?? '')
@@ -31,7 +31,7 @@ export default function Profile() {
         : [user.details.niveau, school?.name].filter(Boolean).join(' · ')
   const supported = TALENTS.filter((t) => hasSupported(t.id))
   const VOTE_CATS: Category[] = ['chant', 'danse', 'theatre', 'slam', 'rap']
-  const votedCount = VOTE_CATS.filter((c) => myVote(c)).length
+  const votedCount = VOTE_CATS.reduce((s, c) => s + ballot(c).total, 0)
   const inCart = cart.reduce((a, i) => a + i.qty, 0)
 
   return (
@@ -71,7 +71,7 @@ export default function Profile() {
           </div>
           <div className="grid grid-cols-3 gap-2 rounded-2xl border border-white/[0.07] bg-ink/40 px-3 py-3 sm:w-[330px]">
             <div className="text-center">
-              <div className="font-display text-[30px] leading-none text-[#d9c6ff]">{votedCount}/5</div>
+              <div className="font-display text-[30px] leading-none text-[#d9c6ff]">{votedCount}</div>
               <div className="mt-1 text-[10.5px] font-semibold uppercase tracking-wider text-white/45">Votes</div>
             </div>
             <div className="text-center">
@@ -120,16 +120,29 @@ export default function Profile() {
             </BlockTitle>
             <div className="card divide-y divide-white/[0.06]">
               {VOTE_CATS.map((c) => {
-                const t = TALENTS.find((x) => x.id === myVote(c))
+                const b = ballot(c)
+                const picks = Object.entries(b.parts)
+                  .map(([id, n]) => ({ t: TALENTS.find((x) => x.id === id), n }))
+                  .filter((p) => p.t)
+                  .sort((x, y) => y.n - x.n)
                 return (
                   <div key={c} className="flex items-center gap-3 px-4 py-3">
-                    <span className="w-28 shrink-0 text-[13px] font-bold text-white/60">{CATEGORY_LABEL[c]}</span>
-                    {t ? (
-                      <Link to={`/talents/${t.id}`} className="flex min-w-0 flex-1 items-center gap-2.5 hover:text-goldlight">
-                        <PortraitThumb talent={t} className="h-9 w-9 ring-1 ring-stagelight/60" />
-                        <span className="truncate text-[14px] font-extrabold">{t.name}</span>
-                        <Trophy size={14} className="ml-auto shrink-0 fill-stagelight/40 text-stagelight" />
-                      </Link>
+                    <span className="w-28 shrink-0 text-[13px] font-bold text-white/60">
+                      {CATEGORY_LABEL[c]}
+                      {b.total > 0 && <span className="block text-[11px] font-semibold text-white/35">{b.total}/{VOTE_CAP}</span>}
+                    </span>
+                    {picks.length ? (
+                      <div className="flex min-w-0 flex-1 flex-wrap gap-2">
+                        {picks.map(({ t, n }) => (
+                          <Link key={t!.id} to={`/talents/${t!.id}`} className="flex min-w-0 items-center gap-2 rounded-full bg-white/[0.04] py-1 pl-1 pr-3 hover:text-goldlight">
+                            <PortraitThumb talent={t!} className="h-8 w-8 ring-1 ring-stagelight/60" />
+                            <span className="truncate text-[13.5px] font-extrabold">{t!.name}</span>
+                            <span className="inline-flex shrink-0 items-center gap-0.5 text-[12px] font-extrabold text-[#d9c6ff]">
+                              <Trophy size={12} className="fill-stagelight/40 text-stagelight" /> {n}
+                            </span>
+                          </Link>
+                        ))}
+                      </div>
                     ) : (
                       <Link to="/votes" className="flex-1 text-[13px] text-white/40 hover:text-white/70">
                         Pas encore voté · choisir →
@@ -184,7 +197,7 @@ export default function Profile() {
             {[
               'Données entièrement fictives : écoles, talents, spectacles et chiffres sont inventés.',
               user.demo ? 'Compte de démonstration : il reste dans cette fenêtre, rien n’est envoyé à un serveur.' : 'Compte réel : connexion sécurisée par Firebase, profil hébergé à Montréal.',
-              'Votes et panier : encore simulés, ils restent dans cette page. Ton profil et ta sélection de musiques sont enregistrés avec ton compte.',
+              'Votes : enregistrés avec ton compte, mais le paiement est simulé (aucun montant prélevé). Panier : simulé. Ton profil et ta sélection de musiques sont enregistrés avec ton compte.',
             ].map((t) => (
               <li key={t} className="flex gap-2">
                 <span className="mt-[7px] h-1.5 w-1.5 shrink-0 rounded-full bg-gold" />

@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { ChevronDown, ChevronRight, Headphones, Heart, ScrollText, Sparkles, Trophy } from 'lucide-react'
 import { CATEGORY_LABEL, TALENTS, fmtNum, schoolById, type Category, type Talent } from '../data'
-import { useApp } from '../state/AppState'
+import { VOTE_CAP, VOTE_PACKS, useApp } from '../state/AppState'
 import Portrait from '../components/art/Portrait'
 import { Button, CategoryTag, Chips, DemoPill, Stat, cx } from '../components/ui'
 import { CAT_OPTIONS, EngagementCounts, PortraitThumb, RankBadge, SupportButton, TrophyArt, VoteButton, useFlip, type CatFilter } from '../components/talents/shared'
@@ -12,9 +12,9 @@ const byName = [...TALENTS].sort((a, b) => a.name.localeCompare(b.name, 'fr-CA')
 const CATS: Category[] = ['chant', 'danse', 'theatre', 'slam', 'rap']
 
 function Hero() {
-  const { voteCount, supportCount, myVote, user } = useApp()
+  const { voteCount, supportCount, ballot, user } = useApp()
   const totalVotes = TALENTS.reduce((s, t) => s + voteCount(t.id), 0)
-  const mine = CATS.filter((c) => myVote(c)).length
+  const mine = CATS.reduce((s, c) => s + ballot(c).total, 0)
   const fav = [...TALENTS].sort((a, b) => supportCount(b.id) - supportCount(a.id))[0]
   return (
     <section className="gold-border relative mb-6 overflow-hidden rounded-3xl p-5 shadow-stage animate-fadeUp sm:p-7 lg:mb-8 lg:p-10">
@@ -29,7 +29,7 @@ function Hero() {
                 <Sparkles size={13} /> Vote du public
               </div>
               {user ? (
-                <DemoPill>Tes votes : {mine} / 5 disciplines</DemoPill>
+                <DemoPill>Paiement simulé · dès {VOTE_PACKS[0].price} $ le vote</DemoPill>
               ) : (
                 <Link to="/connexion?suite=/votes" className="inline-flex items-center gap-1.5 rounded-full border border-stagelight/50 bg-stage/15 px-2.5 py-1 text-[11px] font-bold text-[#d9c6ff]">
                   <Trophy size={12} /> Connecte-toi pour voter
@@ -43,12 +43,12 @@ function Hero() {
           </h1>
           <p className="mt-4 max-w-xl text-[14.5px] leading-relaxed text-white/65">
             <b className="text-goldlight">Encourage</b> autant de talents que tu veux : ça leur fait chaud au cœur, sans changer le classement.{' '}
-            <b className="text-[#d9c6ff]">Vote</b> pour ton talent préféré dans chaque discipline : une seule voix par compte, et c’est elle qui compte.
+            <b className="text-[#d9c6ff]">Vote</b> pour tes talents préférés : les votes sont payants (forfaits de 1, 5 ou 10), jusqu’à {VOTE_CAP} par discipline, et ce sont eux qui font le classement.
           </p>
           <div className="mt-6 grid max-w-md grid-cols-3 gap-2 rounded-2xl border border-white/[0.08] bg-ink/40 px-2 py-4 backdrop-blur">
             <Stat value={fmtNum(totalVotes)} label="Votes" />
             <Stat value={TALENTS.length} label="Talents" />
-            <Stat value={`${mine}/5`} label="Tes votes" />
+            <Stat value={mine} label="Tes votes" />
           </div>
         </div>
         <TrophyArt className="hidden h-auto w-full animate-floaty drop-shadow-[0_20px_40px_rgba(214,172,85,.25)] lg:block" />
@@ -73,7 +73,7 @@ function Hero() {
 }
 
 function Leaderboard({ cat }: { cat: CatFilter }) {
-  const { voteCount, myVote } = useApp()
+  const { voteCount, myVotesFor } = useApp()
   const [expanded, setExpanded] = useState(false)
   const ranked = TALENTS.filter((t) => cat === 'tous' || t.category === cat)
     .map((t) => ({ t, c: voteCount(t.id) }))
@@ -122,7 +122,7 @@ function Leaderboard({ cat }: { cat: CatFilter }) {
                 <span className="min-w-0">
                   <span className="block truncate text-[14px] font-extrabold group-hover:text-goldlight">{t.name}</span>
                   <span className="flex items-center gap-1 truncate text-[11.5px] text-white/50">
-                    <Trophy size={11} className={cx('shrink-0 text-stagelight', myVote(t.category) === t.id && 'fill-stagelight/40')} />
+                    <Trophy size={11} className={cx('shrink-0 text-stagelight', myVotesFor(t.id) > 0 && 'fill-stagelight/40')} />
                     <span key={c} className="animate-fadeIn font-bold tabular-nums text-[#d9c6ff]">
                       {fmtNum(c)} votes
                     </span>
@@ -150,9 +150,9 @@ function Leaderboard({ cat }: { cat: CatFilter }) {
 }
 
 function CandidateCard({ talent, rank }: { talent: Talent; rank: number }) {
-  const { myVote } = useApp()
+  const { myVotesFor } = useApp()
   const school = schoolById(talent.schoolId)
-  const done = myVote(talent.category) === talent.id
+  const done = myVotesFor(talent.id) > 0
   return (
     <article
       className={cx(
@@ -188,7 +188,7 @@ function CandidateCard({ talent, rank }: { talent: Talent; rank: number }) {
 }
 
 export default function Votes() {
-  const { voteCount, myVote } = useApp()
+  const { voteCount, ballot } = useApp()
   const [cat, setCat] = useState<CatFilter>('tous')
 
   const pool = TALENTS.filter((t) => cat === 'tous' || t.category === cat)
@@ -206,12 +206,12 @@ export default function Votes() {
       <div className="mb-5 flex flex-col gap-2 lg:mb-6 lg:flex-row lg:items-center lg:justify-between">
         <Chips options={CAT_OPTIONS} value={cat} onChange={setCat} />
         <span className="text-[12px] font-semibold text-white/45">
-          {cat !== 'tous' && myVote(cat) ? (
+          {cat !== 'tous' && ballot(cat).total > 0 ? (
             <>
-              Ta voix en {CATEGORY_LABEL[cat]} : <b className="text-[#d9c6ff]">{TALENTS.find((t) => t.id === myVote(cat))?.name}</b> · tu peux la changer
+              Tes votes en {CATEGORY_LABEL[cat]} : <b className="text-[#d9c6ff]">{ballot(cat).total}/{VOTE_CAP}</b>
             </>
           ) : (
-            'Encouragements illimités (1 par talent) · 1 vote par discipline'
+            `Encouragements gratuits (1 par talent) · votes payants, ${VOTE_CAP} max par discipline`
           )}
         </span>
       </div>
@@ -249,7 +249,7 @@ export default function Votes() {
           {[
             { Icon: Headphones, t: 'Découvre', d: 'Écoute les extraits simulés et lis le parcours de chaque talent.' },
             { Icon: Heart, t: 'Encourage', d: 'Ouvert à tous, sans compte : un encouragement par talent, à donner à autant de talents que tu veux. Il ne change pas le classement.' },
-            { Icon: Trophy, t: 'Vote', d: 'Avec ton compte : une voix par discipline (chant, danse, théâtre, slam, rap). Tu peux la déplacer tant que le vote est ouvert.' },
+            { Icon: Trophy, t: 'Vote', d: `Avec ton compte : choisis un forfait (1 vote ${VOTE_PACKS[0].price} $, 5 votes ${VOTE_PACKS[1].price} $, 10 votes ${VOTE_PACKS[2].price} $). Jusqu’à ${VOTE_CAP} votes par discipline. Avant 14 ans, un parent doit approuver ton compte.` },
           ].map(({ Icon, t, d }, i) => (
             <div key={t} className="rounded-2xl border border-white/[0.07] bg-white/[0.03] p-4">
               <div className="flex items-center gap-3">
