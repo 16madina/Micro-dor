@@ -12,7 +12,8 @@ export interface Campaign {
   slogan: string
   status: CampaignStatus
   period: string
-  photo: string
+  /** Bannière officielle de la campagne (titre et logo inclus dans l’image) */
+  banner: string
   /** Couleur d’accent de la campagne */
   accent: string
   summary: string
@@ -38,12 +39,12 @@ export const CAMPAIGNS: Campaign[] = [
   {
     id: 'un-choix-mille-consequences',
     title: 'Un choix, mille conséquences',
-    topic: 'Prévention de la criminalité',
+    topic: 'Criminalité et gangs',
     tagline: 'Une seule décision peut changer toute une vie. Parlons-en avant.',
     slogan: 'Ton avenir vaut plus qu’un coup de tête.',
     status: 'en-cours',
     period: 'Automne 2026 – Hiver 2027',
-    photo: 'photos/shows/s6.jpg',
+    banner: 'photos/campaigns/un-choix-mille-consequences.webp',
     accent: '#E5484D',
     summary:
       'Une tournée de spectacles-conférences dans les écoles secondaires pour parler de gangs de rue, de recrutement, d’armes et de pression du groupe, avec les mots des jeunes et sans leçon de morale.',
@@ -77,12 +78,12 @@ export const CAMPAIGNS: Campaign[] = [
   {
     id: 'reste-dans-la-course',
     title: 'Reste dans la course',
-    topic: 'Persévérance scolaire',
+    topic: 'Décrochage scolaire',
     tagline: 'L’école, c’est pas toujours facile. Mais tu n’es pas seul·e à la traverser.',
     slogan: 'Ton diplôme, ta scène.',
     status: 'en-cours',
     period: 'Toute l’année scolaire 2026–2027',
-    photo: 'photos/shows/s3.jpg',
+    banner: 'photos/campaigns/reste-dans-la-course.webp',
     accent: '#D6AC55',
     summary:
       'Une campagne pour faire de la scène une raison de rester à l’école : projets artistiques, mentorat et rencontres avec des artistes qui ont, eux aussi, failli décrocher.',
@@ -116,12 +117,12 @@ export const CAMPAIGNS: Campaign[] = [
   {
     id: 'ta-voix-compte',
     title: 'Ta voix compte',
-    topic: 'Santé mentale et estime de soi',
+    topic: 'Santé mentale',
     tagline: 'Ce que tu ressens est important. Ça mérite d’être dit, et entendu.',
     slogan: 'Parle. On t’écoute.',
     status: 'en-cours',
     period: 'Automne 2026',
-    photo: 'photos/shows/s8.jpg',
+    banner: 'photos/campaigns/ta-voix-compte.webp',
     accent: '#7C8CFF',
     summary:
       'Une campagne pour briser le tabou de la santé mentale chez les jeunes : anxiété, stress, tristesse, pression de performance. Des chansons, des slams et des capsules pour dire que ça va de ne pas aller bien.',
@@ -155,12 +156,12 @@ export const CAMPAIGNS: Campaign[] = [
   {
     id: 'derriere-l-ecran',
     title: 'Derrière l’écran',
-    topic: 'Cyberintimidation et sécurité en ligne',
+    topic: 'Cyberintimidation',
     tagline: 'Ce qu’on publie laisse des traces. Ce qu’on dit en ligne blesse pour vrai.',
     slogan: 'Clique avec respect.',
     status: 'a-venir',
     period: 'Hiver 2027',
-    photo: 'photos/shows/s11.jpg',
+    banner: 'photos/campaigns/derriere-l-ecran.webp',
     accent: '#3FC1C9',
     summary:
       'Une campagne sur la vie en ligne : cyberintimidation, partage d’images intimes, arnaques et faux profils. Pour apprendre à se protéger et à protéger les autres.',
@@ -199,7 +200,7 @@ export const CAMPAIGNS: Campaign[] = [
     slogan: 'Personne de côté.',
     status: 'a-venir',
     period: 'Printemps 2027',
-    photo: 'photos/shows/s9.jpg',
+    banner: 'photos/campaigns/ensemble-contre-l-intimidation.webp',
     accent: '#E88BD3',
     summary:
       'Une campagne pour que chaque élève trouve sa place, peu importe son origine, son apparence, son orientation ou sa façon d’être. La scène devient un lieu où toutes les différences sont applaudies.',
@@ -229,12 +230,12 @@ export const CAMPAIGNS: Campaign[] = [
   {
     id: 'garde-le-controle',
     title: 'Garde le contrôle',
-    topic: 'Drogues, alcool et vapotage',
+    topic: 'Drogues, alcool, vapotage',
     tagline: 'Faire tes propres choix, c’est ça, être libre.',
     slogan: 'Ta tête, tes règles.',
     status: 'terminee',
     period: 'Printemps 2026',
-    photo: 'photos/shows/s12.jpg',
+    banner: 'photos/campaigns/garde-le-controle.webp',
     accent: '#F29A4A',
     summary:
       'Une campagne pour parler sans tabou de vapotage, d’alcool, de cannabis et de drogues : les effets réels, la dépendance, les mélanges dangereux et la pression des amis.',

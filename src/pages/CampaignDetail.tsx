@@ -1,7 +1,7 @@
 import { useParams } from 'react-router-dom'
 import { ArrowRight, CalendarDays, Check, Megaphone, Quote, Target } from 'lucide-react'
 import { CAMPAIGNS, campaignById } from '../data/campaigns'
-import { CampaignCard, CampaignStatusBadge, ResourceCard } from '../components/campaigns'
+import { CampaignBanner, CampaignCard, CampaignStatusBadge, ResourceCard } from '../components/campaigns'
 import { Button, HScroll, SectionHeader } from '../components/ui'
 
 export default function CampaignDetail() {
@@ -24,26 +24,23 @@ export default function CampaignDetail() {
     <div key={c.id}>
       {/* Bannière */}
       <section className="relative -mx-4 -mt-4 overflow-hidden lg:mx-0 lg:mt-0 lg:rounded-[28px] lg:border lg:border-white/[0.07] lg:shadow-stage">
-        <div className="relative flex min-h-[600px] flex-col justify-end lg:min-h-[480px] lg:justify-center">
-          <img src={c.photo} alt="" decoding="async" className="absolute inset-0 h-full w-full animate-kenburns object-cover" />
-          <div className="absolute inset-0 opacity-40 mix-blend-color" style={{ background: `radial-gradient(80% 70% at 70% 30%, ${c.accent}, transparent 75%)` }} />
-          <div className="absolute inset-0 bg-gradient-to-t from-ink from-25% via-ink/60 to-transparent lg:bg-gradient-to-r lg:from-ink lg:from-0% lg:via-ink/75 lg:to-transparent" />
-          <div className="relative p-5 pb-7 pt-64 lg:w-[66%] lg:p-10">
-            <div className="mb-3 flex animate-fadeUp flex-wrap items-center gap-2">
-              <span
-                className="inline-flex items-center gap-1.5 rounded-full border bg-ink/50 px-3 py-1 text-[11px] font-bold uppercase tracking-[0.18em] backdrop-blur"
-                style={{ borderColor: `${c.accent}99`, color: c.accent }}
-              >
-                <Megaphone size={12} /> {c.topic}
-              </span>
-              <CampaignStatusBadge status={c.status} />
+        <img src={c.banner} alt="" aria-hidden decoding="async" className="absolute inset-0 h-full w-full scale-125 object-cover blur-3xl brightness-[.45]" />
+        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-ink/60 to-ink" />
+        <div className="relative">
+          <CampaignBanner c={c} eager className="animate-fadeIn" />
+          <div className="p-5 pb-7 lg:flex lg:items-end lg:justify-between lg:gap-10 lg:p-10 lg:pt-8">
+            <div className="min-w-0">
+              <div className="mb-3 flex animate-fadeUp flex-wrap items-center gap-2">
+                <span className="inline-flex items-center gap-1.5 rounded-full border border-gold/40 bg-ink/50 px-3 py-1 text-[11px] font-bold uppercase tracking-[0.16em] text-goldlight backdrop-blur">
+                  <Megaphone size={12} /> {c.topic}
+                </span>
+                <CampaignStatusBadge status={c.status} />
+              </div>
+              <h1 className="sr-only">{c.title}</h1>
+              <p className="animate-fadeUp pt-[0.12em] font-display text-[34px] leading-[0.95] tracking-wide text-gold-shine [animation-delay:.06s] lg:text-[52px]">{c.slogan}</p>
+              <p className="mt-3 max-w-xl animate-fadeUp text-[15.5px] leading-relaxed text-white/80 [animation-delay:.12s]">{c.tagline}</p>
             </div>
-            <h1 className="animate-fadeUp font-display text-[48px] leading-[0.9] tracking-wide [animation-delay:.06s] lg:text-[72px]">
-              {c.title}
-              <span className="mt-0.5 block pt-[0.14em] text-[30px] leading-[0.95] text-gold-shine lg:text-[44px]">{c.slogan}</span>
-            </h1>
-            <p className="mt-3 max-w-lg animate-fadeUp text-[15.5px] leading-relaxed text-white/80 [animation-delay:.12s]">{c.tagline}</p>
-            <div className="mt-4 flex animate-fadeUp items-center gap-1.5 text-[13px] font-semibold text-white/55 [animation-delay:.18s]">
+            <div className="mt-4 flex shrink-0 animate-fadeUp items-center gap-1.5 text-[13px] font-semibold text-white/55 [animation-delay:.18s] lg:mt-0">
               <CalendarDays size={14} /> {c.period}
             </div>
           </div>
@@ -59,7 +56,7 @@ export default function CampaignDetail() {
           <ul className="mt-4 space-y-3">
             {c.why.map((w) => (
               <li key={w} className="flex gap-3 text-[14.5px] leading-relaxed text-white/70">
-                <span className="mt-2 h-2 w-2 shrink-0 rounded-full" style={{ background: c.accent }} />
+                <span className="mt-2 h-2 w-2 shrink-0 rounded-full bg-gold-soft" />
                 {w}
               </li>
             ))}
@@ -87,7 +84,7 @@ export default function CampaignDetail() {
         <div className="grid gap-3 lg:grid-cols-3">
           {c.actions.map((a, i) => (
             <div key={a.title} className="card relative overflow-hidden p-5">
-              <span className="absolute inset-x-0 top-0 h-1" style={{ background: c.accent }} />
+              <span className="absolute inset-x-0 top-0 h-1 bg-gold-soft" />
               <span className="font-display text-[34px] leading-none text-white/15">0{i + 1}</span>
               <div className="mt-2 text-[16px] font-extrabold">{a.title}</div>
               <p className="mt-1.5 text-[13.5px] leading-relaxed text-white/60">{a.text}</p>

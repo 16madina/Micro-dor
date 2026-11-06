@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { ArrowRight, HeartHandshake, Megaphone, Mic2, PenLine, School, Users } from 'lucide-react'
 import { CAMPAIGNS, type CampaignStatus } from '../data/campaigns'
-import { CampaignCard, CampaignStatusBadge, ResourceCard } from '../components/campaigns'
+import { CampaignBanner, CampaignCard, CampaignStatusBadge, CarouselArrows, CarouselDots, ResourceCard, useCarousel } from '../components/campaigns'
 import { Button, Chips, PageHero, SectionHeader } from '../components/ui'
 
 type Filter = CampaignStatus | 'all'
@@ -14,9 +14,46 @@ const STEPS = [
   { icon: HeartHandshake, title: 'Le suivi continue', text: 'L’école reçoit une trousse d’animation et la liste des ressources d’aide de sa région.' },
 ]
 
+/** Les bannières de toutes les campagnes, qui défilent */
+function BannerCarousel() {
+  const { i, go, paused, bind } = useCarousel(CAMPAIGNS.length)
+  const c = CAMPAIGNS[i]
+  return (
+    <section aria-roledescription="carrousel" aria-label="Nos campagnes" className="gold-border overflow-hidden rounded-[24px] shadow-stage lg:rounded-[28px]" {...bind}>
+      <div className="group/car relative overflow-hidden">
+        <div className="flex transition-transform duration-700 ease-[cubic-bezier(.65,0,.35,1)]" style={{ transform: `translateX(-${i * 100}%)` }}>
+          {CAMPAIGNS.map((x, n) => (
+            <Link key={x.id} to={`/campagnes/${x.id}`} tabIndex={n === i ? 0 : -1} aria-hidden={n !== i} className="w-full shrink-0">
+              <CampaignBanner c={x} eager={n < 2} />
+            </Link>
+          ))}
+        </div>
+        <CarouselArrows i={i} go={go} />
+      </div>
+      <div className="flex flex-col gap-4 p-5 lg:flex-row lg:items-center lg:gap-8 lg:p-7">
+        <div key={c.id} className="min-h-[132px] min-w-0 flex-1 animate-fadeUp lg:min-h-0">
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="inline-flex items-center gap-1.5 rounded-full border border-gold/40 px-3 py-1 text-[11px] font-bold uppercase tracking-[0.16em] text-goldlight">
+              <Megaphone size={12} /> {c.topic}
+            </span>
+            <CampaignStatusBadge status={c.status} />
+          </div>
+          <p className="mt-3 pt-[0.12em] font-display text-[28px] leading-[0.95] tracking-wide text-gold-shine lg:text-[36px]">{c.slogan}</p>
+          <p className="mt-1.5 max-w-xl text-[14.5px] leading-relaxed text-white/70">{c.tagline}</p>
+        </div>
+        <div className="flex shrink-0 flex-col gap-3 sm:flex-row sm:items-center lg:flex-col lg:items-end">
+          <Button to={`/campagnes/${c.id}`} size="lg" iconRight={<ArrowRight size={16} />} className="max-sm:w-full">
+            Découvrir la campagne
+          </Button>
+          <CarouselDots count={CAMPAIGNS.length} i={i} go={go} paused={paused} className="max-sm:justify-center" />
+        </div>
+      </div>
+    </section>
+  )
+}
+
 export default function Campaigns() {
   const [filter, setFilter] = useState<Filter>('all')
-  const featured = CAMPAIGNS[0]
   const list = filter === 'all' ? CAMPAIGNS : CAMPAIGNS.filter((c) => c.status === filter)
   const count = (s: CampaignStatus) => CAMPAIGNS.filter((c) => c.status === s).length
 
@@ -32,33 +69,7 @@ export default function Campaigns() {
         sub="Criminalité, décrochage, santé mentale, cyberintimidation… MICRO D’OR utilise la scène pour parler aux jeunes des sujets qui comptent, avec leurs mots à eux."
       />
 
-      {/* Bannière à la une */}
-      <Link to={`/campagnes/${featured.id}`} className="group relative block overflow-hidden rounded-[28px] border border-white/[0.07] shadow-stage">
-        <div className="relative flex min-h-[540px] flex-col justify-end lg:min-h-[420px] lg:justify-center">
-          <img src={featured.photo} alt="" decoding="async" className="absolute inset-0 h-full w-full object-cover transition duration-1000 group-hover:scale-105" />
-          <div className="absolute inset-0 opacity-40 mix-blend-color" style={{ background: featured.accent }} />
-          <div className="absolute inset-0 bg-gradient-to-t from-ink via-ink/60 to-transparent lg:bg-gradient-to-r lg:from-ink lg:via-ink/75 lg:to-transparent" />
-          <div className="relative p-5 pt-48 lg:w-[62%] lg:p-10">
-            <div className="mb-3 flex flex-wrap items-center gap-2">
-              <span className="inline-flex items-center gap-1.5 rounded-full border border-gold/40 bg-ink/50 px-3 py-1 text-[11px] font-bold uppercase tracking-[0.18em] text-goldlight backdrop-blur">
-                <Megaphone size={12} /> À la une
-              </span>
-              <CampaignStatusBadge status={featured.status} />
-            </div>
-            <div className="text-[12px] font-bold uppercase tracking-[0.16em]" style={{ color: featured.accent }}>
-              {featured.topic}
-            </div>
-            <h2 className="font-display text-[44px] leading-[0.92] tracking-wide lg:text-[64px]">
-              {featured.title}
-              <span className="mt-0.5 block pt-[0.14em] text-[28px] leading-[0.95] text-gold-shine lg:text-[40px]">{featured.slogan}</span>
-            </h2>
-            <p className="mt-3 max-w-lg text-[14.5px] leading-relaxed text-white/75">{featured.summary}</p>
-            <span className="mt-5 inline-flex h-11 w-fit items-center gap-2 rounded-full bg-gold-soft px-5 text-sm font-extrabold text-ink shadow-gold transition group-hover:brightness-110">
-              Découvrir la campagne <ArrowRight size={16} />
-            </span>
-          </div>
-        </div>
-      </Link>
+      <BannerCarousel />
 
       <section className="mt-12">
         <SectionHeader eyebrow={`${CAMPAIGNS.length} campagnes`} title="Toutes nos campagnes" />

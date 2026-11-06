@@ -1,7 +1,82 @@
+import { useCallback, useEffect, useRef, useState, type HTMLAttributes } from 'react'
 import { Link } from 'react-router-dom'
-import { ArrowRight, CalendarDays, Phone } from 'lucide-react'
+import { ArrowRight, CalendarDays, ChevronLeft, ChevronRight, Phone } from 'lucide-react'
 import { CAMPAIGN_STATUS_LABEL, type Campaign, type CampaignStatus } from '../data/campaigns'
 import { cx } from './ui'
+
+/* ---------- Carrousel (défilement auto, glisser au doigt, pause au survol) ---------- */
+
+export const CAROUSEL_DELAY = 6500
+
+export function useCarousel(count: number, delay = CAROUSEL_DELAY) {
+  const [i, setI] = useState(0)
+  const [paused, setPaused] = useState(false)
+  const touch = useRef<{ x: number; y: number } | null>(null)
+  const go = useCallback((n: number) => setI(((n % count) + count) % count), [count])
+
+  useEffect(() => {
+    if (paused || count < 2 || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
+    const t = window.setTimeout(() => {
+      if (!document.hidden) setI((x) => (x + 1) % count)
+    }, delay)
+    return () => window.clearTimeout(t)
+  }, [i, paused, count, delay])
+
+  const bind: HTMLAttributes<HTMLElement> = {
+    onMouseEnter: () => setPaused(true),
+    onMouseLeave: () => setPaused(false),
+    onFocusCapture: () => setPaused(true),
+    onBlurCapture: () => setPaused(false),
+    onTouchStart: (e) => (touch.current = { x: e.touches[0].clientX, y: e.touches[0].clientY }),
+    onTouchEnd: (e) => {
+      const s = touch.current
+      touch.current = null
+      if (!s) return
+      const dx = e.changedTouches[0].clientX - s.x
+      const dy = e.changedTouches[0].clientY - s.y
+      if (Math.abs(dx) > 45 && Math.abs(dx) > Math.abs(dy)) go(i + (dx < 0 ? 1 : -1))
+    },
+  }
+  return { i, go, paused, bind, delay }
+}
+
+export function CarouselDots({ count, i, go, paused, delay = CAROUSEL_DELAY, className }: { count: number; i: number; go: (n: number) => void; paused: boolean; delay?: number; className?: string }) {
+  return (
+    <div className={cx('flex gap-2', className)}>
+      {Array.from({ length: count }, (_, n) => (
+        <button key={n} aria-label={`Voir l’affiche ${n + 1}`} aria-current={n === i} onClick={() => go(n)} className="group/dot relative h-6 py-2.5">
+          <span className={cx('block h-1 overflow-hidden rounded-full bg-white/25 transition-all duration-300', n === i ? 'w-10' : 'w-4 group-hover/dot:bg-white/45')}>
+            {n === i && (
+              <span
+                key={`${i}-${paused}`}
+                className="block h-full rounded-full bg-gold-soft"
+                style={{ animation: paused ? 'none' : `heroProgress ${delay}ms linear forwards`, width: paused ? '100%' : undefined }}
+              />
+            )}
+          </span>
+        </button>
+      ))}
+    </div>
+  )
+}
+
+/** Flèches visibles au survol, sur ordinateur (le parent doit porter la classe group/car) */
+export function CarouselArrows({ i, go, className }: { i: number; go: (n: number) => void; className?: string }) {
+  const btn =
+    'absolute top-1/2 hidden h-11 w-11 -translate-y-1/2 place-items-center rounded-full border border-gold/40 bg-ink/70 text-goldlight opacity-0 backdrop-blur transition hover:bg-ink group-hover/car:opacity-100 lg:grid'
+  return (
+    <>
+      <button aria-label="Affiche précédente" onClick={() => go(i - 1)} className={cx(btn, 'left-4', className)}>
+        <ChevronLeft size={22} />
+      </button>
+      <button aria-label="Affiche suivante" onClick={() => go(i + 1)} className={cx(btn, 'right-4', className)}>
+        <ChevronRight size={22} />
+      </button>
+    </>
+  )
+}
+
+/* ---------- Campagnes ---------- */
 
 const STATUS_STYLE: Record<CampaignStatus, string> = {
   'en-cours': 'border-emerald-400/50 bg-emerald-400/15 text-emerald-300',
@@ -18,34 +93,42 @@ export function CampaignStatusBadge({ status, className }: { status: CampaignSta
   )
 }
 
+/** Bannière officielle de la campagne, au bon format */
+export function CampaignBanner({ c, className, eager }: { c: Campaign; className?: string; eager?: boolean }) {
+  return (
+    <img
+      src={c.banner}
+      alt={`${c.title} : ${c.topic}`}
+      width={832}
+      height={300}
+      loading={eager ? 'eager' : 'lazy'}
+      decoding="async"
+      className={cx('block aspect-[832/300] w-full object-cover', className)}
+    />
+  )
+}
+
 export function CampaignCard({ c, className }: { c: Campaign; className?: string }) {
   return (
     <Link
       to={`/campagnes/${c.id}`}
       className={cx('group card flex flex-col overflow-hidden transition duration-300 hover:-translate-y-0.5 hover:border-gold/40', className)}
     >
-      <div className="relative h-44 overflow-hidden lg:h-48">
-        <img src={c.photo} alt="" loading="lazy" decoding="async" className="h-full w-full object-cover transition duration-700 group-hover:scale-105" />
-        <div className="absolute inset-0 opacity-35 mix-blend-color" style={{ background: c.accent }} />
-        <div className="absolute inset-0 bg-gradient-to-t from-ink via-ink/30 to-transparent" />
-        <CampaignStatusBadge status={c.status} className="absolute left-3 top-3" />
-        <div className="absolute inset-x-4 bottom-3">
-          <div className="text-[11px] font-bold uppercase tracking-[0.16em]" style={{ color: c.accent }}>
-            {c.topic}
-          </div>
-          <div className="font-display text-[30px] leading-[0.95] tracking-wide">{c.title}</div>
-        </div>
+      <div className="overflow-hidden">
+        <CampaignBanner c={c} className="transition duration-700 group-hover:scale-105" />
       </div>
       <div className="flex flex-1 flex-col p-4">
-        <p className="text-[14px] leading-relaxed text-white/65">{c.tagline}</p>
-        <div className="mt-auto flex items-center justify-between gap-3 pt-4">
-          <span className="flex items-center gap-1.5 text-[12px] font-semibold text-white/45">
-            <CalendarDays size={13} /> {c.period}
-          </span>
-          <span className="flex items-center gap-1 text-[13px] font-bold text-gold transition group-hover:text-goldlight">
-            Voir <ArrowRight size={15} className="transition group-hover:translate-x-1" />
+        <div className="flex items-center justify-between gap-2">
+          <CampaignStatusBadge status={c.status} />
+          <span className="flex items-center gap-1.5 text-[11.5px] font-semibold text-white/45">
+            <CalendarDays size={12} /> {c.period}
           </span>
         </div>
+        <div className="mt-3 pt-[0.1em] font-display text-[24px] leading-[1] tracking-wide text-gold-metal">{c.slogan}</div>
+        <p className="mt-1.5 text-[14px] leading-relaxed text-white/65">{c.tagline}</p>
+        <span className="mt-auto flex items-center gap-1 pt-4 text-[13px] font-bold text-gold transition group-hover:text-goldlight">
+          Découvrir la campagne <ArrowRight size={15} className="transition group-hover:translate-x-1" />
+        </span>
       </div>
     </Link>
   )
