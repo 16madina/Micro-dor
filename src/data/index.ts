@@ -27,7 +27,7 @@ export const CATEGORY_LABEL: Record<Category | 'mixte', string> = {
 }
 
 export const STATUS_LABEL: Record<ShowStatus, string> = {
-  live: 'En direct (Démo)',
+  live: 'En direct',
   upcoming: 'À venir',
   replay: 'Rediffusion',
 }
@@ -547,7 +547,7 @@ export const SHOWS: Show[] = [
       P('20 h 05', 'Rosalie D. — Carnet ouvert', 'rosalie-d'),
       P('20 h 15', 'Capsule prévention — Faire les bons choix'),
       P('20 h 25', 'Karim S. — Le bon chemin', 'karim-s'),
-      P('20 h 40', 'Vote du public (simulé) et remise des micros d’or'),
+      P('20 h 40', 'Vote du public et remise des micros d’or'),
     ],
     description:
       'Trois finalistes, une scène, un public debout : la finale locale de l’École secondaire des Lumières désigne les talents qui représenteront Montréal à la grande finale MICRO D’OR.',
@@ -569,7 +569,7 @@ export const SHOWS: Show[] = [
       P('20 h 08', 'Amira H. — D’ici et d’ailleurs', 'amira-h'),
       P('20 h 18', 'Félix L. — Choisir ses pas', 'felix-l'),
       P('20 h 30', 'Malik D. — Doucement', 'malik-d'),
-      P('20 h 42', 'Échange avec le public (démo)'),
+      P('20 h 42', 'Échange avec le public'),
     ],
     description:
       'Une soirée intimiste dans le nouveau studio de l’école : R&B, slam et rap conscience pour célébrer la diversité des voix de l’Outaouais.',
@@ -678,7 +678,7 @@ export const SHOWS: Show[] = [
       P('19 h 10', 'Noémie J. — Sentiers', 'noemie-j'),
       P('19 h 22', 'Alex T. — Merci Sherbrooke', 'alex-t'),
       P('19 h 34', 'Adam K. — Altitude', 'adam-k'),
-      P('19 h 48', 'Témoignage de démonstration — Persévérance'),
+      P('19 h 48', 'Témoignage — Persévérance'),
     ],
     description:
       'Le gala d’hiver de l’Estrie célèbre la persévérance scolaire avec trois artistes qui ont choisi de ne jamais lâcher.',
@@ -724,10 +724,10 @@ export const SHOWS: Show[] = [
       P('20 h 21', 'Léa R. — Juste assez', 'lea-r'),
       P('20 h 33', 'Adam K. — Se relever', 'adam-k'),
       P('20 h 45', 'Malik D. — Prends ma main', 'malik-d'),
-      P('21 h 00', 'Remise des Micros d’or (démonstration)'),
+      P('21 h 00', 'Remise des Micros d’or'),
     ],
     description:
-      'Les finalistes des huit écoles réunis sur une même scène pour la grande finale de la saison MICRO D’OR. Scénario de démonstration.',
+      'Les finalistes des huit écoles réunis sur une même scène pour la grande finale de la saison MICRO D’OR.',
     palette: 'gold',
     venue: 'Auditorium des Lumières',
     duration: '1:30:00',
@@ -824,7 +824,7 @@ export const THEMES: Theme[] = [
     title: 'Réinsertion sociale et choix de vie',
     short: 'Réinsertion et choix de vie',
     description:
-      'Des parcours de démonstration qui montrent qu’il est toujours possible de changer de trajectoire, avec des ressources et du soutien.',
+      'Des parcours qui montrent qu’il est toujours possible de changer de trajectoire, avec des ressources et du soutien.',
     icon: 'path',
   },
 ]
@@ -832,31 +832,31 @@ export const THEMES: Theme[] = [
 export const CAPSULES: Capsule[] = [
   { id: 'c1', theme: 'criminalite', title: 'Un choix, mille conséquences', format: 'Capsule vidéo', duration: '4:12', speaker: 'Conférencier à confirmer', summary: 'Un slam illustré qui suit les répercussions d’une seule décision.', palette: 'crimson' },
   { id: 'c2', theme: 'criminalite', title: 'Dire non sans perdre la face', format: 'Atelier', duration: '6:30', speaker: 'Intervenant·e jeunesse (à confirmer)', summary: 'Des stratégies concrètes pour résister à la pression du groupe.', palette: 'violet' },
-  { id: 'c3', theme: 'criminalite', title: 'Le vrai prix', format: 'Témoignage (démo)', duration: '5:05', speaker: 'Personnage de démonstration', summary: 'Un récit fictif écrit pour ouvrir la discussion en classe.', palette: 'blue' },
+  { id: 'c3', theme: 'criminalite', title: 'Le vrai prix', format: 'Témoignage', duration: '5:05', speaker: 'Récit anonyme', summary: 'Un récit écrit pour ouvrir la discussion en classe.', palette: 'blue' },
   { id: 'c4', theme: 'decrochage', title: 'Rester pour la scène', format: 'Capsule vidéo', duration: '3:48', speaker: 'Conférencier à confirmer', summary: 'Quand un projet artistique devient une raison de se lever le matin.', palette: 'gold' },
   { id: 'c5', theme: 'decrochage', title: 'Mon plan B est un plan A', format: 'Conférence', duration: '12:00', speaker: 'Conférencière à confirmer', summary: 'Formation professionnelle, stages, retours aux études : tous les chemins comptent.', palette: 'amber' },
   { id: 'c6', theme: 'estime', title: 'Le trac, mon allié', format: 'Atelier', duration: '7:20', speaker: 'Coach vocal (à confirmer)', summary: 'Apprivoiser le stress de la scène et le transformer en énergie.', palette: 'magenta' },
-  { id: 'c7', theme: 'estime', title: 'Juste assez', format: 'Capsule vidéo', duration: '2:47', speaker: 'Léa R. (personnage de démonstration)', summary: 'Un slam sur l’estime de soi, tiré du spectacle Constellation.', palette: 'violet' },
-  { id: 'c8', theme: 'estime', title: 'Se relever', format: 'Témoignage (démo)', duration: '4:40', speaker: 'Personnage de démonstration', summary: 'Un récit fictif sur la persévérance après un échec.', palette: 'gold' },
+  { id: 'c7', theme: 'estime', title: 'Juste assez', format: 'Capsule vidéo', duration: '2:47', speaker: 'Léa R.', summary: 'Un slam sur l’estime de soi, tiré du spectacle Constellation.', palette: 'violet' },
+  { id: 'c8', theme: 'estime', title: 'Se relever', format: 'Témoignage', duration: '4:40', speaker: 'Récit anonyme', summary: 'Un récit sur la persévérance après un échec.', palette: 'gold' },
   { id: 'c9', theme: 'reinsertion', title: 'Deuxième prise', format: 'Capsule vidéo', duration: '3:05', speaker: 'Conférencier à confirmer', summary: 'Changer de trajectoire : les ressources qui existent au Québec.', palette: 'teal' },
   { id: 'c10', theme: 'reinsertion', title: 'Après la tempête', format: 'Conférence', duration: '15:00', speaker: 'Espace réservé — futur conférencier', summary: 'Un espace prévu pour un parcours de réinsertion authentique, avec consentement.', palette: 'blue' },
 ]
 
 export const PARTNERS: PartnerSlot[] = [
-  { id: 'p1', tier: 'Partenaire principal', brand: 'Fondation Aurore', tagline: 'Marque fictive — exemple', monogram: 'FA', color: '#F4D78C' },
-  { id: 'p2', tier: 'Partenaire régional', brand: 'Caisse Boréale', tagline: 'Marque fictive — exemple', monogram: 'CB', color: '#7CF0C2' },
-  { id: 'p3', tier: 'Partenaire régional', brand: 'Énergie Rivière-Nord', tagline: 'Marque fictive — exemple', monogram: 'ÉR', color: '#5CC8E8' },
-  { id: 'p4', tier: 'Partenaire jeunesse', brand: 'Coop Jeunes Pousses', tagline: 'Marque fictive — exemple', monogram: 'JP', color: '#8BF5A6' },
-  { id: 'p5', tier: 'Partenaire média', brand: 'Onde Laurentienne Radio', tagline: 'Marque fictive — exemple', monogram: 'OL', color: '#FF7A8A' },
-  { id: 'p6', tier: 'Soutien technique', brand: 'Studio Lumen Son', tagline: 'Marque fictive — exemple', monogram: 'LS', color: '#C9B6FF' },
+  { id: 'p1', tier: 'Partenaire principal', brand: 'Fondation Aurore', tagline: 'Faire briller la relève', monogram: 'FA', color: '#F4D78C' },
+  { id: 'p2', tier: 'Partenaire régional', brand: 'Caisse Boréale', tagline: 'Investir dans nos jeunes', monogram: 'CB', color: '#7CF0C2' },
+  { id: 'p3', tier: 'Partenaire régional', brand: 'Énergie Rivière-Nord', tagline: 'L’énergie des régions', monogram: 'ÉR', color: '#5CC8E8' },
+  { id: 'p4', tier: 'Partenaire jeunesse', brand: 'Coop Jeunes Pousses', tagline: 'Grandir ensemble', monogram: 'JP', color: '#8BF5A6' },
+  { id: 'p5', tier: 'Partenaire média', brand: 'Onde Laurentienne Radio', tagline: 'La radio de la relève', monogram: 'OL', color: '#FF7A8A' },
+  { id: 'p6', tier: 'Soutien technique', brand: 'Studio Lumen Son', tagline: 'Le son, la scène, la lumière', monogram: 'LS', color: '#C9B6FF' },
 ]
 
 export const PRODUCTS: Product[] = [
   { id: 'tshirt', name: 'T-shirt MICRO D’OR', price: 29.99, kind: 'tshirt', sizes: ['XS', 'S', 'M', 'L', 'XL'], description: 'Coton biologique noir, logo doré sérigraphié.', badge: 'Populaire' },
   { id: 'cap', name: 'Casquette MICRO D’OR', price: 24.99, kind: 'cap', description: 'Casquette brodée, visière courbée, ajustable.' },
   { id: 'hoodie', name: 'Chandail à capuchon', price: 54.99, kind: 'hoodie', sizes: ['S', 'M', 'L', 'XL'], description: 'Molleton épais, micro doré brodé au dos.', badge: 'Nouveau' },
-  { id: 'album', name: 'Album des talents (démo)', price: 14.99, kind: 'album', description: 'Compilation fictive des finalistes de la saison.' },
-  { id: 'ticket', name: 'Billet de spectacle', price: 12.0, kind: 'ticket', description: 'Accès à une étape de la tournée (démonstration, aucun billet émis).' },
+  { id: 'album', name: 'Album des talents', price: 14.99, kind: 'album', description: 'Compilation des finalistes de la saison.' },
+  { id: 'ticket', name: 'Billet de spectacle', price: 12.0, kind: 'ticket', description: 'Accès à une étape de la tournée.' },
 ]
 
 // ---------- helpers

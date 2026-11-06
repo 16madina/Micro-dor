@@ -102,7 +102,7 @@ export function StatusBadge({ status, className }: { status: ShowStatus; classNa
     return (
       <span className={cx('inline-flex items-center gap-1.5 rounded-md bg-live px-2 py-1 text-[10px] font-extrabold uppercase tracking-wider text-white shadow-[0_0_20px_rgba(229,56,79,.5)]', className)}>
         <span className="h-1.5 w-1.5 animate-pulseLive rounded-full bg-white" />
-        En direct (Démo)
+        En direct
       </span>
     )
   return (

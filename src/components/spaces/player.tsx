@@ -169,11 +169,11 @@ export function NowPlaying({ player, className, compact = false }: { player: Dem
           <Disc3 size={28} className={cx('text-goldlight', playing && 'animate-[spin_3s_linear_infinite]')} />
         </div>
         <div className="min-w-0 flex-1">
-          <div className="eyebrow !text-[10px]">{current ? (playing ? 'En lecture' : 'En pause') : 'Lecteur de démonstration'}</div>
+          <div className="eyebrow !text-[10px]">{current ? (playing ? 'En lecture' : 'En pause') : 'Lecteur'}</div>
           <div className="truncate text-[15px] font-extrabold">{current ? current.title : 'Choisissez une piste'}</div>
           <div className="mt-0.5 flex items-center gap-1.5 text-[11px] text-white/45">
             <AudioLines size={12} className={live ? 'text-[#7CF0C2]' : 'text-white/35'} />
-            {current ? (live ? `Son généré en direct · ${player.bpm} BPM` : 'Lecture simulée — sans audio') : 'Aucune piste sélectionnée'}
+            {current ? (live ? `Son généré en direct · ${player.bpm} BPM` : 'Lecture en cours') : 'Aucune piste sélectionnée'}
           </div>
         </div>
         <EqBars active={playing} bars={compact ? 4 : 6} className={compact ? 'h-6' : 'h-8'} />

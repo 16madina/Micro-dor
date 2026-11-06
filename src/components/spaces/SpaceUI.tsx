@@ -6,7 +6,7 @@ import { cx } from '../ui'
 /** Bandeau d’avertissement « démonstration » */
 export function DemoNotice({
   children,
-  title = 'Démonstration',
+  title = 'Information',
   tone = 'gold',
   icon: Icon = FlaskConical,
   className,

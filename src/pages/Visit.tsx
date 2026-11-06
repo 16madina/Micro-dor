@@ -18,7 +18,7 @@ export default function Visit() {
             <span className="mb-4 grid h-16 w-16 place-items-center rounded-2xl border border-gold/50 bg-ink/60 text-gold">
               <Clapperboard size={30} />
             </span>
-            <div className="eyebrow mb-2">Mode démonstration sponsors</div>
+            <div className="eyebrow mb-2">Visite guidée sponsors</div>
             <h1 className="font-display text-[52px] leading-[0.9] tracking-wide lg:text-[80px]">
               Visite guidée
               <br />
@@ -27,7 +27,7 @@ export default function Visit() {
             <p className="mt-3 max-w-md text-[15px] text-white/70">Découvrez la plateforme, ses fonctionnalités et son impact.</p>
             <div className="mt-6 flex flex-col gap-3 sm:flex-row">
               <Button size="lg" onClick={startTour} iconRight={<Play size={15} className="fill-ink" />}>
-                Lancer la démonstration
+                Lancer la visite guidée
               </Button>
               <Button size="lg" variant="outline" className="bg-ink/40" onClick={() => setTourStep(1)}>
                 Parcours rapide (3 min)
@@ -51,7 +51,6 @@ export default function Visit() {
           ))}
           <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-gold/30 p-4 text-center">
             <MicEmblem className="h-20 w-14" />
-            <span className="mt-2 text-[12.5px] text-white/55">Prototype visuel — données fictives</span>
           </div>
         </div>
       </section>

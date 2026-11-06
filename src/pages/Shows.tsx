@@ -4,7 +4,7 @@ import { Play, Users } from 'lucide-react'
 import { CATEGORY_LABEL, LIVE, PHOTOS, SHOWS, fmtDate, schoolById, talentById, type Category } from '../data'
 import StageArt from '../components/art/StageArt'
 import { ShowCard, poseFor } from '../components/cards'
-import { Button, CategoryTag, Chips, DemoPill, PageHero, StatusBadge } from '../components/ui'
+import { Button, CategoryTag, Chips, PageHero, StatusBadge } from '../components/ui'
 
 type Filter = 'all' | 'live' | 'upcoming' | 'replay' | Category
 
@@ -47,10 +47,8 @@ export default function Shows() {
             Les <span className="text-gold-metal">spectacles</span>
           </>
         }
-        sub="Directs simulés, prochaines dates de la tournée et rediffusions : toute la scène MICRO D’OR au même endroit."
-      >
-        <DemoPill className="mt-3">Spectacles fictifs — aucun événement réel n’est diffusé</DemoPill>
-      </PageHero>
+        sub="Directs, prochaines dates de la tournée et rediffusions : toute la scène MICRO D’OR au même endroit."
+      />
 
       {/* À la une */}
       <Link to={`/spectacles/${featured.id}`} className="group relative mb-8 block overflow-hidden rounded-[24px] border border-white/[0.08] shadow-stage">
@@ -72,7 +70,7 @@ export default function Shows() {
             </div>
             <div className="mt-5">
               <span className="inline-flex h-11 items-center gap-2 rounded-full bg-gold-soft px-6 text-sm font-extrabold text-ink shadow-gold transition group-hover:brightness-110">
-                <Play size={16} className="fill-ink" /> Regarder la démonstration
+                <Play size={16} className="fill-ink" /> Regarder le direct
               </span>
             </div>
           </div>

@@ -6,7 +6,7 @@ import { cx } from '../ui'
 import Modal from './Modal'
 
 export const poseForFormat = (c: Capsule): Pose =>
-  c.format === 'Témoignage (démo)' ? 'none' : c.format === 'Conférence' ? 'slam' : c.format === 'Atelier' ? 'trio' : c.theme === 'estime' ? 'singer' : 'rap'
+  c.format === 'Témoignage' ? 'none' : c.format === 'Conférence' ? 'slam' : c.format === 'Atelier' ? 'trio' : c.theme === 'estime' ? 'singer' : 'rap'
 
 export const toSec = (d: string) => {
   const [m, s] = d.split(':').map(Number)
@@ -75,10 +75,6 @@ export default function CapsulePlayer({ capsule, onClose }: { capsule: Capsule |
       <div className="relative aspect-video w-full overflow-hidden bg-ink lg:rounded-t-3xl">
         <StageArt seed={`cap-${capsule.id}`} palette={capsule.palette} pose={poseForFormat(capsule)} crowd animated={playing} className="absolute inset-0 h-full w-full" />
         <div className="absolute inset-0 bg-gradient-to-t from-ink/90 via-transparent to-ink/40" />
-        <div className="absolute left-4 top-4 flex flex-wrap gap-2">
-          <span className="rounded-md bg-ink/70 px-2 py-1 text-[10px] font-extrabold uppercase tracking-wider text-goldlight backdrop-blur">Lecteur de démonstration</span>
-          <span className="rounded-md bg-white/10 px-2 py-1 text-[10px] font-bold uppercase tracking-wider text-white/75 backdrop-blur">Aucune vidéo réelle</span>
-        </div>
         <button onClick={() => (ended ? (setT(0), setPlaying(true)) : setPlaying((p) => !p))} className="absolute inset-0 grid place-items-center" aria-label={playing ? 'Pause' : 'Lecture'}>
           {(!playing || ended) && (
             <span className="grid h-20 w-20 animate-fadeIn place-items-center rounded-full border border-goldlight/60 bg-ink/50 shadow-gold backdrop-blur">
@@ -92,7 +88,7 @@ export default function CapsulePlayer({ capsule, onClose }: { capsule: Capsule |
           </div>
         )}
         {ended && (
-          <div className="pointer-events-none absolute inset-x-0 bottom-16 text-center text-[13px] font-bold text-goldlight">Fin de la capsule (démo) — touchez pour revoir</div>
+          <div className="pointer-events-none absolute inset-x-0 bottom-16 text-center text-[13px] font-bold text-goldlight">Fin de la capsule — touchez pour revoir</div>
         )}
         {/* contrôles */}
         <div className="absolute inset-x-0 bottom-0 flex items-center gap-3 px-4 pb-3">
@@ -109,7 +105,7 @@ export default function CapsulePlayer({ capsule, onClose }: { capsule: Capsule |
               setT(Math.max(0, Math.min(1, (e.clientX - r.left) / r.width)) * total)
             }}
             role="slider"
-            aria-label="Progression (simulée)"
+            aria-label="Progression"
             aria-valuemin={0}
             aria-valuemax={total}
             aria-valuenow={Math.round(t)}
@@ -131,11 +127,7 @@ export default function CapsulePlayer({ capsule, onClose }: { capsule: Capsule |
         <p className="mt-2 text-[14px] leading-relaxed text-white/70">{capsule.summary}</p>
         <div className="mt-4 flex flex-wrap items-center gap-2 text-[12px] text-white/55">
           <span className="rounded-full border border-white/10 bg-white/[0.04] px-3 py-1 font-semibold">Intervenant : {capsule.speaker}</span>
-          <span className="rounded-full border border-gold/30 bg-gold/10 px-3 py-1 font-semibold text-goldlight">Sous-titres de démonstration</span>
         </div>
-        <p className="mt-4 text-[11.5px] leading-relaxed text-white/40">
-          Prototype : la lecture est simulée et accélérée. Les répliques affichées sont rédigées pour illustrer le format et ne sont attribuées à aucune personne réelle.
-        </p>
       </div>
     </Modal>
   )

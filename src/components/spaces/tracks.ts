@@ -4,10 +4,10 @@ import type { DemoTrack } from './player'
 export const LIBRARY: Record<'repetition' | 'slam' | 'rap', { label: string; intro: string; tracks: DemoTrack[] }> = {
   repetition: {
     label: 'Musiques de répétition',
-    intro: 'Bandes de répétition fictives préparées par l’équipe MICRO D’OR.',
+    intro: 'Bandes de répétition préparées par l’équipe MICRO D’OR.',
     tracks: [
       { id: 'lib-beat', title: 'Beat — Rap conscience', subtitle: 'Boom bap · 90 BPM · son généré', duration: 168, kind: 'beat', bpm: 90 },
-      { id: 'lib-inst', title: 'Instrumental — Chant', subtitle: 'Piano et cordes (démo)', duration: 192, kind: 'instrumental' },
+      { id: 'lib-inst', title: 'Instrumental — Chant', subtitle: 'Piano et cordes', duration: 192, kind: 'instrumental' },
       { id: 'lib-beat2', title: 'Beat — Échauffement lent', subtitle: 'Boom bap · 78 BPM · son généré', duration: 120, kind: 'beat', bpm: 78 },
     ],
   },
@@ -16,16 +16,16 @@ export const LIBRARY: Record<'repetition' | 'slam' | 'rap', { label: string; int
     intro: 'Textes d’exemple et lectures guidées pour travailler le rythme et la respiration.',
     tracks: [
       { id: 'lib-slam1', title: 'Texte — Slam (exemple)', subtitle: '« Encore debout » · lecture guidée', duration: 116, kind: 'texte' },
-      { id: 'lib-slam2', title: 'Respirer entre les vers', subtitle: 'Exercice de diction (démo)', duration: 95, kind: 'voix' },
-      { id: 'lib-slam3', title: 'Écrire à partir d’un souvenir', subtitle: 'Atelier d’écriture (démo)', duration: 248, kind: 'atelier' },
+      { id: 'lib-slam2', title: 'Respirer entre les vers', subtitle: 'Exercice de diction', duration: 95, kind: 'voix' },
+      { id: 'lib-slam3', title: 'Écrire à partir d’un souvenir', subtitle: 'Atelier d’écriture', duration: 248, kind: 'atelier' },
     ],
   },
   rap: {
     label: 'Rap conscience',
     intro: 'Ressources pour écrire un rap qui porte un message positif et engagé.',
     tracks: [
-      { id: 'lib-rap1', title: 'Construire un couplet engagé', subtitle: 'Atelier audio (démo)', duration: 312, kind: 'atelier' },
-      { id: 'lib-rap2', title: 'Flow et silences', subtitle: 'Voix guide sur 4 mesures (démo)', duration: 104, kind: 'voix' },
+      { id: 'lib-rap1', title: 'Construire un couplet engagé', subtitle: 'Atelier audio', duration: 312, kind: 'atelier' },
+      { id: 'lib-rap2', title: 'Flow et silences', subtitle: 'Voix guide sur 4 mesures', duration: 104, kind: 'voix' },
       { id: 'lib-rap3', title: 'Beat — Conscience 2', subtitle: 'Boom bap · 94 BPM · son généré', duration: 150, kind: 'beat', bpm: 94 },
     ],
   },
@@ -34,9 +34,9 @@ export const LIBRARY: Record<'repetition' | 'slam' | 'rap', { label: string; int
 /** Pistes de la salle de répétition virtuelle */
 export const STUDIO_TRACKS: DemoTrack[] = [
   { id: 'st-beat', title: 'Beat — Rap conscience', subtitle: 'Boom bap · son généré en direct', duration: 168, kind: 'beat', bpm: 90 },
-  { id: 'st-inst', title: 'Instrumental — Chant', subtitle: 'Piano et cordes (démo)', duration: 192, kind: 'instrumental' },
+  { id: 'st-inst', title: 'Instrumental — Chant', subtitle: 'Piano et cordes', duration: 192, kind: 'instrumental' },
   { id: 'st-slam', title: 'Texte — Slam (exemple)', subtitle: '« Encore debout » · lecture guidée', duration: 116, kind: 'texte' },
-  { id: 'st-voix', title: 'Échauffement vocal', subtitle: 'Voix guide (démo)', duration: 135, kind: 'voix' },
+  { id: 'st-voix', title: 'Échauffement vocal', subtitle: 'Voix guide', duration: 135, kind: 'voix' },
   { id: 'st-beat2', title: 'Beat — Échauffement lent', subtitle: 'Boom bap · son généré en direct', duration: 120, kind: 'beat', bpm: 78 },
 ]
 

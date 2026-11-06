@@ -36,7 +36,7 @@ export default function SearchOverlay() {
       ...SHOWS.filter((s) => match(s.title, schoolById(s.schoolId).city)).map((s) => ({
         icon: MonitorPlay,
         label: s.title,
-        sub: `${schoolById(s.schoolId).city} · ${s.status === 'live' ? 'En direct (démo)' : s.status === 'upcoming' ? 'À venir' : 'Rediffusion'}`,
+        sub: `${schoolById(s.schoolId).city} · ${s.status === 'live' ? 'En direct' : s.status === 'upcoming' ? 'À venir' : 'Rediffusion'}`,
         to: `/spectacles/${s.id}`,
       })),
     ].slice(0, n ? 30 : 9)

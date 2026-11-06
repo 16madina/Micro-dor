@@ -12,7 +12,7 @@ import {
   schoolById,
   type Show,
 } from '../data'
-import { Button, CategoryTag, DemoPill, PageHero, SectionHeader, StatusBadge, cx } from '../components/ui'
+import { Button, CategoryTag, PageHero, SectionHeader, StatusBadge, cx } from '../components/ui'
 import QuebecMap from '../components/mission/QuebecMap'
 
 /** Mois navigables : novembre 2026 → février 2027 */
@@ -80,12 +80,7 @@ export default function Tour() {
           </>
         }
         sub="De Gatineau à Saguenay, la scène MICRO D’OR s’installe dans les écoles secondaires participantes. Explorez la carte, le calendrier et toutes les étapes de la saison."
-      >
-        <div className="mt-4 flex flex-wrap items-center gap-2">
-          <DemoPill>Dates fictives — démonstration</DemoPill>
-          <DemoPill>Écoles fictives</DemoPill>
-        </div>
-      </PageHero>
+      />
 
       {/* ---------- Bandeau chiffres + filtre */}
       <div className="card mb-5 flex flex-col gap-4 p-4 lg:flex-row lg:items-center lg:justify-between lg:p-5">
@@ -131,7 +126,7 @@ export default function Tour() {
           <QuebecMap schools={SCHOOLS} regionId={regionId} selectedId={pinId} onSelect={setPinId} />
           <div className="mt-2 flex flex-wrap items-center justify-between gap-2 px-1 text-[10.5px] text-white/40">
             <span className="flex items-center gap-1.5">
-              <span className="h-2 w-2 rounded-full bg-gold shadow-[0_0_8px_#F4D78C]" /> École participante (fictive)
+              <span className="h-2 w-2 rounded-full bg-gold shadow-[0_0_8px_#F4D78C]" /> École participante
             </span>
             <span>Carte schématique — tracé non cartographique</span>
           </div>
@@ -183,7 +178,7 @@ export default function Tour() {
           title="Toutes les étapes de la tournée"
         />
         <p className="-mt-2 mb-5 text-[13px] text-white/55">
-          {shows.length} étape{shows.length > 1 ? 's' : ''} · {nUpcoming} à venir ou en cours · dates fictives
+          {shows.length} étape{shows.length > 1 ? 's' : ''} · {nUpcoming} à venir ou en cours
         </p>
 
         {shows.length === 0 ? (
@@ -191,7 +186,7 @@ export default function Tour() {
             <Navigation className="text-gold" size={28} />
             <div className="font-display text-[26px] tracking-wide">Aucune étape dans cette région… pour l’instant</div>
             <p className="max-w-md text-[13.5px] text-white/60">
-              La saison de démonstration ne compte pas encore d’école participante en {region?.name}. La tournée a vocation à rejoindre les 17 régions administratives.
+              La saison ne compte pas encore d’école participante en {region?.name}. La tournée a vocation à rejoindre les 17 régions administratives.
             </p>
             <div className="mt-2 flex flex-wrap justify-center gap-2">
               <Button size="sm" onClick={() => changeRegion('all')} icon={<RotateCcw size={14} />}>
@@ -383,7 +378,7 @@ function Calendar({
           <span className="h-2.5 w-2.5 rounded border border-gold/60 bg-gold/20" /> Spectacle
         </span>
         <span className="flex items-center gap-1.5">
-          <span className="h-2.5 w-2.5 rounded ring-1 ring-stagelight" /> Aujourd’hui (démo)
+          <span className="h-2.5 w-2.5 rounded ring-1 ring-stagelight" /> Aujourd’hui
         </span>
       </div>
 

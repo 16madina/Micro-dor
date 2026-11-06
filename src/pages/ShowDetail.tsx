@@ -49,10 +49,10 @@ function Player({ showId, onIdx }: { showId: string; onIdx: (i: number) => void 
               <div className="font-display text-[34px] leading-none lg:text-[52px]">{fmtDate(show.date, true)}</div>
               <div className="mt-1 text-white/70">{show.time} · {show.venue}</div>
               <div className="mt-5 flex flex-wrap justify-center gap-2">
-                <Button onClick={() => toast('Rappel activé (simulation) 🔔')} icon={<Bell size={16} />}>
+                <Button onClick={() => toast('Rappel activé 🔔')} icon={<Bell size={16} />}>
                   Me rappeler
                 </Button>
-                <Button variant="dark" onClick={() => toast('Ajouté au calendrier (simulation)', 'info')} icon={<CalendarPlus size={16} />}>
+                <Button variant="dark" onClick={() => toast('Ajouté au calendrier', 'info')} icon={<CalendarPlus size={16} />}>
                   Ajouter au calendrier
                 </Button>
               </div>
@@ -77,7 +77,6 @@ function Player({ showId, onIdx }: { showId: string; onIdx: (i: number) => void 
         <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-black/40" />
 
         <div className="absolute left-3 top-3 flex items-center gap-2">
-          <span className="rounded-md bg-live px-2 py-1 text-[10px] font-extrabold uppercase tracking-wider">Démonstration</span>
           {show.status === 'live' && <StatusBadge status="live" />}
         </div>
         {playing && (
@@ -133,7 +132,7 @@ function Player({ showId, onIdx }: { showId: string; onIdx: (i: number) => void 
             <button
               onClick={() => {
                 setClaps((c) => [...c, Date.now()].slice(-6))
-                toast('👏 Applaudissement envoyé (simulation)', 'info')
+                toast('👏 Applaudissement envoyé', 'info')
               }}
               className="ml-auto flex h-8 items-center gap-1.5 rounded-full border border-white/20 px-3 hover:border-gold"
             >
@@ -166,7 +165,7 @@ export default function ShowDetail() {
   if (!show)
     return (
       <div className="py-24 text-center">
-        <p className="text-white/60">Ce spectacle n’existe pas dans la démonstration.</p>
+        <p className="text-white/60">Ce spectacle est introuvable.</p>
         <Button to="/spectacles" className="mt-4">
           Voir les spectacles
         </Button>
@@ -209,7 +208,7 @@ export default function ShowDetail() {
               icon={<Share2 size={14} />}
               onClick={() => {
                 navigator.clipboard?.writeText(window.location.href).catch(() => {})
-                toast('Lien copié (prototype)', 'info')
+                toast('Lien copié', 'info')
               }}
             >
               Partager
@@ -283,10 +282,6 @@ export default function ShowDetail() {
                 <p className="text-white/55">
                   Lieu : {show.venue}, {school.city}. Durée : {show.duration}.
                 </p>
-                <div className="rounded-xl border border-gold/25 bg-gold/[0.06] p-4 text-[12.5px] text-white/65">
-                  <b className="text-goldlight">Spectacle de démonstration.</b> Ce spectacle, ses artistes et ses dates sont fictifs. Aucun événement réel n’est
-                  diffusé dans ce prototype ; le lecteur utilise des visuels de substitution.
-                </div>
               </div>
             )}
           </div>
@@ -296,7 +291,6 @@ export default function ShowDetail() {
           <div className="rounded-2xl border border-white/[0.07] bg-night/70 p-4">
             <div className="mb-3 flex items-center justify-between">
               <h3 className="font-display text-[24px] leading-none tracking-wide">Prochains passages</h3>
-              <span className="text-[10px] font-bold uppercase tracking-wider text-white/40">Démo</span>
             </div>
             {(show.status === 'upcoming' ? show.program.filter((p) => p.talentId) : nextUp).slice(0, 4).map((p, i) => {
               const t = talentById(p.talentId!)

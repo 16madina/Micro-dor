@@ -19,12 +19,12 @@ export const TOUR_STEPS = [
   {
     to: '/ecoles',
     title: 'Les écoles participantes',
-    text: 'Chaque école secondaire a sa vitrine, ses talents et ses spectacles. Établissements fictifs pour la démonstration.',
+    text: 'Chaque école secondaire a sa vitrine, ses talents et ses spectacles. Chacune y présente sa communauté et sa relève.',
   },
   {
     to: '/spectacles/s1',
-    title: 'Un spectacle simulé',
-    text: 'Le lecteur présente programme, artistes et statut. Les directs sont clairement identifiés « Démonstration ».',
+    title: 'Un spectacle en direct',
+    text: 'Le lecteur présente programme, artistes et statut. Les directs sont clairement signalés pour ne rien manquer.',
   },
   {
     to: '/votes',

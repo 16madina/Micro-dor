@@ -6,7 +6,6 @@ import {
   Headphones,
   ListMusic,
   Mic,
-  MicOff,
   Minus,
   Pause,
   Play,
@@ -19,8 +18,8 @@ import {
   Type,
 } from 'lucide-react'
 import { useApp } from '../state/AppState'
-import { Button, DemoPill, cx } from '../components/ui'
-import { BlockTitle, DemoNotice, Toggle } from '../components/spaces/SpaceUI'
+import { Button, cx } from '../components/ui'
+import { BlockTitle, Toggle } from '../components/spaces/SpaceUI'
 import { EqBars, NowPlaying, TrackRow, fmtTime, useDemoPlayer } from '../components/spaces/player'
 import { SLAM_TEXT, STUDIO_TRACKS } from '../components/spaces/tracks'
 import { useLoop } from '../components/spaces/audio'
@@ -80,7 +79,7 @@ function Teleprompter({ frac, playing, onRestart, onGuided, guidedActive }: { fr
           <span className={cx('h-1.5 w-1.5 rounded-full', playing ? 'animate-pulseLive bg-live' : 'bg-white/40')} />
           {playing ? 'Défilement automatique' : 'En attente de lecture'}
         </span>
-        <span>« Encore debout » — texte original écrit pour la démo</span>
+        <span>« Encore debout » — texte original</span>
       </div>
       <div className="relative rounded-2xl border border-white/[0.06] bg-ink/60">
         <div
@@ -248,7 +247,7 @@ export default function Rehearsal() {
     setTakes((t) => [{ id: Date.now(), n, duration: d, track: player.current?.title ?? 'A cappella', fav: false }, ...t])
     setRec('idle')
     player.pause()
-    toast(`Prise ${n} (simulée) ajoutée — aucun son n’a été capté`, 'info')
+    toast(`Prise ${n} ajoutée`, 'info')
   }
 
   useEffect(() => {
@@ -278,23 +277,15 @@ export default function Rehearsal() {
           {rec === 'recording' && (
             <span className="absolute right-4 top-4 inline-flex items-center gap-2 rounded-full bg-live px-3 py-1.5 text-[12px] font-extrabold tabular-nums shadow-[0_0_24px_rgba(229,56,79,.6)]">
               <span className="h-2 w-2 animate-pulseLive rounded-full bg-white" />
-              REC {fmtTime(elapsed)} · simulé
+              REC {fmtTime(elapsed)}
             </span>
           )}
           <div className="absolute inset-x-0 bottom-0 p-5 lg:p-8">
-            <div className="mb-2 flex flex-wrap gap-2">
-              <DemoPill className="bg-ink/60 backdrop-blur">Démonstration</DemoPill>
-              <span className="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-ink/60 px-2.5 py-1 text-[10.5px] font-semibold text-white/60 backdrop-blur">
-                <MicOff size={11} className="text-gold/80" />
-                Aucun accès au micro
-              </span>
-            </div>
             <h1 className="font-display text-[40px] leading-[0.92] tracking-wide lg:text-[64px]">
               Salle de répétition virtuelle
-              <span className="block text-[26px] text-gold-metal lg:text-[34px]">(Démonstration)</span>
             </h1>
             <p className="mt-2 max-w-xl text-[13.5px] leading-relaxed text-white/65 lg:text-[15px]">
-              Choisis une piste, cale ton tempo, suis ton texte au téléprompteur et simule une prise comme en studio.
+              Choisis une piste, cale ton tempo, suis ton texte au téléprompteur et enregistre une prise comme en studio.
             </p>
           </div>
         </div>
@@ -352,7 +343,7 @@ export default function Rehearsal() {
               <div className="min-w-0 flex-1">
                 <div className="font-display text-[40px] leading-none tracking-wide tabular-nums">{fmtTime(rec === 'recording' ? elapsed : 0)}</div>
                 <div className="mt-1 text-[12px] text-white/50">
-                  {rec === 'idle' ? 'Prêt — appuie pour lancer une prise simulée' : rec === 'countdown' ? 'Décompte…' : 'Prise en cours (simulée)'}
+                  {rec === 'idle' ? 'Prêt — appuie pour lancer une prise' : rec === 'countdown' ? 'Décompte…' : 'Prise en cours'}
                 </div>
                 <div className="mt-2 flex h-6 items-end gap-[3px]" aria-hidden="true">
                   {Array.from({ length: 18 }).map((_, i) => (
@@ -380,9 +371,6 @@ export default function Rehearsal() {
                 {rec === 'countdown' ? 'Annuler' : 'Arrêter la prise'}
               </Button>
             )}
-            <DemoNotice title="Simulation" icon={MicOff} tone="amber" className="mt-4">
-              aucun accès au microphone, aucun son capté ni sauvegardé. Le compteur et le vumètre sont factices.
-            </DemoNotice>
 
             <div className="mt-5">
               <div className="mb-2 flex items-center justify-between">
@@ -403,14 +391,14 @@ export default function Rehearsal() {
                           aria-label={on ? 'Arrêter la réécoute' : 'Réécouter la prise'}
                           onClick={() => {
                             setListening(on ? null : t.id)
-                            if (!on) toast('Réécoute simulée — aucune voix n’a été enregistrée', 'info')
+                            if (!on) toast('Réécoute de la prise', 'info')
                           }}
                           className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-gold-soft text-ink"
                         >
                           {on ? <Pause size={15} className="fill-current" /> : <Play size={15} className="ml-0.5 fill-current" />}
                         </button>
                         <div className="min-w-0 flex-1">
-                          <div className="text-[13.5px] font-bold">Prise {t.n} (simulée)</div>
+                          <div className="text-[13.5px] font-bold">Prise {t.n}</div>
                           <div className="truncate text-[11.5px] text-white/45">
                             {fmtTime(t.duration)} · {t.track}
                           </div>

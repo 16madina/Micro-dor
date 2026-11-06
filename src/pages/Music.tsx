@@ -1,7 +1,6 @@
 import { Download, Headphones, ListMusic } from 'lucide-react'
 import MusicLibrary from '../components/music/MusicLibrary'
-import { MUSIC } from '../data/music'
-import { DemoPill, PageHero } from '../components/ui'
+import { PageHero } from '../components/ui'
 
 export default function Music() {
   return (
@@ -14,11 +13,7 @@ export default function Music() {
           </>
         }
         sub="Les instrumentaux de la saison, préparés par l’équipe MICRO D’OR. Écoute-les, choisis celui qui portera ta prestation et télécharge-le pour répéter."
-      >
-        <div className="mt-3">
-          <DemoPill>{MUSIC.length} instrumentaux de démonstration</DemoPill>
-        </div>
-      </PageHero>
+      />
 
       <div className="mb-6 grid grid-cols-3 gap-2 lg:max-w-2xl">
         {[

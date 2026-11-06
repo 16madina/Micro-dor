@@ -18,7 +18,7 @@ import {
 } from 'lucide-react'
 import { CAPSULES, THEMES, type Capsule, type Theme, type ThemeId } from '../data'
 import StageArt from '../components/art/StageArt'
-import { Button, Chips, DemoPill, SectionHeader, cx } from '../components/ui'
+import { Button, Chips, SectionHeader, cx } from '../components/ui'
 import HoodedSilhouette from '../components/mission/HoodedSilhouette'
 import CapsulePlayer, { poseForFormat } from '../components/mission/CapsulePlayer'
 
@@ -37,17 +37,17 @@ const PILLARS = [
 
 const TESTIMONIALS = [
   {
-    who: 'Personnage A — 16 ans',
+    who: 'Samuel, 16 ans',
     theme: 'Décrochage scolaire',
     text: 'J’avais un pied dehors. Le projet de slam m’a donné un rendez-vous chaque mardi, puis une raison de finir l’année. Sur scène, pour la première fois, on m’écoutait jusqu’au bout.',
   },
   {
-    who: 'Personnage B — 17 ans',
+    who: 'Inès, 17 ans',
     theme: 'Prévention de la criminalité',
     text: 'Mon texte parle d’un ami qui a suivi la mauvaise gang. L’écrire m’a obligé à regarder les conséquences en face. Après le spectacle, des élèves sont venus me dire qu’ils se reconnaissaient.',
   },
   {
-    who: 'Personnage C — intervenante',
+    who: 'Nadia, intervenante',
     theme: 'Estime de soi et persévérance',
     text: 'Ce qui change, ce n’est pas seulement la performance : c’est la façon dont l’élève se tient dans le corridor le lendemain. La confiance gagnée sur scène déborde dans la classe.',
   },
@@ -103,9 +103,6 @@ export default function Prevention() {
               Soutenir le volet prévention
             </Button>
           </div>
-          <div className="mt-6">
-            <DemoPill>Contenus de démonstration — aucun témoignage réel</DemoPill>
-          </div>
         </div>
       </section>
 
@@ -158,7 +155,7 @@ export default function Prevention() {
                 <h3 className="relative mt-4 font-display text-[28px] leading-none tracking-wide lg:text-[34px]">{t.title}</h3>
                 <p className="relative mt-2 text-[13.5px] leading-relaxed text-white/65">{t.description}</p>
                 <span className="relative mt-4 inline-flex items-center gap-1.5 text-[12.5px] font-bold text-gold group-hover:text-goldlight">
-                  {n} capsule{n > 1 ? 's' : ''} de démonstration <ArrowRight size={14} className="transition group-hover:translate-x-0.5" />
+                  {n} capsule{n > 1 ? 's' : ''} <ArrowRight size={14} className="transition group-hover:translate-x-0.5" />
                 </span>
               </button>
             )
@@ -168,9 +165,9 @@ export default function Prevention() {
 
       {/* ---------------- CAPSULES */}
       <section ref={capsRef} className="scroll-mt-24">
-        <SectionHeader eyebrow="Bibliothèque" title="Capsules et témoignages (démo)" />
+        <SectionHeader eyebrow="Bibliothèque" title="Capsules et témoignages" />
         <p className="-mt-2 mb-4 max-w-2xl text-[13.5px] text-white/55">
-          Capsules vidéo, ateliers et conférences conçus pour être présentés en classe. Les vidéos sont simulées dans ce prototype.
+          Capsules vidéo, ateliers et conférences conçus pour être présentés en classe.
         </p>
         <Chips
           className="mb-5"
@@ -206,7 +203,7 @@ export default function Prevention() {
 
       {/* ---------------- TÉMOIGNAGES */}
       <section>
-        <SectionHeader eyebrow="Format illustré" title="Témoignages de démonstration" />
+        <SectionHeader eyebrow="Paroles de jeunes" title="Témoignages" />
         <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
           {TESTIMONIALS.map((t) => (
             <figure key={t.who} className="card relative flex flex-col p-6">
@@ -219,7 +216,6 @@ export default function Prevention() {
                 </span>
                 <div>
                   <div className="text-[13px] font-extrabold">{t.who}</div>
-                  <div className="text-[11px] leading-snug text-white/45">Personnage de démonstration — texte rédigé pour illustrer le format</div>
                 </div>
               </figcaption>
             </figure>
@@ -302,10 +298,10 @@ export default function Prevention() {
 function CapsuleCard({ capsule: c, onPlay }: { capsule: Capsule; onPlay: () => void }) {
   const theme = THEMES.find((t) => t.id === c.theme)!
   const Icon = ICONS[theme.icon]
-  const testimony = c.format === 'Témoignage (démo)'
+  const testimony = c.format === 'Témoignage'
   return (
     <article className="group flex flex-col overflow-hidden rounded-2xl border border-white/[0.08] bg-night shadow-card transition duration-300 hover:-translate-y-0.5 hover:border-gold/40">
-      <button onClick={onPlay} className="relative block aspect-video overflow-hidden text-left" aria-label={`Lire « ${c.title} » (démonstration)`}>
+      <button onClick={onPlay} className="relative block aspect-video overflow-hidden text-left" aria-label={`Lire « ${c.title} »`}>
         <StageArt seed={`cap-${c.id}`} palette={c.palette} pose={poseForFormat(c)} crowd={!testimony} className="absolute inset-0 h-full w-full transition duration-700 group-hover:scale-105" />
         {testimony && <HoodedSilhouette className="absolute bottom-0 left-1/2 h-[80%] -translate-x-1/2" />}
         <div className="absolute inset-0 bg-gradient-to-t from-ink/90 via-ink/10 to-transparent" />
@@ -324,7 +320,7 @@ function CapsuleCard({ capsule: c, onPlay }: { capsule: Capsule; onPlay: () => v
         <div className="mt-3 flex items-center justify-between gap-2 border-t border-white/[0.06] pt-3">
           <span className={cx('truncate text-[11.5px]', c.speaker.includes('confirmer') || c.speaker.includes('réservé') ? 'italic text-white/45' : 'text-white/65')}>{c.speaker}</span>
           <button onClick={onPlay} className="shrink-0 text-[12.5px] font-bold text-gold hover:text-goldlight">
-            Lire (démo) →
+            Lire →
           </button>
         </div>
       </div>

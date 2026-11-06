@@ -4,7 +4,7 @@ import { LIVE, PARTNERS, PHOTOS, REPLAYS, SCHOOLS, TALENTS, THEMES, UPCOMING, fm
 import StageArt from '../components/art/StageArt'
 import { PartnerLogo } from '../components/art/PartnerLogo'
 import { ShowCard, TalentCard } from '../components/cards'
-import { Button, DemoPill, HScroll, SectionHeader } from '../components/ui'
+import { Button, HScroll, SectionHeader } from '../components/ui'
 import { useApp } from '../state/AppState'
 
 const THEME_ICON = { shield: ShieldCheck, cap: GraduationCap, heart: HeartHandshake, path: Route }
@@ -61,7 +61,7 @@ function LiveStrip() {
         <span className="relative inline-flex h-3 w-3 rounded-full bg-live" />
       </span>
       <span className="text-[13px] font-bold">
-        {LIVE.length} spectacles en direct <span className="font-semibold text-white/50">(démonstration)</span>
+        {LIVE.length} spectacles en direct
       </span>
       <span className="hidden truncate text-[13px] text-white/55 sm:inline">· {LIVE.map((s) => schoolById(s.schoolId).city).join(' · ')}</span>
       <ArrowRight size={16} className="ml-auto shrink-0 text-gold transition group-hover:translate-x-1" />
@@ -84,9 +84,6 @@ function Numbers() {
           <div className="mt-1 text-[10px] font-bold uppercase tracking-wider text-white/45 lg:text-[11px]">{i.l}</div>
         </div>
       ))}
-      <div className="col-span-4 mt-1 flex justify-center">
-        <DemoPill>Données de démonstration</DemoPill>
-      </div>
     </section>
   )
 }
@@ -115,7 +112,6 @@ function TalentsRow() {
           <TalentCard key={t.id} talent={t} className="w-[158px] shrink-0 snap-start lg:w-[210px]" />
         ))}
       </HScroll>
-      <p className="mt-2 text-[11px] text-white/40">Personnages de démonstration — photos d’illustration (banque d’images, modèles sans lien avec le projet).</p>
     </section>
   )
 }
@@ -153,7 +149,6 @@ function TourPreview() {
           )
         })}
       </div>
-      <p className="mt-2 text-[11px] text-white/40">Dates fictives — démonstration.</p>
     </section>
   )
 }
@@ -211,7 +206,7 @@ function PartnersTeaser() {
           >
             <PartnerLogo id={p.id} brand={p.brand} className="h-16 w-full max-w-[250px]" />
             <span className="text-[10.5px] font-bold uppercase tracking-[0.14em] text-ink/45">
-              {p.tier} · marque fictive
+              {p.tier}
             </span>
           </Link>
         ))}
@@ -226,7 +221,7 @@ function PartnersTeaser() {
         </div>
         <div className="flex flex-col gap-2 sm:flex-row">
           <Button onClick={startTour} size="lg" iconRight={<Play size={15} className="fill-ink" />}>
-            Lancer la démonstration
+            Lancer la visite guidée
           </Button>
           <Button to="/visite" size="lg" variant="ghost">
             Voir les étapes

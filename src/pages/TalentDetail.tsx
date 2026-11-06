@@ -4,7 +4,6 @@ import {
   CalendarDays,
   ChevronLeft,
   ChevronRight,
-  FlaskConical,
   Heart,
   MapPin,
   Mic2,
@@ -51,7 +50,7 @@ function NotFound() {
       </span>
       <h1 className="mt-4 font-display text-[40px] leading-none tracking-wide">Talent introuvable</h1>
       <p className="mt-2 max-w-sm text-[14px] text-white/60">
-        Ce profil n’existe pas ou n’est plus présenté dans cette démonstration. Découvre les autres voix de la saison.
+        Ce profil n’existe pas ou n’est plus présenté. Découvre les autres voix de la saison.
       </p>
       <div className="mt-6 flex flex-wrap justify-center gap-2.5">
         <Button to="/talents">Voir tous les talents</Button>
@@ -114,7 +113,7 @@ function Performances({ talent }: { talent: Talent }) {
         <button
           type="button"
           onClick={() => setPlaying((p) => !p)}
-          aria-label={playing ? 'Mettre en pause l’extrait simulé' : 'Lire l’extrait simulé'}
+          aria-label={playing ? 'Mettre en pause l’extrait' : 'Lire l’extrait'}
           className="group relative block aspect-video w-full overflow-hidden text-left"
         >
           <StageArt
@@ -127,7 +126,7 @@ function Performances({ talent }: { talent: Talent }) {
           />
           <span className="absolute inset-0 bg-gradient-to-t from-ink via-ink/20 to-transparent" />
           <span className="absolute left-3 top-3 rounded-md bg-ink/60 px-2 py-1 text-[10px] font-extrabold uppercase tracking-wider text-goldlight backdrop-blur">
-            Extrait simulé
+            Extrait
           </span>
           <span className="absolute right-3 top-3 rounded-md bg-ink/60 px-2 py-1 text-[11px] font-bold text-white/80 backdrop-blur">{perf.duration}</span>
           <span
@@ -217,10 +216,6 @@ function Performances({ talent }: { talent: Talent }) {
             )
           })}
         </ul>
-        <p className="mt-3 flex items-start gap-2 text-[11.5px] leading-relaxed text-white/40">
-          <FlaskConical size={13} className="mt-0.5 shrink-0 text-gold/70" />
-          Lecteur de démonstration : l’extrait est simulé, aucune vidéo réelle n’est diffusée.
-        </p>
       </div>
     </div>
   )
@@ -255,7 +250,7 @@ function NextShow({ talent }: { talent: Talent }) {
                   <span className="min-w-0">
                     <span className="block truncate text-[13.5px] font-bold">{s.title}</span>
                     <span className="text-[12px] text-white/50">
-                      {fmtDate(s.date)} · {s.status === 'replay' ? 'Rediffusion' : s.status === 'live' ? 'En direct (démo)' : 'À venir'}
+                      {fmtDate(s.date)} · {s.status === 'replay' ? 'Rediffusion' : s.status === 'live' ? 'En direct' : 'À venir'}
                     </span>
                   </span>
                   <ChevronRight size={16} className="shrink-0 text-gold" />
@@ -324,7 +319,7 @@ function About({ talent }: { talent: Talent }) {
             Participation encadrée
           </div>
           <p className="mt-2 text-[13px] leading-relaxed text-white/65">
-            Les participants sont accompagnés par leur école et participent avec l’autorisation de leurs parents. Ce profil est un personnage de démonstration : nom, photo d’illustration et parcours sont fictifs.
+            Les participants sont accompagnés par leur école et participent avec l’autorisation de leurs parents.
           </p>
           <Link to="/reglement" className="mt-3 inline-flex items-center gap-1 text-[12.5px] font-bold text-gold hover:text-goldlight">
             Lire le règlement <ChevronRight size={14} />
@@ -354,9 +349,9 @@ export default function TalentDetail() {
     const url = window.location.href
     try {
       await navigator.clipboard.writeText(url)
-      toast('Lien du profil copié (démo)', 'info')
+      toast('Lien du profil copié', 'info')
     } catch {
-      toast('Partage simulé — lien prêt à être copié', 'info')
+      toast('Lien prêt à être copié', 'info')
     }
   }
 
@@ -377,10 +372,6 @@ export default function TalentDetail() {
             <span className="pointer-events-none absolute -top-8 left-1/3 h-[130%] w-20 origin-top animate-sweep bg-gradient-to-b from-goldlight/20 to-transparent blur-xl" />
             <span className="absolute left-4 top-4">
               <CategoryTag category={talent.category} className="bg-ink/60 backdrop-blur" />
-            </span>
-            <span className="absolute bottom-4 left-4 inline-flex items-center gap-1.5 rounded-full bg-ink/55 px-2.5 py-1 text-[10.5px] font-semibold text-white/60 backdrop-blur">
-              <FlaskConical size={11} className="text-gold/80" />
-              Personnage de démonstration
             </span>
             <MicEmblem className="absolute bottom-3 right-3 h-14 w-10 opacity-90" glow={false} />
           </div>
@@ -443,7 +434,7 @@ export default function TalentDetail() {
               </button>
             </div>
             <p className="mt-2.5 text-[11.5px] leading-snug text-white/45">
-              Encourager est gratuit et ne change pas le classement. Voter est payant (dès 2 $, paiement simulé){isMyVote ? ` : tu as donné ${myVotes} vote${myVotes > 1 ? 's' : ''} à ${talent.name}.` : '.'}
+              Encourager est gratuit et ne change pas le classement. Voter est payant (dès 2 $){isMyVote ? ` : tu as donné ${myVotes} vote${myVotes > 1 ? 's' : ''} à ${talent.name}.` : '.'}
             </p>
           </div>
 
@@ -506,11 +497,6 @@ export default function TalentDetail() {
           </HScroll>
         </section>
       )}
-
-      <p className="mt-10 flex items-center justify-center gap-1.5 text-center text-[11px] text-white/35">
-        <FlaskConical size={11} />
-        Personnage de démonstration — photo d’illustration (banque d’images) ; la personne photographiée n’a aucun lien avec ce profil fictif.
-      </p>
     </div>
   )
 }

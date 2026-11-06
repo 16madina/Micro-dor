@@ -18,7 +18,6 @@ import {
   RotateCcw,
   School,
   Sparkles,
-  TriangleAlert,
   X,
   type LucideIcon,
 } from 'lucide-react'
@@ -27,14 +26,14 @@ import { useApp } from '../state/AppState'
 import Portrait from '../components/art/Portrait'
 import SchoolArt from '../components/art/SchoolArt'
 import StageArt from '../components/art/StageArt'
-import { Button, DemoPill, StatusBadge, cx } from '../components/ui'
-import { BlockTitle, DemoNotice, RowItem, Toggle, scrollToId } from '../components/spaces/SpaceUI'
+import { Button, StatusBadge, cx } from '../components/ui'
+import { BlockTitle, RowItem, Toggle, scrollToId } from '../components/spaces/SpaceUI'
 
 type Answer = 'pending' | 'accepted' | 'declined'
 
 const INVITES = [
   { id: 'i1', title: 'Finale locale — Les Lumières', detail: 'Places réservées aux familles · Aujourd’hui, 19 h 30', to: '/spectacles/s1' },
-  { id: 'i2', title: 'Grande finale MICRO D’OR', detail: '2 places famille (simulées) · 12 févr. 2027, 19 h 30', to: '/spectacles/s9' },
+  { id: 'i2', title: 'Grande finale MICRO D’OR', detail: '2 places famille · 12 févr. 2027, 19 h 30', to: '/spectacles/s9' },
   { id: 'i3', title: 'Rencontre parents et mentors', detail: 'Accompagner un jeune artiste · 24 nov. 2026, 18 h 30', to: '/prevention' },
 ]
 
@@ -54,7 +53,7 @@ interface Notif {
   anchor?: string
 }
 const NOTIFS: Notif[] = [
-  { id: 'n1', icon: MonitorPlay, text: 'Maya L. est au programme de la finale locale ce soir (démo)', when: 'Il y a 20 min', to: '/spectacles/s1' },
+  { id: 'n1', icon: MonitorPlay, text: 'Maya L. est au programme de la finale locale ce soir', when: 'Il y a 20 min', to: '/spectacles/s1' },
   { id: 'n2', icon: Mail, text: 'Nouvelle invitation : Grande finale MICRO D’OR', when: 'Il y a 2 h', anchor: 'invitations' },
   { id: 'n3', icon: ClipboardCheck, text: 'Rappel : une autorisation reste à confirmer', when: 'Hier', anchor: 'autorisations' },
   { id: 'n4', icon: HeartHandshake, text: 'Nouvelle capsule : Le trac, mon allié', when: 'Il y a 3 jours', to: '/prevention' },
@@ -106,8 +105,8 @@ export default function Parent() {
 
   const answer = (id: string, a: Answer) => {
     setAnswers((m) => ({ ...m, [id]: a }))
-    if (a === 'accepted') toast('Invitation acceptée (démo) — aucune réservation réelle')
-    if (a === 'declined') toast('Invitation déclinée (démo)', 'info')
+    if (a === 'accepted') toast('Invitation acceptée')
+    if (a === 'declined') toast('Invitation déclinée', 'info')
   }
 
   const openNotif = (n: Notif) => {
@@ -122,10 +121,9 @@ export default function Parent() {
       <div className="animate-fadeUp">
         <div className="mb-2 flex flex-wrap items-center gap-2">
           <span className="eyebrow">Espace parent</span>
-          <DemoPill>Espace simulé</DemoPill>
         </div>
         <h1 className="font-display text-[40px] leading-[0.95] tracking-wide lg:text-[60px]">
-          Espace parent <span className="text-gold-metal">(Démonstration)</span>
+          Espace parent
         </h1>
         <p className="mt-3 max-w-2xl text-[15px] leading-relaxed text-white/65">
           Un endroit calme pour suivre le parcours de votre jeune : ses spectacles, vos invitations et vos choix d’autorisation, en toute clarté.
@@ -155,7 +153,7 @@ export default function Parent() {
             </span>
             <span>
               <span className="block text-[14px] font-bold">Maya L.</span>
-              <span className="block text-[12px] text-gold">Chant · Finaliste (démo)</span>
+              <span className="block text-[12px] text-gold">Chant · Finaliste</span>
             </span>
             <ArrowRight size={16} className="ml-1 text-white/35 transition group-hover:translate-x-0.5 group-hover:text-gold" />
           </Link>
@@ -174,10 +172,6 @@ export default function Parent() {
         </div>
       </div>
 
-      <DemoNotice title="Prototype rassurant, mais fictif" tone="violet">
-        Mme Tremblay et Maya L. sont des personnages de démonstration. Aucun compte réel, aucune authentification, aucune donnée personnelle collectée : vos choix ci-dessous ne sont ni enregistrés ni transmis.
-      </DemoNotice>
-
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,1fr)_400px] lg:gap-8">
         <div className="min-w-0 space-y-6">
           {/* Aperçu (maquette client) */}
@@ -190,8 +184,8 @@ export default function Parent() {
               onClick={() => scrollToId('invitations')}
               right={pending > 0 ? <span className="grid h-6 min-w-6 place-items-center rounded-full bg-gold px-1.5 text-[11px] font-extrabold text-ink">{pending}</span> : undefined}
             />
-            <RowItem icon={ClipboardCheck} title="Autorisations parentales" sub={`${granted} sur 3 accordées (démo)`} onClick={() => scrollToId('autorisations')} />
-            <RowItem icon={Lock} title="Diffusions privées (démo)" sub="Fonctionnalité simulée, non opérationnelle" onClick={() => scrollToId('diffusions')} />
+            <RowItem icon={ClipboardCheck} title="Autorisations parentales" sub={`${granted} sur 3 accordées`} onClick={() => scrollToId('autorisations')} />
+            <RowItem icon={Lock} title="Diffusions privées" sub="Accès famille aux répétitions" onClick={() => scrollToId('diffusions')} />
             <RowItem
               icon={Bell}
               title="Notifications"
@@ -215,7 +209,7 @@ export default function Parent() {
 
           {/* Invitations */}
           <section id="invitations" className="card scroll-mt-24 p-4 lg:p-5">
-            <BlockTitle icon={Mail} aside={<span className="text-[10.5px] font-semibold uppercase tracking-wider text-white/40">Réponses simulées</span>}>
+            <BlockTitle icon={Mail}>
               Invitations
             </BlockTitle>
             <div className="space-y-2.5">
@@ -319,7 +313,7 @@ export default function Parent() {
                 <Button size="sm" variant="dark" to={`/ecoles/${school.id}`}>
                   Voir l’école
                 </Button>
-                <Button size="sm" variant="dark" icon={<MessageCircle size={14} />} onClick={() => toast('Messagerie non disponible dans ce prototype', 'info')}>
+                <Button size="sm" variant="dark" icon={<MessageCircle size={14} />} onClick={() => toast('Messagerie bientôt disponible', 'info')}>
                   Contacter
                 </Button>
               </div>
@@ -329,7 +323,6 @@ export default function Parent() {
           {/* Autorisations */}
           <section id="autorisations" className="card scroll-mt-24 p-4 lg:p-5">
             <BlockTitle icon={ClipboardCheck}>Autorisations parentales</BlockTitle>
-            <p className="-mt-1 mb-3 text-[12px] text-white/45">Interrupteurs de démonstration : état local, effacé en quittant la page.</p>
             <div className="space-y-2.5">
               {PERMS.map((p) => (
                 <div key={p.id} className="flex items-center gap-3 rounded-2xl border border-white/[0.07] bg-white/[0.025] p-3.5">
@@ -342,7 +335,7 @@ export default function Parent() {
                     label={p.title}
                     onChange={(v) => {
                       setPerms((m) => ({ ...m, [p.id]: v }))
-                      toast(`${p.title} : ${v ? 'accordé' : 'retiré'} (démo, rien n’est enregistré)`, 'info')
+                      toast(`${p.title} : ${v ? 'accordé' : 'retiré'}`, 'info')
                     }}
                   />
                 </div>
@@ -356,19 +349,15 @@ export default function Parent() {
           {/* Diffusions privées */}
           <section id="diffusions" className="card scroll-mt-24 overflow-hidden">
             <div className="p-4 pb-3 lg:p-5 lg:pb-3">
-              <BlockTitle icon={Lock}>Diffusions privées (simulées)</BlockTitle>
-              <div className="flex items-start gap-2.5 rounded-xl border border-[#F2A65A]/40 bg-[#F2A65A]/[0.08] px-3 py-2.5">
-                <TriangleAlert size={16} className="mt-0.5 shrink-0 text-[#FFC98A]" />
-                <p className="text-[12.5px] font-semibold leading-snug text-[#FFC98A]">Fonctionnalité simulée : non sécurisée, non opérationnelle dans ce prototype.</p>
-              </div>
+              <BlockTitle icon={Lock}>Diffusions privées</BlockTitle>
             </div>
             <div className="relative mx-4 aspect-[16/9] overflow-hidden rounded-2xl border border-white/[0.08] lg:mx-5">
               <StageArt seed="parent-prive" photo={PHOTOS.show('s1')} palette="violet" pose="singer" className={cx('absolute inset-0 h-full w-full transition duration-700', !preview && 'scale-110 blur-md')} />
               <div className={cx('absolute inset-0 transition', preview ? 'bg-gradient-to-t from-ink/80 to-transparent' : 'bg-ink/50')} />
               {preview ? (
                 <div className="absolute inset-x-0 bottom-0 p-3">
-                  <span className="rounded-md bg-white/15 px-2 py-1 text-[10px] font-extrabold uppercase tracking-wider backdrop-blur">Aperçu d’interface · aucune vidéo réelle</span>
-                  <div className="mt-1.5 text-[13.5px] font-bold">Répétition générale — accès famille (fictif)</div>
+                  <span className="rounded-md bg-white/15 px-2 py-1 text-[10px] font-extrabold uppercase tracking-wider backdrop-blur">Accès famille</span>
+                  <div className="mt-1.5 text-[13.5px] font-bold">Répétition générale</div>
                 </div>
               ) : (
                 <div className="absolute inset-0 grid place-items-center text-center">
@@ -376,18 +365,15 @@ export default function Parent() {
                     <span className="mx-auto grid h-12 w-12 place-items-center rounded-full border border-white/20 bg-ink/60 backdrop-blur">
                       <Lock size={20} className="text-white/70" />
                     </span>
-                    <div className="mt-2 text-[12px] font-semibold text-white/70">Maquette d’interface</div>
+                    <div className="mt-2 text-[12px] font-semibold text-white/70">Réservé aux familles</div>
                   </div>
                 </div>
               )}
             </div>
             <div className="p-4 lg:p-5">
               <Button size="sm" variant="outline" className="w-full" icon={preview ? <EyeOff size={15} /> : <Eye size={15} />} onClick={() => setPreview((p) => !p)}>
-                {preview ? 'Masquer l’aperçu' : 'Voir l’aperçu de l’interface'}
+                {preview ? 'Masquer l’aperçu' : 'Voir l’aperçu'}
               </Button>
-              <p className="mt-3 text-[11.5px] leading-relaxed text-white/45">
-                Une version réelle exigerait notamment une authentification des familles, le consentement des parents et des écoles, ainsi qu’un hébergement vidéo protégé. Rien de cela n’est mis en place ici.
-              </p>
             </div>
           </section>
         </aside>

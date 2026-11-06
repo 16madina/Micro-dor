@@ -1,14 +1,13 @@
 import { useCallback, useEffect, useState } from 'react'
 import { createPortal } from 'react-dom'
-import { Check, CheckCircle2, FlaskConical, PackageCheck, Plus, ShoppingBag, Sparkles, Ticket, X } from 'lucide-react'
+import { CheckCircle2, PackageCheck, Plus, ShoppingBag, Sparkles, Ticket, X } from 'lucide-react'
 import { fmtPrice, type Product } from '../data'
 import { useApp } from '../state/AppState'
 import ProductArt from '../components/art/ProductArt'
-import { Button, DemoPill, PageHero, Tabs, cx } from '../components/ui'
+import { Button, PageHero, Tabs, cx } from '../components/ui'
 import MusicLibrary from '../components/music/MusicLibrary'
 import ShopAdmin from '../components/shop/ShopAdmin'
 import { useSearchParams } from 'react-router-dom'
-import { DemoNotice } from '../components/spaces/SpaceUI'
 
 function Badge({ children, className }: { children: string; className?: string }) {
   return (
@@ -103,7 +102,7 @@ function ProductSheet({ product, onClose }: { product: Product; onClose: () => v
 
   const add = () => {
     addToCart(product.id, size)
-    toast(`${product.name}${size ? ` (${size})` : ''} ajouté au panier fictif`)
+    toast(`${product.name}${size ? ` (${size})` : ''} ajouté au panier`)
     setAdded(true)
   }
 
@@ -125,7 +124,6 @@ function ProductSheet({ product, onClose }: { product: Product; onClose: () => v
           <div className="relative mx-4 mt-2 aspect-[4/3] overflow-hidden rounded-2xl lg:m-0 lg:aspect-auto lg:min-h-[440px] lg:rounded-none">
             <ProductArt kind={product.kind} className="absolute inset-0 h-full w-full" />
             {product.badge && <Badge className="absolute left-3 top-3">{product.badge}</Badge>}
-            <DemoPill className="absolute bottom-3 left-3 bg-ink/60 backdrop-blur">Visuel de démonstration</DemoPill>
           </div>
           <div className="flex flex-col p-5 lg:p-7">
             <div className="eyebrow mb-1.5">Collection MICRO D’OR</div>
@@ -139,7 +137,6 @@ function ProductSheet({ product, onClose }: { product: Product; onClose: () => v
                   <CheckCircle2 size={22} className="text-gold" />
                   <div>
                     <div className="text-[14.5px] font-extrabold">Ajouté au panier</div>
-                    <div className="text-[12px] text-white/55">Panier fictif — aucun paiement réel.</div>
                   </div>
                 </div>
                 <div className="mt-4 grid grid-cols-2 gap-2">
@@ -186,19 +183,10 @@ function ProductSheet({ product, onClose }: { product: Product; onClose: () => v
                     </div>
                   </div>
                 )}
-                <ul className="mt-5 space-y-1.5 text-[12.5px] text-white/55">
-                  <li className="flex items-center gap-2">
-                    <Check size={14} className="text-gold" /> Article fictif présenté à titre d’exemple
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <Check size={14} className="text-gold" /> Aucune commande ni livraison réelle
-                  </li>
-                </ul>
                 <div className="mt-auto pt-6">
                   <Button size="lg" className="w-full" icon={<ShoppingBag size={18} />} onClick={add}>
                     Ajouter au panier · {fmtPrice(product.price)}
                   </Button>
-                  <p className="mt-2.5 text-center text-[11px] text-white/40">Boutique de démonstration — aucun paiement réel</p>
                 </div>
               </>
             )}
@@ -225,7 +213,7 @@ export default function Shop() {
   const quickAdd = (p: Product) => {
     if (p.sizes) return setOpenId(p.id)
     addToCart(p.id)
-    toast(`${p.name} ajouté au panier fictif`)
+    toast(`${p.name} ajouté au panier`)
   }
 
   return (
@@ -243,7 +231,6 @@ export default function Shop() {
           <Button size="sm" variant="outline" icon={<ShoppingBag size={15} />} onClick={() => setCartOpen(true)}>
             Voir le panier ({n})
           </Button>
-          <DemoPill>Produits fictifs</DemoPill>
         </div>
       </PageHero>
 
@@ -264,10 +251,6 @@ export default function Shop() {
         <MusicLibrary embedded />
       ) : (
         <>
-      <DemoNotice title="Boutique de démonstration" icon={FlaskConical} className="mb-6 animate-fadeUp">
-        aucun paiement réel. Les produits, prix et commandes sont simulés pour illustrer le futur parcours d’achat.
-      </DemoNotice>
-
       <div className="grid grid-cols-2 gap-3 lg:grid-cols-3 lg:gap-5">
         {products.map((p, i) => (
           <div
@@ -289,13 +272,13 @@ export default function Shop() {
           },
           {
             icon: PackageCheck,
-            t: 'Livraison simulée',
-            d: 'Aucun colis n’est expédié : c’est une maquette.',
+            t: 'Livraison',
+            d: 'Expédition partout au Québec, ou cueillette au spectacle.',
           },
           {
             icon: Ticket,
-            t: 'Billets de démonstration',
-            d: 'Aucun billet réel n’est émis dans ce prototype.',
+            t: 'Billets',
+            d: 'Billets électroniques envoyés par courriel.',
           },
         ].map(({ icon: Icon, t, d }) => (
           <div key={t} className="card flex items-start gap-3 p-4">

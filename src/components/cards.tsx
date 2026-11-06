@@ -50,7 +50,7 @@ export function ShowCard({ show, className, size = 'md' }: { show: Show; classNa
       <div className="flex items-center justify-between border-t border-white/[0.06] px-4 py-2.5">
         <span className="text-[11px] text-white/45">{show.venue}</span>
         <span className="text-[12.5px] font-bold text-gold group-hover:text-goldlight">
-          {show.status === 'upcoming' ? 'Voir le spectacle' : show.status === 'live' ? 'Regarder (démo)' : 'Voir la rediffusion'} →
+          {show.status === 'upcoming' ? 'Voir le spectacle' : show.status === 'live' ? 'Regarder' : 'Voir la rediffusion'} →
         </span>
       </div>
     </Link>

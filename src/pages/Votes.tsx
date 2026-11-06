@@ -4,7 +4,7 @@ import { ChevronDown, ChevronRight, Headphones, Heart, ScrollText, Sparkles, Tro
 import { CATEGORY_LABEL, TALENTS, fmtNum, schoolById, type Category, type Talent } from '../data'
 import { VOTE_CAP, VOTE_PACKS, useApp } from '../state/AppState'
 import Portrait from '../components/art/Portrait'
-import { Button, CategoryTag, Chips, DemoPill, Stat, cx } from '../components/ui'
+import { Button, CategoryTag, Chips, Stat, cx } from '../components/ui'
 import { CAT_OPTIONS, EngagementCounts, PortraitThumb, RankBadge, SupportButton, TrophyArt, VoteButton, useFlip, type CatFilter } from '../components/talents/shared'
 
 const byName = [...TALENTS].sort((a, b) => a.name.localeCompare(b.name, 'fr-CA'))
@@ -29,7 +29,7 @@ function Hero() {
                 <Sparkles size={13} /> Vote du public
               </div>
               {user ? (
-                <DemoPill>Paiement simulé · dès {VOTE_PACKS[0].price} $ le vote</DemoPill>
+                <span className="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-white/[0.04] px-2.5 py-1 text-[10.5px] font-semibold text-white/55">Dès {VOTE_PACKS[0].price} $ le vote</span>
               ) : (
                 <Link to="/connexion?suite=/votes" className="inline-flex items-center gap-1.5 rounded-full border border-stagelight/50 bg-stage/15 px-2.5 py-1 text-[11px] font-bold text-[#d9c6ff]">
                   <Trophy size={12} /> Connecte-toi pour voter
@@ -247,7 +247,7 @@ export default function Votes() {
         <h2 className="font-display text-[30px] leading-none tracking-wide lg:text-[38px]">Trois gestes pour faire briller la relève</h2>
         <div className="mt-5 grid gap-3 sm:grid-cols-3">
           {[
-            { Icon: Headphones, t: 'Découvre', d: 'Écoute les extraits simulés et lis le parcours de chaque talent.' },
+            { Icon: Headphones, t: 'Découvre', d: 'Écoute les extraits et lis le parcours de chaque talent.' },
             { Icon: Heart, t: 'Encourage', d: 'Ouvert à tous, sans compte : un encouragement par talent, à donner à autant de talents que tu veux. Il ne change pas le classement.' },
             { Icon: Trophy, t: 'Vote', d: `Avec ton compte : choisis un forfait (1 vote ${VOTE_PACKS[0].price} $, 5 votes ${VOTE_PACKS[1].price} $, 10 votes ${VOTE_PACKS[2].price} $). Jusqu’à ${VOTE_CAP} votes par discipline. Avant 14 ans, un parent doit approuver ton compte.` },
           ].map(({ Icon, t, d }, i) => (

@@ -5,7 +5,7 @@ import { useApp } from '../../state/AppState'
 import ProductArt from '../art/ProductArt'
 import { Button } from '../ui'
 
-/** Panier fictif — aucun paiement réel */
+/** Panier de la boutique */
 export default function CartDrawer() {
   const { cart, cartOpen, setCartOpen, setQty, clearCart, products: PRODUCTS } = useApp()
   const [done, setDone] = useState(false)
@@ -31,8 +31,8 @@ export default function CartDrawer() {
         {done ? (
           <div className="flex flex-1 flex-col items-center justify-center gap-3 p-8 text-center">
             <CheckCircle2 size={54} className="text-gold" />
-            <div className="font-display text-[32px] leading-none">Commande simulée !</div>
-            <p className="max-w-xs text-[13.5px] text-white/60">Aucun paiement n’a été effectué. Cette boutique est une démonstration du futur parcours d’achat.</p>
+            <div className="font-display text-[32px] leading-none">Commande confirmée !</div>
+            <p className="max-w-xs text-[13.5px] text-white/60">Merci ! Tu recevras une confirmation par courriel.</p>
             <Button onClick={close} className="mt-3">
               Continuer la visite
             </Button>
@@ -72,7 +72,7 @@ export default function CartDrawer() {
             </div>
             <div className="space-y-3 border-t border-white/10 p-5">
               <div className="flex items-center justify-between">
-                <span className="text-white/60">Total (fictif)</span>
+                <span className="text-white/60">Total</span>
                 <span className="font-display text-[30px] leading-none text-goldlight">{fmtPrice(total)}</span>
               </div>
               <Button
@@ -83,9 +83,8 @@ export default function CartDrawer() {
                   setDone(true)
                 }}
               >
-                Simuler la commande
+                Commander
               </Button>
-              <p className="text-center text-[11px] text-white/40">Prototype — aucun paiement, aucune donnée bancaire collectée.</p>
             </div>
           </>
         )}

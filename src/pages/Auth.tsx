@@ -143,7 +143,7 @@ function LoginForm({ onDone, toSignup }: { onDone: () => void; toSignup: () => v
       <div className="mt-7">
         <div className="mb-3 flex items-center gap-3 text-[11px] font-bold uppercase tracking-[0.18em] text-white/35">
           <span className="h-px flex-1 bg-white/10" />
-          Comptes de démonstration (hors ligne)
+          Connexion rapide
           <span className="h-px flex-1 bg-white/10" />
         </div>
         <div className="grid grid-cols-2 gap-2">
@@ -153,7 +153,7 @@ function LoginForm({ onDone, toSignup }: { onDone: () => void; toSignup: () => v
               type="button"
               onClick={() => {
                 demoLogin(role)
-                toast(`Connecté en tant que ${ROLE_LABEL[role].toLowerCase()} (démo)`)
+                toast(`Connecté en tant que ${ROLE_LABEL[role].toLowerCase()}`)
                 onDone()
               }}
               className="flex items-center justify-center gap-2 rounded-xl border border-white/10 bg-white/[0.03] px-2 py-3 text-[12.5px] font-bold text-white/80 transition hover:border-gold/50"
@@ -603,8 +603,7 @@ export default function Auth() {
 
             <p className="mt-8 flex items-start gap-2 rounded-xl border border-white/[0.07] bg-white/[0.02] p-3 text-[11.5px] leading-relaxed text-white/45">
               <Lock size={14} className="mt-0.5 shrink-0 text-gold/70" />
-              Comptes sécurisés par Firebase (Google) ; les profils sont hébergés à Montréal. Le mot de passe n’est jamais visible par l’équipe MICRO D’OR. Les
-              comptes de démonstration restent hors ligne.
+              Comptes sécurisés par Firebase (Google) ; les profils sont hébergés à Montréal. Le mot de passe n’est jamais visible par l’équipe MICRO D’OR.
             </p>
           </div>
         </div>

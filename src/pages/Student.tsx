@@ -13,7 +13,6 @@ import {
   MonitorPlay,
   Play,
   School,
-  ShieldAlert,
   Star,
 } from 'lucide-react'
 import { fmtDay, fmtNum, schoolById, showById, showsOfSchool, talentById } from '../data'
@@ -21,8 +20,8 @@ import { useApp } from '../state/AppState'
 import Portrait from '../components/art/Portrait'
 import SchoolArt from '../components/art/SchoolArt'
 import { ShowCard } from '../components/cards'
-import { Button, Chips, DemoPill, cx } from '../components/ui'
-import { BlockTitle, DemoNotice, RowItem, scrollToId } from '../components/spaces/SpaceUI'
+import { Button, Chips, cx } from '../components/ui'
+import { BlockTitle, RowItem, scrollToId } from '../components/spaces/SpaceUI'
 import { NowPlaying, TrackRow, useDemoPlayer } from '../components/spaces/player'
 import { LIBRARY } from '../components/spaces/tracks'
 import StudioArt from '../components/spaces/StudioArt'
@@ -32,8 +31,8 @@ type LibKey = keyof typeof LIBRARY
 
 const REHEARSALS = [
   { id: 'r1', date: '2026-11-10', time: '16 h 00', title: 'Travail du 2e couplet', place: 'Studio B — École du Sommet', coach: 'Mentor rap (à confirmer)' },
-  { id: 'r2', date: '2026-11-17', time: '16 h 00', title: 'Placement sur le beat', place: 'Salle de répétition virtuelle (démo)', coach: 'Séance autonome' },
-  { id: 'r3', date: '2026-12-02', time: '15 h 30', title: 'Générale technique', place: 'Auditorium du Sommet', coach: 'Équipe de production (démo)' },
+  { id: 'r2', date: '2026-11-17', time: '16 h 00', title: 'Placement sur le beat', place: 'Salle de répétition virtuelle', coach: 'Séance autonome' },
+  { id: 'r3', date: '2026-12-02', time: '15 h 30', title: 'Générale technique', place: 'Auditorium du Sommet', coach: 'Équipe de production' },
 ]
 
 function StudioLink({ className }: { className?: string }) {
@@ -45,12 +44,12 @@ function StudioLink({ className }: { className?: string }) {
       <div className="relative aspect-[16/9]">
         <StudioArt className="absolute inset-0 h-full w-full transition duration-700 group-hover:scale-105" />
         <div className="absolute inset-0 bg-gradient-to-t from-ink via-ink/40 to-transparent" />
-        <span className="absolute left-3 top-3 rounded-md bg-stage px-2 py-1 text-[10px] font-extrabold uppercase tracking-wider">Nouveau · Démo</span>
+        <span className="absolute left-3 top-3 rounded-md bg-stage px-2 py-1 text-[10px] font-extrabold uppercase tracking-wider">Nouveau</span>
         <div className="absolute inset-x-0 bottom-0 flex items-end justify-between gap-3 p-4">
           <div>
             <div className="eyebrow mb-1">Studio virtuel</div>
             <div className="font-display text-[28px] leading-none tracking-wide">Salle de répétition</div>
-            <div className="mt-1 text-[12px] text-white/60">Beats, téléprompteur, métronome et prises simulées</div>
+            <div className="mt-1 text-[12px] text-white/60">Beats, téléprompteur, métronome et prises</div>
           </div>
           <span className="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-gold-soft text-ink shadow-gold transition group-hover:scale-105">
             <ArrowRight size={20} />
@@ -80,10 +79,9 @@ export default function Student() {
       <div className="animate-fadeUp">
         <div className="mb-2 flex flex-wrap items-center gap-2">
           <span className="eyebrow">Espace élève</span>
-          <DemoPill>Espace simulé</DemoPill>
         </div>
         <h1 className="font-display text-[40px] leading-[0.95] tracking-wide lg:text-[60px]">
-          Mon espace élève <span className="text-gold-metal">(Démonstration)</span>
+          Mon espace élève
         </h1>
       </div>
 
@@ -134,10 +132,6 @@ export default function Student() {
         </div>
       </div>
 
-      <DemoNotice title="Espace simulé" icon={ShieldAlert} tone="violet">
-        aucune donnée réelle, aucune authentification. Alex T. est un personnage fictif ; rien de ce qui est affiché ou modifié ici n’est enregistré.
-      </DemoNotice>
-
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,1fr)_380px] lg:gap-8">
         {/* Colonne principale */}
         <div className="min-w-0 space-y-6 lg:space-y-8">
@@ -168,7 +162,7 @@ export default function Student() {
               <NowPlaying player={player} className="xl:sticky xl:top-24 xl:self-start" compact />
             </div>
             <p className="mt-3 text-[11.5px] text-white/40">
-              Les pistes « Beat » produisent un vrai rythme synthétisé dans le navigateur (Web Audio). Les autres contenus sont des lectures simulées, sans audio.
+              Les pistes « Beat » produisent un vrai rythme synthétisé dans le navigateur (Web Audio).
             </p>
           </section>
 
@@ -211,7 +205,7 @@ export default function Student() {
                     <span className="min-w-0 flex-1">
                       <span className="block font-display text-[24px] leading-none tracking-wide">{p.title}</span>
                       <span className="mt-1 block truncate text-[12.5px] text-white/55">
-                        {show ? `${show.title} · ${show.status === 'replay' ? 'Rediffusion disponible' : 'À venir'}` : 'Spectacle de démonstration'}
+                        {show ? `${show.title} · ${show.status === 'replay' ? 'Rediffusion disponible' : 'À venir'}` : 'Spectacle'}
                       </span>
                     </span>
                     <span className="text-[13px] font-semibold tabular-nums text-white/55">{p.duration}</span>
@@ -234,7 +228,7 @@ export default function Student() {
 
           {/* Répétitions */}
           <section id="repetitions" className="card scroll-mt-24 p-4 lg:p-5">
-            <BlockTitle icon={CalendarClock} aside={<span className="text-[10.5px] font-semibold uppercase tracking-wider text-white/40">Dates fictives</span>}>
+            <BlockTitle icon={CalendarClock}>
               Mes prochaines répétitions
             </BlockTitle>
             <div className="space-y-2.5">
@@ -256,10 +250,10 @@ export default function Student() {
                     </div>
                     <button
                       aria-label={on ? 'Retirer le rappel' : 'Activer un rappel'}
-                      title={on ? 'Rappel activé (démo)' : 'Activer un rappel (démo)'}
+                      title={on ? 'Rappel activé' : 'Activer un rappel'}
                       onClick={() => {
                         setReminders((m) => ({ ...m, [r.id]: !on }))
-                        toast(on ? 'Rappel retiré (démo)' : `Rappel simulé activé pour le ${d.day} ${d.month}`, 'info')
+                        toast(on ? 'Rappel retiré' : `Rappel activé pour le ${d.day} ${d.month}`, 'info')
                       }}
                       className={cx(
                         'grid h-9 w-9 shrink-0 place-items-center rounded-full border transition',

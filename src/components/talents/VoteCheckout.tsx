@@ -170,7 +170,7 @@ export default function VoteCheckout({ talentId, open, onClose }: { talentId: st
             <div className="flex gap-2 rounded-xl border border-dashed border-white/15 px-3 py-2.5 text-[11.5px] leading-relaxed text-white/50">
               <ShieldCheck size={15} className="mt-0.5 shrink-0 text-gold" />
               <span>
-                <b className="text-white/70">Paiement simulé</b> : aucun montant n’est prélevé et aucune carte n’est demandée. Les votes achetés sont définitifs, avec un plafond de {VOTE_CAP} votes par personne et par discipline.
+                Les votes achetés sont définitifs, avec un plafond de {VOTE_CAP} votes par personne et par discipline.
               </span>
             </div>
           </>

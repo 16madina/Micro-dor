@@ -82,7 +82,7 @@ export default function ProductArt({ kind, className = '' }: { kind: Product['ki
             ADMIS
           </text>
           <text x="153" y="110" textAnchor="middle" fontSize="6" fill="#fff" opacity=".6">
-            DÉMO
+            2026
           </text>
         </g>
       )}

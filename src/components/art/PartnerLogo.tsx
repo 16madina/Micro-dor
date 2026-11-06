@@ -189,7 +189,7 @@ export function PartnerLogo({
 }) {
   const gid = useSvgId('pl' + id)
   return (
-    <svg viewBox="0 0 250 72" className={className} role="img" aria-label={`${brand} (marque fictive)`}>
+    <svg viewBox="0 0 250 72" className={className} role="img" aria-label={`Logo ${brand}`}>
       <g transform="translate(4 4)">{MARKS[id]?.(gid)}</g>
       {WORDS[id]?.(tone === 'dark')}
     </svg>

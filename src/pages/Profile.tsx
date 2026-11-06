@@ -1,18 +1,18 @@
 import { Link, Navigate } from 'react-router-dom'
-import { ArrowRight, KeyRound, LogOut, Trophy, Compass, FlaskConical, GraduationCap, Headphones, Heart, PlayCircle, ShoppingBag, Users, type LucideIcon } from 'lucide-react'
+import { ArrowRight, KeyRound, LogOut, Trophy, Compass, GraduationCap, Headphones, Heart, PlayCircle, Settings, ShoppingBag, Users, type LucideIcon } from 'lucide-react'
 import { CATEGORY_LABEL, SCHOOLS, TALENTS, type Category } from '../data'
 import { ROLE_LABEL, VOTE_CAP, useApp } from '../state/AppState'
 import { TalentCard } from '../components/cards'
-import { Button, DemoPill, cx } from '../components/ui'
+import { Button, cx } from '../components/ui'
 import { BlockTitle } from '../components/spaces/SpaceUI'
 import { PortraitThumb } from '../components/talents/shared'
 
 const LINKS: { to: string; label: string; sub: string; icon: LucideIcon; accent?: boolean }[] = [
   { to: '/eleve', label: 'Espace élève', sub: 'Répétitions, ressources, événements', icon: GraduationCap, accent: true },
   { to: '/parent', label: 'Espace parent', sub: 'Spectacles, invitations, autorisations', icon: Users },
-  { to: '/eleve/repetition', label: 'Salle de répétition', sub: 'Beats, téléprompteur, prises simulées', icon: Headphones },
-  { to: '/votes', label: 'Votes', sub: 'Voter pour les talents (paiement simulé)', icon: Heart },
-  { to: '/boutique', label: 'Boutique', sub: 'Produits dérivés de démonstration', icon: ShoppingBag },
+  { to: '/eleve/repetition', label: 'Salle de répétition', sub: 'Beats, téléprompteur, prises', icon: Headphones },
+  { to: '/votes', label: 'Votes', sub: 'Voter pour les talents', icon: Heart },
+  { to: '/boutique', label: 'Boutique', sub: 'Produits dérivés officiels', icon: ShoppingBag },
 ]
 
 export default function Profile() {
@@ -56,7 +56,6 @@ export default function Profile() {
               </div>
               <div className="mt-2 flex flex-wrap items-center gap-2 text-[12px] text-white/45">
                 {user.email}
-                {user.demo && <DemoPill>Compte de démonstration (hors ligne)</DemoPill>}
                 <button
                   onClick={() => {
                     logout()
@@ -152,7 +151,6 @@ export default function Profile() {
                 )
               })}
             </div>
-            {user.demo && <p className="mt-2 text-[11.5px] text-white/40">Compte de démonstration : tes votes restent dans cette fenêtre.</p>}
           </section>
 
           {/* Mes encouragements */}
@@ -181,10 +179,10 @@ export default function Profile() {
           </section>
         </div>
 
-        {/* Paramètres du prototype */}
+        {/* Paramètres */}
         <section className="card relative h-fit overflow-hidden p-4 lg:p-5">
           <div className="pointer-events-none absolute -right-10 -top-10 h-36 w-36 rounded-full bg-stage/25 blur-3xl" />
-          <BlockTitle icon={FlaskConical}>Paramètres du prototype</BlockTitle>
+          <BlockTitle icon={Settings}>Paramètres</BlockTitle>
           <div className="relative space-y-2">
             <Button variant="dark" className="w-full justify-start" icon={<PlayCircle size={18} className="text-gold" />} onClick={replaySplash}>
               Revoir l’intro
@@ -193,18 +191,6 @@ export default function Profile() {
               Lancer la visite guidée
             </Button>
           </div>
-          <ul className="relative mt-4 space-y-2 border-t border-white/[0.06] pt-4 text-[12.5px] leading-relaxed text-white/55">
-            {[
-              'Données entièrement fictives : écoles, talents, spectacles et chiffres sont inventés.',
-              user.demo ? 'Compte de démonstration : il reste dans cette fenêtre, rien n’est envoyé à un serveur.' : 'Compte réel : connexion sécurisée par Firebase, profil hébergé à Montréal.',
-              'Votes : enregistrés avec ton compte, mais le paiement est simulé (aucun montant prélevé). Panier : simulé. Ton profil et ta sélection de musiques sont enregistrés avec ton compte.',
-            ].map((t) => (
-              <li key={t} className="flex gap-2">
-                <span className="mt-[7px] h-1.5 w-1.5 shrink-0 rounded-full bg-gold" />
-                {t}
-              </li>
-            ))}
-          </ul>
         </section>
       </div>
     </div>

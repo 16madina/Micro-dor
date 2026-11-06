@@ -176,7 +176,7 @@ export default function MusicLibrary({ embedded = false }: { embedded?: boolean 
       if (p >= 1) {
         window.clearInterval(i)
         setDl((d) => ({ ...d, [t.id]: 1 }))
-        toast(`Téléchargement simulé : « ${t.title} » (MP3)`)
+        toast(`Téléchargement : « ${t.title} » (MP3)`)
       } else setDl((d) => ({ ...d, [t.id]: p }))
     }, 160)
   }
@@ -328,17 +328,16 @@ export default function MusicLibrary({ embedded = false }: { embedded?: boolean 
         )}
       </div>
 
-      <div className="mt-4 flex flex-col gap-3 rounded-2xl border border-gold/25 bg-gold/[0.06] p-4 text-[12.5px] leading-relaxed text-white/65 lg:flex-row lg:items-center lg:justify-between">
-        <span>
-          <b className="text-goldlight">Prototype :</b> les instrumentaux sont générés en direct pour la démonstration et les téléchargements sont simulés. Dans
-          l’application réelle, l’équipe MICRO D’OR téléversera ses fichiers et les élèves les enregistreront sur leur appareil.
-        </span>
-        {!embedded && (
+      {!embedded && (
+        <div className="mt-4 flex flex-col gap-3 rounded-2xl border border-gold/25 bg-gold/[0.06] p-4 text-[12.5px] leading-relaxed text-white/65 lg:flex-row lg:items-center lg:justify-between">
+          <span>
+            <b className="text-goldlight">Prêt à répéter ?</b> Lance ton instrumental dans le studio, avec téléprompteur et métronome.
+          </span>
           <Button to="/eleve/repetition" size="sm" variant="dark" icon={<Headphones size={15} />} className="shrink-0">
             Répéter en studio
           </Button>
-        )}
-      </div>
+        </div>
+      )}
 
       {current && (
         <NowPlaying
@@ -555,10 +554,6 @@ function UploadModal({ onClose }: { onClose: () => void }) {
           </label>
         </div>
 
-        <p className="mt-4 text-[11.5px] leading-relaxed text-white/45">
-          Prototype : le fichier reste sur cet appareil et n’est visible que pendant cette session. Dans l’application réelle, il serait envoyé au serveur et
-          proposé à tous les élèves.
-        </p>
         <div className="mt-5 flex gap-2">
           <Button type="submit" disabled={!file} className="flex-1 disabled:opacity-40">
             Ajouter au catalogue

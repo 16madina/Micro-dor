@@ -142,7 +142,7 @@ function IllustratedPortrait({ look, category, seed, className = '', background 
   const hasMic = category !== 'slam'
 
   return (
-    <svg viewBox="0 0 200 250" preserveAspectRatio="xMidYMid slice" className={className} role="img" aria-label="Portrait illustré de démonstration">
+    <svg viewBox="0 0 200 250" preserveAspectRatio="xMidYMid slice" className={className} role="img" aria-label="Portrait illustré">
       <defs>
         <linearGradient id={`${id}bg`} x1="0" y1="0" x2="0" y2="1">
           <stop offset="0" stopColor={P.top} />

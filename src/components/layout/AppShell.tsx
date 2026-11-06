@@ -7,7 +7,7 @@ import { IconButton, cx } from '../ui'
 import { MORE_NAV, ORGANIZER_NAV, PRIMARY_NAV, SPACES_NAV, isActive, type NavItem } from './nav'
 
 const NOTIFS = [
-  { t: 'Finale locale — Les Lumières est en direct (démo)', d: 'Il y a 5 min', to: '/spectacles/s1' },
+  { t: 'Finale locale — Les Lumières est en direct', d: 'Il y a 5 min', to: '/spectacles/s1' },
   { t: 'Maya L. a reçu 50 nouveaux encouragements', d: 'Il y a 1 h', to: '/talents/maya-l' },
   { t: 'La tournée arrive à Laval le 20 novembre', d: 'Hier', to: '/tournee' },
   { t: 'Nouvelle capsule : Rester pour la scène', d: 'Il y a 2 jours', to: '/prevention' },
@@ -71,7 +71,6 @@ function HeaderActions() {
         <div className="glass absolute right-3 top-14 z-50 w-[330px] animate-fadeIn overflow-hidden rounded-2xl border border-white/10 shadow-card">
           <div className="flex items-center justify-between border-b border-white/10 px-4 py-3">
             <span className="text-sm font-extrabold">Notifications</span>
-            <span className="text-[10px] font-semibold uppercase tracking-wider text-white/40">Démonstration</span>
           </div>
           {NOTIFS.map((x) => (
             <button
@@ -131,7 +130,7 @@ function Sidebar() {
         {MORE_NAV.map((i) => (
           <SideLink key={i.to} item={i} />
         ))}
-        <div className="px-3 pb-1.5 pt-5 text-[10px] font-bold uppercase tracking-[0.2em] text-white/35">Espaces (démo)</div>
+        <div className="px-3 pb-1.5 pt-5 text-[10px] font-bold uppercase tracking-[0.2em] text-white/35">Espaces</div>
         {SPACES_NAV.map((i) => (
           <SideLink key={i.to} item={i} exact />
         ))}
@@ -147,7 +146,7 @@ function Sidebar() {
           </span>
           <span>
             <span className="block text-[13px] font-extrabold text-goldlight">Visite guidée sponsors</span>
-            <span className="text-[11px] text-white/50">Lancer la démonstration</span>
+            <span className="text-[11px] text-white/50">Lancer la visite guidée</span>
           </span>
         </button>
         <button onClick={replaySplash} className="flex w-full items-center justify-center gap-2 rounded-lg py-2 text-[12px] font-semibold text-white/45 transition hover:text-white">
@@ -171,7 +170,6 @@ function DesktopTopBar() {
         <kbd className="ml-auto rounded border border-white/15 px-1.5 text-[10px] text-white/40">/</kbd>
       </button>
       <div className="flex items-center gap-4">
-        <span className="rounded-full border border-gold/30 bg-gold/10 px-3 py-1 text-[10.5px] font-bold uppercase tracking-wider text-goldlight">Prototype visuel</span>
         <div className="relative">
           <HeaderActions />
         </div>

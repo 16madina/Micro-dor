@@ -330,7 +330,7 @@ function PinPopover({ pin, w, h, inline, onClose }: { pin: Pin; w: number; h: nu
           <MapPin size={12} className="text-gold" /> {s.city}
         </div>
         <div className="mt-3 rounded-xl border border-white/10 bg-white/[0.04] p-3">
-          <div className="text-[10px] font-bold uppercase tracking-wider text-white/45">Prochaine date (fictive)</div>
+          <div className="text-[10px] font-bold uppercase tracking-wider text-white/45">Prochaine date</div>
           {next ? (
             <>
               <div className="mt-1 flex items-center gap-1.5 text-[13.5px] font-extrabold text-goldlight">
@@ -339,7 +339,7 @@ function PinPopover({ pin, w, h, inline, onClose }: { pin: Pin; w: number; h: nu
               <div className="mt-0.5 truncate text-[12.5px] text-white/75">{next.title}</div>
             </>
           ) : (
-            <div className="mt-1 text-[12.5px] text-white/60">Aucune date annoncée pour l’instant (démo).</div>
+            <div className="mt-1 text-[12.5px] text-white/60">Aucune date annoncée pour l’instant.</div>
           )}
         </div>
         <div className="mt-3 flex gap-2">

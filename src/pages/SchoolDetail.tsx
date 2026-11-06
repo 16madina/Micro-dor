@@ -5,7 +5,7 @@ import { PHOTOS, SCHOOLS, fmtDate, fmtDay, regionById, showsOfSchool, talentsOfS
 import SchoolArt from '../components/art/SchoolArt'
 import StageArt, { type Pose } from '../components/art/StageArt'
 import { ShowCard, TalentCard, poseFor } from '../components/cards'
-import { Button, DemoPill, StatusBadge, Tabs, cx } from '../components/ui'
+import { Button, StatusBadge, Tabs, cx } from '../components/ui'
 
 type Tab = 'presentation' | 'talents' | 'spectacles' | 'calendrier' | 'galerie'
 const POSES: Pose[] = ['singer', 'rap', 'slam', 'trio', 'singer', 'slam']
@@ -19,7 +19,7 @@ export default function SchoolDetail() {
   if (!school)
     return (
       <div className="py-24 text-center">
-        <p className="text-white/60">Cette école n’existe pas dans la démonstration.</p>
+        <p className="text-white/60">Cette école est introuvable.</p>
         <Button to="/ecoles" className="mt-4">
           Voir les écoles
         </Button>
@@ -47,7 +47,6 @@ export default function SchoolDetail() {
               <span className="rounded-full px-3 py-1 text-[11px] font-extrabold uppercase tracking-wider text-ink" style={{ background: school.accent }}>
                 {school.motto}
               </span>
-              <DemoPill>École fictive</DemoPill>
             </div>
             <h1 className="font-display text-[44px] leading-[0.92] tracking-wide lg:text-[72px]">{school.name}</h1>
             <div className="mt-2 flex items-center gap-1.5 text-[14px] text-white/75">
@@ -78,7 +77,7 @@ export default function SchoolDetail() {
       {main && (
         <div className="mt-4 flex flex-col gap-3 sm:flex-row">
           <Button to={`/spectacles/${main.id}`} size="lg" icon={<Play size={16} className="fill-ink" />}>
-            {main.status === 'live' ? 'Regarder le spectacle (démo)' : main.status === 'upcoming' ? 'Voir le prochain spectacle' : 'Voir la rediffusion'}
+            {main.status === 'live' ? 'Regarder le spectacle' : main.status === 'upcoming' ? 'Voir le prochain spectacle' : 'Voir la rediffusion'}
           </Button>
           <Button variant="dark" size="lg" onClick={() => setTab('talents')}>
             Rencontrer les talents
@@ -195,7 +194,6 @@ export default function SchoolDetail() {
                 </Link>
               )
             })}
-            <p className="pt-1 text-[11px] text-white/40">Dates fictives — démonstration.</p>
           </div>
         )}
 
@@ -211,7 +209,7 @@ export default function SchoolDetail() {
                   <StageArt seed={school.id + 'g' + i} photo={gallery[i]} palette={galleryPalettes[i]} pose={p} className="absolute inset-0 h-full w-full transition duration-700 group-hover:scale-105" />
                 </div>
                 <span className="absolute bottom-2 left-2 rounded-md bg-ink/70 px-2 py-0.5 text-[10.5px] font-semibold text-white/80 backdrop-blur">
-                  Performance {i + 1} · visuel de démonstration
+                  Performance {i + 1}
                 </span>
               </button>
             ))}

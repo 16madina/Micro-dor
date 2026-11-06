@@ -5,7 +5,7 @@ import { SCHOOLS, TALENTS, fmtNum, schoolById } from '../data'
 import { useApp } from '../state/AppState'
 import Portrait from '../components/art/Portrait'
 import { TalentCard } from '../components/cards'
-import { Button, CategoryTag, Chips, DemoPill, PageHero, cx } from '../components/ui'
+import { Button, CategoryTag, Chips, PageHero, cx } from '../components/ui'
 import { CAT_OPTIONS, EngagementCounts, SupportButton, VoteButton, type CatFilter } from '../components/talents/shared'
 
 type Sort = 'populaires' | 'az'
@@ -104,11 +104,7 @@ export default function Talents() {
           </>
         }
         sub="Chant, danse, théâtre, slam et rap conscience : les talents de huit écoles secondaires du Québec montent sur la scène MICRO D’OR. Découvre leur univers et encourage tes coups de cœur."
-      >
-        <div className="mt-4 flex flex-wrap items-center gap-2">
-          <DemoPill>Personnages fictifs — photos d’illustration</DemoPill>
-        </div>
-      </PageHero>
+      />
 
       <FeaturedBanner />
 
@@ -189,11 +185,11 @@ export default function Talents() {
       <section className="relative mt-10 overflow-hidden rounded-3xl border border-stage/30 bg-gradient-to-br from-stage/25 via-night to-night p-6 lg:flex lg:items-center lg:justify-between lg:p-8">
         <div className="pointer-events-none absolute -right-10 -top-16 h-56 w-56 rounded-full bg-gold/10 blur-3xl" />
         <div className="relative">
-          <div className="eyebrow mb-1.5">Votes simulés</div>
+          <div className="eyebrow mb-1.5">Vote du public</div>
           <h2 className="font-display text-[32px] leading-none tracking-wide lg:text-[42px]">
             Ton soutien peut faire <span className="text-gold-metal">briller</span> un talent.
           </h2>
-          <p className="mt-2 max-w-lg text-[14px] text-white/60">Consulte le classement de démonstration et encourage les artistes qui te touchent.</p>
+          <p className="mt-2 max-w-lg text-[14px] text-white/60">Consulte le classement et encourage les artistes qui te touchent.</p>
         </div>
         <Button to="/votes" className="relative mt-5 lg:mt-0" icon={<Trophy size={17} />}>
           Voir le classement

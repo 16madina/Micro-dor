@@ -103,7 +103,7 @@ export interface Capsule {
   id: string
   theme: ThemeId
   title: string
-  format: 'Capsule vidéo' | 'Témoignage (démo)' | 'Conférence' | 'Atelier'
+  format: 'Capsule vidéo' | 'Témoignage' | 'Conférence' | 'Atelier'
   duration: string
   speaker: string
   summary: string

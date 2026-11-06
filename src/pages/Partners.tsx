@@ -24,7 +24,7 @@ import { PARTNERS, PHOTOS, SCHOOLS, type PartnerSlot } from '../data'
 import StageArt from '../components/art/StageArt'
 import { MicEmblem, Wordmark, useSvgId } from '../components/art/Logo'
 import { PartnerLogo, PartnerMark } from '../components/art/PartnerLogo'
-import { Button, DemoPill, cx } from '../components/ui'
+import { Button, cx } from '../components/ui'
 import PartnerModal from '../components/mission/PartnerModal'
 
 type Icon = ComponentType<LucideProps>
@@ -53,7 +53,7 @@ const TIERS: Tier[] = [
     icon: MapPinned,
     slots: 3,
     text: 'Ancrez votre marque dans votre région en soutenant les étapes locales de la tournée.',
-    perks: ['Visibilité sur les étapes de votre région', 'Logo sur les affiches régionales', 'Billets d’invitation (démo)'],
+    perks: ['Visibilité sur les étapes de votre région', 'Logo sur les affiches régionales', 'Billets d’invitation'],
   },
   {
     name: 'Partenaires jeunesse',
@@ -107,7 +107,7 @@ const WHY: { icon: Icon; title: string; text: string }[] = [
 ]
 
 const PROJECTION = [
-  { value: String(SCHOOLS.length), label: 'écoles dans la saison de démonstration' },
+  { value: String(SCHOOLS.length), label: 'écoles dans la saison' },
   { value: '≈ 40', label: 'spectacles par saison' },
   { value: '≈ 15 000', label: 'élèves sensibilisés' },
   { value: '17', label: 'régions visées à terme' },
@@ -142,7 +142,6 @@ export default function Partners() {
               Voir les paliers
             </Button>
           </div>
-          <DemoPill className="mt-6">Marques fictives — exemples de présentation</DemoPill>
         </div>
       </section>
 
@@ -189,7 +188,7 @@ export default function Partners() {
         <span className="pointer-events-none absolute -left-20 -top-24 h-72 w-72 rounded-full bg-stage/30 blur-3xl" />
         <div className="relative flex flex-wrap items-center justify-between gap-3">
           <SlideHead n="03" label="Portée envisagée" className="!mb-0" />
-          <span className="rounded-full border border-gold/50 bg-gold/10 px-3 py-1 text-[11px] font-extrabold uppercase tracking-wider text-goldlight">Projection illustrative</span>
+          <span className="rounded-full border border-gold/50 bg-gold/10 px-3 py-1 text-[11px] font-extrabold uppercase tracking-wider text-goldlight">Projection</span>
         </div>
         <div className="relative mt-6 grid grid-cols-2 gap-6 lg:grid-cols-4">
           {PROJECTION.map((p) => (
@@ -199,9 +198,6 @@ export default function Partners() {
             </div>
           ))}
         </div>
-        <p className="relative mt-6 text-[11.5px] text-white/40">
-          Projection illustrative : chiffres hypothétiques à des fins de présentation. Il ne s’agit d’aucune statistique d’audience réelle.
-        </p>
       </section>
 
       {/* ---------------- PALIERS */}
@@ -258,7 +254,7 @@ export default function Partners() {
                         <Plus size={18} />
                       </span>
                       <span className="text-[13px] font-bold text-white/70 group-hover:text-goldlight">Espace disponible</span>
-                      <span className="text-[11px] text-white/40">Réserver cet emplacement (démo)</span>
+                      <span className="text-[11px] text-white/40">Réserver cet emplacement</span>
                     </button>
                   ))}
                 </div>
@@ -352,7 +348,7 @@ export default function Partners() {
               Devenir partenaire
             </Button>
             <Button size="lg" variant="dark" to="/reglement">
-              Lire le règlement (démo)
+              Lire le règlement
             </Button>
           </div>
         </div>
@@ -388,7 +384,6 @@ function TierTitle({ tier }: { tier: Tier }) {
 function LogoSlot({ partner: p, large }: { partner: PartnerSlot; large?: boolean }) {
   return (
     <div className={cx('relative flex flex-col items-center justify-center rounded-2xl bg-[#F7F3EA] text-center shadow-card ring-1 ring-black/5', large ? 'min-h-[220px] p-8' : 'min-h-[132px] p-4')}>
-      <span className="absolute right-2.5 top-2.5 rounded-full bg-ink/[0.06] px-2 py-0.5 text-[9.5px] font-bold uppercase tracking-wider text-ink/50">Marque fictive — exemple</span>
       <div className="flex w-full flex-col items-center gap-2">
         <PartnerLogo id={p.id} brand={p.brand} className={cx('w-full', large ? 'h-24 max-w-[380px]' : 'h-14 max-w-[230px]')} />
         <div className={cx('font-semibold uppercase tracking-[0.18em] text-ink/45', large ? 'text-[11px]' : 'text-[9px]')}>{p.tier}</div>
@@ -430,7 +425,6 @@ function PosterPreview({ partner }: { partner?: PartnerSlot }): ReactNode {
         </div>
         <div className="absolute inset-x-0 bottom-0 p-4">
           <div className="text-center font-display text-[26px] leading-none tracking-wide">Finale locale</div>
-          <div className="mt-1 text-center text-[11px] text-white/60">Date fictive · École fictive</div>
           <div className="mt-3 flex items-center justify-center gap-2 rounded-xl bg-[#F7F3EA] px-3 py-2">
             <span className="text-[9px] font-bold uppercase tracking-wider text-ink/50">Présenté par</span>
             {partner ? <PartnerLogo id={partner.id} brand={partner.brand} className="h-7 w-[110px]" /> : <span className="text-[12px] font-extrabold text-ink">Votre marque</span>}
@@ -442,7 +436,6 @@ function PosterPreview({ partner }: { partner?: PartnerSlot }): ReactNode {
           </div>
         </div>
       </div>
-      <div className="mt-3 text-center text-[11.5px] text-white/50">Aperçu d’affiche — marques fictives</div>
     </div>
   )
 }

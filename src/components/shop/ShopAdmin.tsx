@@ -115,9 +115,7 @@ export default function ShopAdmin() {
       <div className="flex items-start gap-3 rounded-2xl border border-gold/30 bg-gold/[0.06] p-4 text-[13px] leading-relaxed text-white/70">
         <KeyRound size={18} className="mt-0.5 shrink-0 text-gold" />
         <span>
-          <b className="text-goldlight">Espace organisateur — {user?.firstName}.</b> {user?.demo
-            ? 'Compte de démonstration : les changements restent dans cette fenêtre.'
-            : 'Les changements sont enregistrés en ligne et visibles par tous les visiteurs de la boutique.'}
+          <b className="text-goldlight">Espace organisateur — {user?.firstName}.</b> {!user?.demo && 'Les changements sont enregistrés en ligne et visibles par tous les visiteurs de la boutique.'}
         </span>
       </div>
 
@@ -149,7 +147,7 @@ export default function ShopAdmin() {
               <input id="new-price" inputMode="decimal" value={f.price} onChange={(e) => setF({ ...f, price: e.target.value })} placeholder="19,99" className={cx(INPUT, 'mt-1 h-11')} />
             </label>
             <label className="text-[12px] font-bold text-white/60">
-              Type (maquette)
+              Type
               <select id="new-kind" value={f.kind} onChange={(e) => setF({ ...f, kind: e.target.value as Product['kind'] })} className={cx(INPUT, 'mt-1 h-11 bg-night')}>
                 {KINDS.map((k) => (
                   <option key={k.value} value={k.value}>

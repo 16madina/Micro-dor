@@ -9,12 +9,11 @@ import {
   Layers,
   ListChecks,
   ShieldCheck,
-  TriangleAlert,
   Users,
   Vote,
   type LucideProps,
 } from 'lucide-react'
-import { Button, DemoPill, PageHero, cx } from '../components/ui'
+import { Button, PageHero, cx } from '../components/ui'
 
 interface Section {
   id: string
@@ -92,7 +91,7 @@ const SECTIONS: Section[] = [
             ['Inscriptions', 'Auprès de l’école, avec le formulaire de consentement parental.'],
             ['Ateliers', 'Écriture, voix et présence scénique avec des artistes-mentors.'],
             ['Auditions locales', 'Devant un jury formé de membres du personnel et d’artistes invités.'],
-            ['Finale locale', 'Spectacle public dans l’école, avec vote du public (simulé dans ce prototype).'],
+            ['Finale locale', 'Spectacle public dans l’école, avec vote du public.'],
             ['Grande finale', 'Les lauréats de chaque école se produisent lors d’une soirée provinciale.'],
           ].map(([t, d], i) => (
             <li key={t} className="relative">
@@ -102,7 +101,6 @@ const SECTIONS: Section[] = [
             </li>
           ))}
         </ol>
-        <Note>Les dates de la tournée affichées dans l’application sont fictives.</Note>
       </>
     ),
   },
@@ -116,12 +114,11 @@ const SECTIONS: Section[] = [
         <UL
           items={[
             'Encourager : ouvert à tous, sans compte. Un encouragement par personne et par talent, que l’on peut retirer. Il n’a aucun effet sur le classement.',
-            'Voter : réservé aux personnes ayant un compte. Les votes sont payants, par forfaits (1 vote 2 $, 5 votes 8 $, 10 votes 15 $), avec un plafond de 10 votes par personne et par discipline (chant, danse, théâtre, slam, rap conscience). Les votes achetés sont définitifs. Avant 14 ans, un parent ou tuteur doit approuver le compte. (Prototype : paiement simulé.)',
-            'Le résultat final envisagé combine l’évaluation du jury (pondération envisagée : 60 %) et le vote du public (40 %).',
+            'Voter : réservé aux personnes ayant un compte. Les votes sont payants, par forfaits (1 vote 2 $, 5 votes 8 $, 10 votes 15 $), avec un plafond de 10 votes par personne et par discipline (chant, danse, théâtre, slam, rap conscience). Les votes achetés sont définitifs. Avant 14 ans, un parent ou tuteur doit approuver le compte.',
+            'Le résultat final combine l’évaluation du jury (60 %) et le vote du public (40 %).',
             'Aucun achat ni contrepartie financière ; des mécanismes de détection des votes automatisés ou abusifs sont prévus.',
           ]}
         />
-        <Note>Version de démonstration : les chiffres de départ affichés sont fictifs ; les encouragements et votes réels s’y ajoutent.</Note>
       </>
     ),
   },
@@ -201,28 +198,20 @@ export default function Rules() {
   return (
     <div>
       <PageHero
-        eyebrow="Document de travail"
+        eyebrow="Saison 2026-2027"
         title={
           <>
-            Règlement du concours <span className="text-gold-metal">(démonstration)</span>
+            Règlement du <span className="text-gold-metal">concours</span>
           </>
         }
-        sub="Les grandes lignes envisagées pour encadrer le concours MICRO D’OR : admissibilité, catégories, votes, protection des mineurs et droits d’image."
+        sub="Les règles qui encadrent le concours MICRO D’OR : admissibilité, catégories, votes, protection des mineurs et droits d’image."
       >
         <div className="mt-4 flex flex-wrap gap-2">
-          <DemoPill>Version brouillon 0.3 — novembre 2026 (fictive)</DemoPill>
+          <span className="inline-flex items-center rounded-full border border-white/10 bg-white/[0.04] px-2.5 py-1 text-[10.5px] font-semibold text-white/55">
+            Version 0.3 — novembre 2026
+          </span>
         </div>
       </PageHero>
-
-      <div className="mb-6 flex items-start gap-3 rounded-2xl border border-gold/40 bg-gradient-to-r from-gold/[0.12] to-transparent p-4 lg:p-5">
-        <TriangleAlert size={20} className="mt-0.5 shrink-0 text-goldlight" />
-        <div>
-          <div className="text-[14px] font-extrabold text-goldlight">Brouillon à des fins de démonstration</div>
-          <p className="mt-0.5 text-[13px] leading-relaxed text-white/70">
-            Ce texte illustre le contenu d’un futur règlement. Il ne constitue pas un document juridique et n’engage aucune organisation. La version officielle devra être rédigée et validée par des professionnels.
-          </p>
-        </div>
-      </div>
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-[260px_1fr] lg:gap-10">
         {/* Sommaire */}
@@ -295,11 +284,11 @@ export default function Rules() {
           <div className="mt-8 flex flex-col items-start gap-4 rounded-2xl border border-white/[0.08] bg-white/[0.03] p-5 lg:flex-row lg:items-center lg:justify-between">
             <div>
               <div className="text-[15px] font-extrabold">Des questions sur l’encadrement ?</div>
-              <p className="text-[13px] text-white/60">Découvrez l’espace parents (démo) et les initiatives de prévention.</p>
+              <p className="text-[13px] text-white/60">Découvrez l’espace parents et les initiatives de prévention.</p>
             </div>
             <div className="flex flex-wrap gap-2">
               <Button size="sm" to="/parent">
-                Espace parents (démo)
+                Espace parents
               </Button>
               <Button size="sm" variant="outline" to="/prevention">
                 Volet prévention
