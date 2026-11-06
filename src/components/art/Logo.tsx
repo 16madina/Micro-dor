@@ -28,11 +28,14 @@ export function MicEmblem({ className = '', glow = true, large = false }: { clas
 }
 
 export function Wordmark({ className = '' }: { className?: string }) {
-  // pr : marge pour que le « R » penché (italique) reste entièrement doré et ne soit pas coupé
+  // La police n'a pas d'italique : le navigateur penche les lettres lui-même et le dégradé doré
+  // ne suit pas, ce qui coupe le bout du « R ». On penche donc tout le bloc (lettres + dégradé).
+  const slanted = /\bitalic\b/.test(className)
+  const cls = className.replace(/\bitalic\b/g, '')
   return (
     <span
-      className={`inline-block whitespace-nowrap pr-[0.14em] font-display leading-none tracking-[0.04em] text-gold-metal ${className}`}
-      style={{ filter: 'drop-shadow(0 2px 10px rgba(214,172,85,.35))' }}
+      className={`inline-block whitespace-nowrap px-[0.06em] font-display not-italic leading-none tracking-[0.04em] text-gold-metal ${cls}`}
+      style={{ filter: 'drop-shadow(0 2px 10px rgba(214,172,85,.35))', transform: slanted ? 'skewX(-12deg)' : undefined }}
     >
       MICRO D’OR
     </span>
