@@ -42,9 +42,14 @@ export default function Splash() {
 
   const unmute = () => {
     const v = video.current
-    if (!v || !v.muted) return
+    if (!v || !v.muted || done.current) return
     v.muted = false
-    if (v.paused) v.play().catch(() => {})
+    v.volume = 1
+    // si le navigateur refuse encore (geste pas reconnu), on reste en muet sans s’arrêter
+    v.play().catch(() => {
+      v.muted = true
+      v.play().catch(() => {})
+    })
   }
 
   // (re)démarrage
@@ -78,16 +83,15 @@ export default function Splash() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [run])
 
-  // premier toucher / touche du clavier : active le son
+  // premier geste (clic, toucher, touche) : active le son.
+  // Sur téléphone, seul le doigt qui se relève compte comme un geste : on écoute donc aussi touchend / pointerup / click.
   useEffect(() => {
     if (!splashVisible) return
     const h = () => unmute()
-    window.addEventListener('pointerdown', h, { capture: true })
-    window.addEventListener('keydown', h, { capture: true })
-    return () => {
-      window.removeEventListener('pointerdown', h, { capture: true })
-      window.removeEventListener('keydown', h, { capture: true })
-    }
+    const events = ['pointerdown', 'pointerup', 'touchend', 'click', 'keydown'] as const
+    events.forEach((ev) => window.addEventListener(ev, h, { capture: true, passive: true }))
+    return () => events.forEach((ev) => window.removeEventListener(ev, h, { capture: true }))
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [splashVisible])
 
   if (!splashVisible) return null
@@ -105,7 +109,7 @@ export default function Splash() {
       <video
         key={run}
         ref={video}
-        src="brand/splash.mp4"
+        src="brand/splash-v2.mp4"
         poster="brand/splash-poster.jpg"
         playsInline
         preload="auto"
