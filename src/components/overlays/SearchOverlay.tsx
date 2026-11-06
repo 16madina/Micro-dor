@@ -47,7 +47,7 @@ export default function SearchOverlay() {
     <div className="fixed inset-0 z-[80] flex justify-center bg-black/75 backdrop-blur-md" onClick={() => setSearchOpen(false)}>
       <div className="mt-0 h-full w-full max-w-2xl animate-fadeUp lg:mt-[10vh] lg:h-auto" onClick={(e) => e.stopPropagation()}>
         <div className="glass flex h-full flex-col overflow-hidden border border-gold/25 lg:max-h-[70vh] lg:rounded-3xl">
-          <div className="flex items-center gap-3 border-b border-white/10 px-5 py-4">
+          <div className="flex items-center gap-3 border-b border-white/10 px-5 py-4 pt-[max(16px,env(safe-area-inset-top))] lg:pt-4">
             <Search size={20} className="text-gold" />
             <input
               ref={ref}
@@ -60,7 +60,7 @@ export default function SearchOverlay() {
               <X size={18} />
             </button>
           </div>
-          <div className="flex-1 overflow-y-auto p-2">
+          <div className="flex-1 overflow-y-auto overscroll-contain p-2 pb-[max(8px,env(safe-area-inset-bottom))]">
             {!q && <div className="px-3 pb-1 pt-2 text-[11px] font-bold uppercase tracking-widest text-white/35">Suggestions</div>}
             {results.length === 0 && <div className="p-8 text-center text-white/50">Aucun résultat pour « {q} »</div>}
             {results.map((r) => {

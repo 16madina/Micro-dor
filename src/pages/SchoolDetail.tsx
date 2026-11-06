@@ -101,7 +101,7 @@ export default function SchoolDetail() {
 
       <div key={tab} className="animate-fadeUp pt-6">
         {tab === 'presentation' && (
-          <div className="grid gap-6 lg:grid-cols-[1.3fr_1fr]">
+          <div className="grid grid-cols-1 gap-6 lg:grid-cols-[1.3fr_1fr]">
             <div>
               <div className="relative mb-5 rounded-2xl border-l-4 bg-white/[0.03] p-5" style={{ borderColor: school.accent }}>
                 <Quote size={22} className="absolute right-4 top-4 opacity-30" style={{ color: school.accent }} />
@@ -154,7 +154,7 @@ export default function SchoolDetail() {
           <div className="space-y-8">
             <div>
               <h3 className="mb-3 text-[13px] font-extrabold uppercase tracking-widest text-white/50">En direct et à venir</h3>
-              <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
                 {upcoming.map((s) => (
                   <ShowCard key={s.id} show={s} />
                 ))}
@@ -163,7 +163,7 @@ export default function SchoolDetail() {
             </div>
             <div>
               <h3 className="mb-3 text-[13px] font-extrabold uppercase tracking-widest text-white/50">Spectacles passés</h3>
-              <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
                 {past.map((s) => (
                   <ShowCard key={s.id} show={s} />
                 ))}

@@ -135,11 +135,11 @@ export default function ShopAdmin() {
         <h3 className="mb-3 flex items-center gap-2 font-display text-[28px] leading-none tracking-wide">
           <PackagePlus size={22} className="text-gold" /> Ajouter un produit
         </h3>
-        <form onSubmit={submit} noValidate className="grid gap-4 rounded-2xl border border-white/[0.07] bg-night/60 p-4 lg:grid-cols-[160px_minmax(0,1fr)] lg:p-6">
+        <form onSubmit={submit} noValidate className="grid grid-cols-1 gap-4 rounded-2xl border border-white/[0.07] bg-night/60 p-4 lg:grid-cols-[160px_minmax(0,1fr)] lg:p-6">
           <div className="mx-auto h-40 w-40 overflow-hidden rounded-2xl bg-night2">
             <ProductArt kind={f.kind} className="h-full w-full" />
           </div>
-          <div className="grid gap-3 sm:grid-cols-2">
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
             <label className="text-[12px] font-bold text-white/60">
               Nom du produit
               <input id="new-name" value={f.name} onChange={(e) => setF({ ...f, name: e.target.value })} placeholder="Ex. Tuque MICRO D’OR" className={cx(INPUT, 'mt-1 h-11')} />

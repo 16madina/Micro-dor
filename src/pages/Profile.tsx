@@ -104,7 +104,7 @@ export default function Profile() {
         </div>
       </section>
 
-      <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_380px] lg:gap-8">
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,1fr)_380px] lg:gap-8">
         {/* Talents soutenus */}
         <section className="min-w-0">
           <BlockTitle icon={Heart} aside={supported.length > 0 ? <Link to="/votes" className="text-[12.5px] font-semibold text-gold hover:text-goldlight">Voter encore →</Link> : undefined}>

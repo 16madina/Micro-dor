@@ -115,7 +115,7 @@ export default function Tour() {
       </div>
 
       {/* ---------- Carte + calendrier */}
-      <div className="grid gap-5 lg:grid-cols-[1.5fr_1fr]">
+      <div className="grid grid-cols-1 gap-5 lg:grid-cols-[1.5fr_1fr]">
         <section className="card relative flex flex-col p-3 lg:p-5" aria-label="Carte de la tournée">
           <div className="mb-2 flex items-start justify-between gap-3 px-1">
             <div>

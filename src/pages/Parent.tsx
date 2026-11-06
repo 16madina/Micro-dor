@@ -178,7 +178,7 @@ export default function Parent() {
         Mme Tremblay et Maya L. sont des personnages de démonstration. Aucun compte réel, aucune authentification, aucune donnée personnelle collectée : vos choix ci-dessous ne sont ni enregistrés ni transmis.
       </DemoNotice>
 
-      <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_400px] lg:gap-8">
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,1fr)_400px] lg:gap-8">
         <div className="min-w-0 space-y-6">
           {/* Aperçu (maquette client) */}
           <div className="card divide-y divide-white/[0.06] overflow-hidden">

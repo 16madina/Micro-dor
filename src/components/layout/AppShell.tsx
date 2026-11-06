@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState, type ReactNode } from 'react'
 import { Link, NavLink, useLocation, useNavigate } from 'react-router-dom'
-import { Bell, LogIn, ChevronLeft, Clapperboard, Menu, RotateCcw, Search, ShoppingBag, X } from 'lucide-react'
+import { Bell, LogIn, ChevronLeft, ChevronRight, Clapperboard, Menu, RotateCcw, Search, ShoppingBag, X } from 'lucide-react'
 import { LogoInline, MicEmblem, Wordmark } from '../art/Logo'
 import { useApp } from '../../state/AppState'
 import { IconButton, cx } from '../ui'
@@ -187,24 +187,27 @@ function MobileHeader() {
   const { setMenuOpen } = useApp()
   const nav = useNavigate()
   const isRoot = ROOTS.includes(pathname)
+  const back = () => ((window.history.state as { idx?: number } | null)?.idx ? nav(-1) : nav('/'))
   return (
-    <header className="sticky top-0 z-30 flex h-14 items-center justify-between border-b border-white/[0.05] bg-ink/75 px-2 backdrop-blur-xl lg:hidden">
-      <div className="flex items-center">
-        {isRoot ? (
-          <IconButton label="Menu" onClick={() => setMenuOpen(true)}>
-            <Menu size={21} />
+    <header className="sticky top-0 z-30 border-b border-white/[0.06] bg-ink/85 pt-[env(safe-area-inset-top)] backdrop-blur-xl lg:hidden">
+      <div className="flex h-14 items-center justify-between pl-[max(4px,env(safe-area-inset-left))] pr-[max(6px,env(safe-area-inset-right))]">
+        <div className="flex min-w-0 items-center">
+          {!isRoot && (
+            <IconButton label="Retour" onClick={back} className="-mr-1">
+              <ChevronLeft size={26} />
+            </IconButton>
+          )}
+          <Link to="/" aria-label="Accueil MICRO D’OR" className={cx('flex min-w-0 items-center gap-1', isRoot && 'pl-2.5')}>
+            <MicEmblem className="-my-1 h-10 w-7 shrink-0" glow={false} />
+            <Wordmark className={cx('truncate text-[23px] italic max-[359px]:text-[19px]', !isRoot && 'max-[389px]:hidden')} />
+          </Link>
+        </div>
+        <div className="relative flex shrink-0 items-center">
+          <HeaderActions />
+          <IconButton label="Ouvrir le menu" onClick={() => setMenuOpen(true)} className="ml-0.5">
+            <Menu size={23} />
           </IconButton>
-        ) : (
-          <IconButton label="Retour" onClick={() => nav(-1)}>
-            <ChevronLeft size={24} />
-          </IconButton>
-        )}
-        <Link to="/" aria-label="Accueil MICRO D’OR">
-          <LogoInline />
-        </Link>
-      </div>
-      <div className="relative">
-        <HeaderActions />
+        </div>
       </div>
     </header>
   )
@@ -213,16 +216,25 @@ function MobileHeader() {
 function BottomNav() {
   const { pathname } = useLocation()
   return (
-    <nav className="glass fixed inset-x-0 bottom-0 z-40 border-t border-white/[0.08] pb-[env(safe-area-inset-bottom)] lg:hidden">
-      <div className="mx-auto grid max-w-md grid-cols-5">
+    <nav
+      aria-label="Navigation principale"
+      className="fixed inset-x-0 bottom-0 z-40 border-t border-white/[0.08] bg-ink/90 pb-[env(safe-area-inset-bottom)] backdrop-blur-xl lg:hidden"
+    >
+      <div className="mx-auto grid h-[62px] max-w-lg grid-cols-5 px-1">
         {PRIMARY_NAV.map((item) => {
-          const active = isActive(pathname, item.to)
+          const active = isActive(pathname, item.to) || (item.to === '/profil' && pathname.startsWith('/connexion'))
           const Icon = item.icon
           return (
-            <Link key={item.to} to={item.to} className="relative flex flex-col items-center gap-1 pb-2 pt-2.5">
-              {active && <span className="absolute top-0 h-[2px] w-8 rounded-full bg-gold-soft shadow-[0_0_10px_#F4D78C]" />}
-              <Icon size={21} className={active ? 'text-gold' : 'text-white/55'} strokeWidth={active ? 2.3 : 1.8} />
-              <span className={cx('text-[10.5px] font-bold', active ? 'text-goldlight' : 'text-white/50')}>{item.label}</span>
+            <Link
+              key={item.to}
+              to={item.to}
+              aria-current={active ? 'page' : undefined}
+              className="flex flex-col items-center justify-center gap-0.5 transition-transform duration-150 active:scale-90"
+            >
+              <span className={cx('grid h-8 w-14 place-items-center rounded-full transition-colors duration-200', active && 'bg-gold/15')}>
+                <Icon size={22} className={active ? 'text-gold' : 'text-white/55'} strokeWidth={active ? 2.3 : 1.8} />
+              </span>
+              <span className={cx('text-[10.5px] font-bold leading-none', active ? 'text-goldlight' : 'text-white/50')}>{item.label}</span>
             </Link>
           )
         })}
@@ -231,49 +243,108 @@ function BottomNav() {
   )
 }
 
+function DrawerRow({ item, onNavigate }: { item: NavItem; onNavigate?: () => void }) {
+  const { pathname } = useLocation()
+  const active = pathname === item.to
+  const Icon = item.icon
+  return (
+    <Link
+      to={item.to}
+      onClick={onNavigate}
+      className={cx(
+        'flex h-12 items-center gap-3.5 rounded-xl px-3 text-[15px] font-semibold transition active:bg-white/10',
+        active ? 'bg-gold/10 text-goldlight' : 'text-white/85',
+      )}
+    >
+      <Icon size={20} className={active ? 'text-gold' : 'text-gold/80'} />
+      <span className="flex-1">{item.label}</span>
+      <ChevronRight size={16} className="text-white/25" />
+    </Link>
+  )
+}
+
 function MoreMenu() {
-  const { menuOpen, setMenuOpen, startTour, replaySplash, isOrganizer } = useApp()
+  const { menuOpen, setMenuOpen, startTour, replaySplash, isOrganizer, user } = useApp()
   const { pathname } = useLocation()
   useEffect(() => setMenuOpen(false), [pathname, setMenuOpen])
+  useEffect(() => {
+    if (!menuOpen) return
+    const prev = document.body.style.overflow
+    document.body.style.overflow = 'hidden'
+    const h = (e: KeyboardEvent) => e.key === 'Escape' && setMenuOpen(false)
+    window.addEventListener('keydown', h)
+    return () => {
+      document.body.style.overflow = prev
+      window.removeEventListener('keydown', h)
+    }
+  }, [menuOpen, setMenuOpen])
   if (!menuOpen) return null
+  const close = () => setMenuOpen(false)
   return (
-    <div className="fixed inset-0 z-[60] lg:hidden">
-      <div className="absolute inset-0 animate-fadeIn bg-black/70 backdrop-blur-sm" onClick={() => setMenuOpen(false)} />
-      <div className="absolute inset-y-0 left-0 flex w-[86%] max-w-[340px] animate-fadeIn flex-col overflow-y-auto border-r border-gold/20 bg-ink p-5">
-        <div className="mb-5 flex items-center justify-between">
-          <LogoInline />
-          <IconButton label="Fermer" onClick={() => setMenuOpen(false)}>
-            <X size={20} />
+    <div className="fixed inset-0 z-[60] lg:hidden" role="dialog" aria-modal="true" aria-label="Menu">
+      <div className="absolute inset-0 animate-fadeIn bg-black/70 backdrop-blur-sm" onClick={close} />
+      <aside className="absolute inset-y-0 right-0 flex w-[86%] max-w-[360px] animate-slideInRight flex-col overflow-y-auto overscroll-contain border-l border-gold/20 bg-ink pb-[max(16px,env(safe-area-inset-bottom))] pl-4 pr-[max(16px,env(safe-area-inset-right))] pt-[max(12px,env(safe-area-inset-top))] shadow-[-20px_0_60px_rgba(0,0,0,.6)]">
+        <div className="mb-4 flex h-12 items-center justify-between">
+          <span className="flex items-center gap-1">
+            <MicEmblem className="h-10 w-7" glow={false} />
+            <Wordmark className="text-[22px] italic" />
+          </span>
+          <IconButton label="Fermer le menu" onClick={close}>
+            <X size={22} />
           </IconButton>
         </div>
-        <div className="eyebrow mb-3">Découvrir</div>
-        <div className="grid grid-cols-3 gap-2">
-          {MORE_NAV.map((i) => {
-            const Icon = i.icon
-            return (
-              <Link key={i.to} to={i.to} className="flex flex-col items-center gap-2 rounded-2xl border border-white/[0.08] bg-white/[0.03] py-4 text-[12px] font-bold text-white/80 transition hover:border-gold/40">
-                <Icon size={22} className="text-gold" />
-                {i.label}
-              </Link>
-            )
-          })}
-        </div>
-        <div className="eyebrow mb-3 mt-6">Espaces (démonstration)</div>
-        <div className="space-y-1">
-          {SPACES_NAV.map((i) => (
-            <SideLink key={i.to} item={i} exact />
+
+        {/* compte */}
+        {user ? (
+          <Link to="/profil" onClick={close} className="mb-5 flex items-center gap-3 rounded-2xl border border-gold/25 bg-gold/[0.06] p-3 active:bg-gold/10">
+            <span className="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-gold-metal p-[1.5px]">
+              <span className="grid h-full w-full place-items-center rounded-full bg-night2 text-[13px] font-extrabold uppercase text-goldlight">
+                {(user.firstName[0] ?? '') + (user.lastName[0] ?? '')}
+              </span>
+            </span>
+            <span className="min-w-0 flex-1">
+              <span className="block truncate text-[15px] font-extrabold">
+                {user.firstName} {user.lastName}
+              </span>
+              <span className="block text-[12px] text-white/50">Voir mon profil</span>
+            </span>
+            <ChevronRight size={16} className="text-white/30" />
+          </Link>
+        ) : (
+          <div className="mb-5 grid grid-cols-2 gap-2">
+            <Link to="/connexion" onClick={close} className="flex h-11 items-center justify-center gap-1.5 rounded-full bg-gold-soft text-[13.5px] font-extrabold text-ink">
+              <LogIn size={16} /> Se connecter
+            </Link>
+            <Link to="/connexion?mode=inscription" onClick={close} className="flex h-11 items-center justify-center rounded-full border border-gold/50 text-[13.5px] font-bold text-goldlight">
+              Créer un compte
+            </Link>
+          </div>
+        )}
+
+        <div className="eyebrow mb-1.5 px-3">Découvrir</div>
+        <nav className="space-y-0.5">
+          {MORE_NAV.map((i) => (
+            <DrawerRow key={i.to} item={i} onNavigate={close} />
           ))}
-          {isOrganizer && <SideLink item={ORGANIZER_NAV} exact />}
-        </div>
+        </nav>
+
+        <div className="eyebrow mb-1.5 mt-5 px-3">Espaces</div>
+        <nav className="space-y-0.5">
+          {SPACES_NAV.map((i) => (
+            <DrawerRow key={i.to} item={i} onNavigate={close} />
+          ))}
+          {isOrganizer && <DrawerRow item={ORGANIZER_NAV} onNavigate={close} />}
+        </nav>
+
         <div className="mt-auto space-y-2 pt-6">
-          <button onClick={startTour} className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-gold-soft text-sm font-extrabold text-ink shadow-gold">
+          <button onClick={startTour} className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-gold-soft text-sm font-extrabold text-ink shadow-gold active:scale-[.98]">
             <Clapperboard size={17} /> Visite guidée sponsors
           </button>
           <button onClick={replaySplash} className="flex w-full items-center justify-center gap-2 py-2 text-[12px] font-semibold text-white/50">
             <RotateCcw size={13} /> Revoir l’intro
           </button>
         </div>
-      </div>
+      </aside>
     </div>
   )
 }
@@ -281,12 +352,12 @@ function MoreMenu() {
 function Toasts() {
   const { toasts } = useApp()
   return (
-    <div className="pointer-events-none fixed inset-x-0 top-16 z-[90] flex flex-col items-center gap-2 px-4 lg:top-6">
+    <div className="pointer-events-none fixed inset-x-0 top-[calc(env(safe-area-inset-top)+64px)] z-[90] flex flex-col items-center gap-2 px-4 lg:top-6">
       {toasts.map((t) => (
         <div
           key={t.id}
           className={cx(
-            'animate-fadeUp rounded-full px-5 py-2.5 text-[13.5px] font-bold shadow-card',
+            'max-w-full animate-fadeUp rounded-full px-5 py-2.5 text-center text-[13.5px] font-bold shadow-card',
             t.tone === 'gold' ? 'bg-gold-soft text-ink shadow-gold' : 'glass border border-white/10 text-white',
           )}
         >
@@ -315,12 +386,15 @@ export default function AppShell({ children }: { children: ReactNode }) {
     return () => window.removeEventListener('keydown', h)
   }, [setSearchOpen])
   return (
-    <div className="min-h-screen">
+    <div className="min-h-[100dvh]">
       <Sidebar />
       <div className="lg:pl-[260px]">
         <DesktopTopBar />
         <MobileHeader />
-        <main key={pathname} className="mx-auto max-w-[1280px] animate-fadeIn px-4 pb-28 pt-4 lg:px-10 lg:pb-16 lg:pt-8">
+        <main
+          key={pathname}
+          className="mx-auto max-w-[1280px] animate-pageIn pb-[calc(92px+env(safe-area-inset-bottom))] pl-[max(16px,env(safe-area-inset-left))] pr-[max(16px,env(safe-area-inset-right))] pt-4 lg:animate-fadeIn lg:px-10 lg:pb-16 lg:pt-8"
+        >
           {children}
         </main>
       </div>

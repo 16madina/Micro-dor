@@ -138,7 +138,7 @@ export default function Student() {
         aucune donnée réelle, aucune authentification. Alex T. est un personnage fictif ; rien de ce qui est affiché ou modifié ici n’est enregistré.
       </DemoNotice>
 
-      <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_380px] lg:gap-8">
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,1fr)_380px] lg:gap-8">
         {/* Colonne principale */}
         <div className="min-w-0 space-y-6 lg:space-y-8">
           {/* Raccourcis (maquette client) */}
@@ -159,7 +159,7 @@ export default function Student() {
             </div>
             <Chips options={libOptions} value={lib} onChange={setLib} className="mb-3" />
             <p className="mb-3 text-[13px] text-white/55">{LIBRARY[lib].intro}</p>
-            <div className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_300px]">
+            <div className="grid grid-cols-1 gap-4 xl:grid-cols-[minmax(0,1fr)_300px]">
               <div className="space-y-2">
                 {LIBRARY[lib].tracks.map((t, i) => (
                   <TrackRow key={t.id} track={t} player={player} index={i} />
@@ -183,7 +183,7 @@ export default function Student() {
                 Tous les spectacles →
               </Link>
             </div>
-            <div className="grid gap-4 sm:grid-cols-2">
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               {shows.map((s) => (
                 <ShowCard key={s.id} show={s} />
               ))}

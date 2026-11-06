@@ -553,7 +553,7 @@ export default function Auth() {
 
   return (
     <div className="-mx-4 -mt-4 lg:mx-0 lg:mt-0">
-      <div className="grid min-h-[calc(100vh-120px)] overflow-hidden lg:grid-cols-[1fr_1.05fr] lg:rounded-[28px] lg:border lg:border-white/[0.07]">
+      <div className="grid lg:min-h-[calc(100vh-120px)] overflow-hidden lg:grid-cols-[1fr_1.05fr] lg:rounded-[28px] lg:border lg:border-white/[0.07]">
         {/* visuel */}
         <div className="relative hidden lg:block">
           <img src={PHOTOS.hero} alt="" className="absolute inset-0 h-full w-full object-cover object-[60%_30%]" />

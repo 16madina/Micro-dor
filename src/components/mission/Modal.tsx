@@ -43,7 +43,7 @@ export default function Modal({
       <button aria-label="Fermer" onClick={onClose} className="absolute inset-0 animate-fadeIn cursor-default bg-ink/80 backdrop-blur-md" />
       <div
         className={cx(
-          'relative max-h-[92vh] w-full animate-slideUp overflow-y-auto rounded-t-3xl border border-gold/25 bg-gradient-to-b from-night2 to-ink shadow-[0_30px_120px_-20px_rgba(104,55,181,.55)] lg:animate-fadeUp lg:rounded-3xl',
+          'relative max-h-[92dvh] w-full animate-slideUp overflow-y-auto overscroll-contain rounded-t-3xl pb-[env(safe-area-inset-bottom)] border border-gold/25 bg-gradient-to-b from-night2 to-ink shadow-[0_30px_120px_-20px_rgba(104,55,181,.55)] lg:animate-fadeUp lg:rounded-3xl',
           wide ? 'lg:max-w-4xl' : 'lg:max-w-xl',
           className,
         )}

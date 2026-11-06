@@ -18,7 +18,7 @@ export default function CartDrawer() {
   return (
     <div className="fixed inset-0 z-[85]">
       <div className="absolute inset-0 animate-fadeIn bg-black/70 backdrop-blur-sm" onClick={close} />
-      <div className="absolute inset-x-0 bottom-0 flex max-h-[88vh] animate-slideUp flex-col rounded-t-3xl border-t border-gold/30 bg-ink lg:inset-y-0 lg:left-auto lg:right-0 lg:max-h-none lg:w-[420px] lg:rounded-none lg:border-l lg:border-t-0">
+      <div className="absolute inset-x-0 bottom-0 flex max-h-[90dvh] animate-slideUp flex-col rounded-t-3xl pb-[env(safe-area-inset-bottom)] border-t border-gold/30 bg-ink lg:inset-y-0 lg:left-auto lg:right-0 lg:max-h-none lg:w-[420px] lg:rounded-none lg:border-l lg:border-t-0">
         <div className="flex items-center justify-between border-b border-white/10 px-5 py-4">
           <div className="flex items-center gap-2">
             <ShoppingBag size={18} className="text-gold" />

@@ -110,7 +110,7 @@ export default function Prevention() {
       </section>
 
       {/* ---------------- MISSION */}
-      <section className="grid gap-8 lg:grid-cols-[1fr_1.1fr] lg:gap-14">
+      <section className="grid grid-cols-1 gap-8 lg:grid-cols-[1fr_1.1fr] lg:gap-14">
         <div>
           <div className="eyebrow mb-2">Notre mission</div>
           <h2 className="font-display text-[36px] leading-[0.95] tracking-wide lg:text-[52px]">
@@ -123,7 +123,7 @@ export default function Prevention() {
             Le programme se déploie en partenariat avec les écoles, les centres de services scolaires et les organismes jeunesse, dans un cadre sécuritaire et respectueux des élèves mineurs.
           </p>
         </div>
-        <div className="grid gap-3">
+        <div className="grid grid-cols-1 gap-3">
           {PILLARS.map((p, i) => (
             <div key={p.title} className="card flex gap-4 p-5 transition hover:border-gold/30">
               <span className="font-display text-[40px] leading-none text-gold/35">0{i + 1}</span>
@@ -141,7 +141,7 @@ export default function Prevention() {
       {/* ---------------- THÈMES */}
       <section>
         <SectionHeader eyebrow="Quatre axes d’intervention" title="Les thèmes abordés" />
-        <div className="grid gap-3 sm:grid-cols-2 lg:gap-5">
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:gap-5">
           {THEMES.map((t) => {
             const Icon = ICONS[t.icon]
             const n = CAPSULES.filter((c) => c.theme === t.id).length
@@ -178,7 +178,7 @@ export default function Prevention() {
           onChange={setTheme}
           options={[{ value: 'all' as const, label: 'Tous les thèmes' }, ...THEMES.map((t) => ({ value: t.id, label: t.short }))]}
         />
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {list.map((c) => (
             <CapsuleCard key={c.id} capsule={c} onPlay={() => setPlaying(c)} />
           ))}
@@ -207,7 +207,7 @@ export default function Prevention() {
       {/* ---------------- TÉMOIGNAGES */}
       <section>
         <SectionHeader eyebrow="Format illustré" title="Témoignages de démonstration" />
-        <div className="grid gap-4 lg:grid-cols-3">
+        <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
           {TESTIMONIALS.map((t) => (
             <figure key={t.who} className="card relative flex flex-col p-6">
               <Quote size={34} className="text-gold/50" />
@@ -251,7 +251,7 @@ export default function Prevention() {
       {/* ---------------- ÉTAPES */}
       <section>
         <SectionHeader eyebrow="Déploiement" title="Comment ça marche dans les écoles" />
-        <ol className="relative grid gap-4 lg:grid-cols-4">
+        <ol className="relative grid grid-cols-1 gap-4 lg:grid-cols-4">
           <span className="pointer-events-none absolute left-0 right-0 top-[38px] hidden h-px bg-gradient-to-r from-transparent via-gold/40 to-transparent lg:block" />
           {STEPS.map((s, i) => (
             <li key={s.title} className="card relative p-5">

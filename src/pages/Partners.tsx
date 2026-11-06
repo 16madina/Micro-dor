@@ -147,7 +147,7 @@ export default function Partners() {
       </section>
 
       {/* ---------------- 01 MISSION */}
-      <section className="grid gap-8 lg:grid-cols-[1.05fr_1fr] lg:gap-14">
+      <section className="grid grid-cols-1 gap-8 lg:grid-cols-[1.05fr_1fr] lg:gap-14">
         <div>
           <SlideHead n="01" label="La mission" />
           <h2 className="font-display text-[36px] leading-[0.95] tracking-wide lg:text-[52px]">
@@ -170,7 +170,7 @@ export default function Partners() {
         </div>
         <div>
           <SlideHead n="02" label="Pourquoi s’associer" />
-          <div className="grid gap-3 sm:grid-cols-2">
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
             {WHY.map((w) => (
               <div key={w.title} className="card p-5">
                 <span className="grid h-11 w-11 place-items-center rounded-xl border border-gold/50 bg-gold/10">
@@ -212,7 +212,7 @@ export default function Partners() {
         {/* Principal — mise en vedette */}
         <div className="gold-border relative overflow-hidden rounded-[24px] p-5 shadow-gold lg:p-8">
           <span className="pointer-events-none absolute -right-24 -top-24 h-80 w-80 rounded-full bg-gold/15 blur-3xl" />
-          <div className="relative grid gap-6 lg:grid-cols-[1fr_1.1fr] lg:items-center">
+          <div className="relative grid grid-cols-1 gap-6 lg:grid-cols-[1fr_1.1fr] lg:items-center">
             <div>
               <TierTitle tier={TIERS[0]} />
               <p className="mt-3 text-[14.5px] leading-relaxed text-white/70">{TIERS[0].text}</p>
@@ -271,12 +271,12 @@ export default function Partners() {
       {/* ---------------- VISIBILITÉ */}
       <section>
         <SlideHead n="05" label="Options de visibilité" />
-        <div className="grid gap-8 lg:grid-cols-[1fr_340px] lg:gap-10">
+        <div className="grid grid-cols-1 gap-8 lg:grid-cols-[1fr_340px] lg:gap-10">
           <div>
             <h2 className="mb-6 font-display text-[36px] leading-[0.95] tracking-wide lg:text-[52px]">
               Votre marque, <span className="text-gold-metal">sous les projecteurs</span>
             </h2>
-            <div className="grid gap-3 sm:grid-cols-2">
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
               {VISIBILITY.map((v, i) => (
                 <div key={v.title} className={cx('card group flex gap-4 p-5 transition hover:border-gold/35', i === VISIBILITY.length - 1 && 'sm:col-span-2')}>
                   <span className="grid h-12 w-12 shrink-0 place-items-center rounded-2xl border border-gold/50 bg-ink/60 shadow-[0_0_24px_-8px_rgba(214,172,85,.7)]">

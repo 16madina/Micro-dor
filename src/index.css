@@ -32,6 +32,46 @@
   }
 }
 
+/* ---------- Téléphone : comportement d’application native ---------- */
+html {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+body {
+  touch-action: manipulation; /* supprime le délai du double-tap */
+}
+@media (max-width: 1023px) {
+  html,
+  body {
+    overscroll-behavior-y: none; /* pas d’effet élastique sur la page */
+    overflow-x: clip; /* jamais de défilement horizontal, même pendant une animation */
+  }
+  /* iPhone : un champ de moins de 16 px déclenche un zoom automatique */
+  input,
+  select,
+  textarea {
+    font-size: 16px !important;
+  }
+  /* pas de sélection ni de menu contextuel sur les éléments d’interface */
+  nav,
+  header,
+  button,
+  [role='tab'] {
+    -webkit-user-select: none;
+    user-select: none;
+  }
+  img,
+  video,
+  svg,
+  a {
+    -webkit-touch-callout: none;
+  }
+  /* barres de défilement masquées comme dans une app */
+  ::-webkit-scrollbar {
+    display: none;
+  }
+}
+
 @layer components {
   .text-gold-metal {
     background: linear-gradient(180deg, #fbe7ad 0%, #f4d78c 30%, #d6ac55 55%, #9c7629 80%, #e9c877 100%);

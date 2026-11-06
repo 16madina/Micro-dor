@@ -110,7 +110,7 @@ function ProductSheet({ product, onClose }: { product: Product; onClose: () => v
   return (
     <div className="fixed inset-0 z-[70] flex items-end justify-center lg:items-center" role="dialog" aria-modal="true" aria-label={product.name}>
       <div className="absolute inset-0 animate-fadeIn bg-black/75 backdrop-blur-sm" onClick={onClose} />
-      <div className="relative max-h-[92vh] w-full animate-slideUp overflow-y-auto rounded-t-3xl border-t border-gold/30 bg-ink shadow-card lg:max-w-3xl lg:animate-fadeUp lg:rounded-3xl lg:border">
+      <div className="relative max-h-[92dvh] w-full animate-slideUp overflow-y-auto overscroll-contain rounded-t-3xl pb-[env(safe-area-inset-bottom)] border-t border-gold/30 bg-ink shadow-card lg:max-w-3xl lg:animate-fadeUp lg:rounded-3xl lg:border">
         <div className="sticky top-0 z-10 flex justify-center pt-2.5 lg:hidden">
           <span className="h-1 w-10 rounded-full bg-white/20" />
         </div>
@@ -317,7 +317,7 @@ export default function Shop() {
       {tab === 'produits' && createPortal(
         <button
           onClick={() => setCartOpen(true)}
-          className="fixed bottom-[calc(84px_+_env(safe-area-inset-bottom))] right-4 z-30 flex h-12 items-center gap-2.5 rounded-full bg-gold-soft pl-4 pr-5 text-[14px] font-extrabold text-ink shadow-gold transition hover:brightness-110 active:scale-95 lg:bottom-8 lg:right-10"
+          className="fixed bottom-[calc(80px+env(safe-area-inset-bottom))] right-[max(16px,env(safe-area-inset-right))] z-30 flex h-12 items-center gap-2.5 rounded-full bg-gold-soft pl-4 pr-5 text-[14px] font-extrabold text-ink shadow-gold transition hover:brightness-110 active:scale-95 lg:bottom-8 lg:right-10"
         >
           <span className="relative">
             <ShoppingBag size={19} />

@@ -70,7 +70,7 @@ export default function TourOverlay() {
   const s = TOUR_STEPS[tourStep]
   const last = tourStep === TOUR_STEPS.length - 1
   return (
-    <div className="pointer-events-none fixed inset-x-0 bottom-[76px] z-[70] flex justify-center px-3 lg:bottom-6 lg:pl-[260px]">
+    <div className="pointer-events-none fixed inset-x-0 bottom-[calc(72px+env(safe-area-inset-bottom))] z-[70] flex justify-center px-3 lg:bottom-6 lg:pl-[260px]">
       <div key={tourStep} className="glass pointer-events-auto w-full max-w-xl animate-fadeUp rounded-2xl border border-gold/40 p-4 shadow-gold lg:p-5">
         <div className="mb-2 flex items-center gap-2">
           <span className="grid h-7 w-7 place-items-center rounded-lg bg-gold-soft text-ink">

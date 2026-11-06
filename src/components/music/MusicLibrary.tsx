@@ -207,12 +207,12 @@ export default function MusicLibrary({ embedded = false }: { embedded?: boolean 
             className="flex-1 bg-transparent text-[14px] outline-none placeholder:text-white/35"
           />
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex min-w-0 items-center gap-2">
           <select
             id="music-sort"
             value={sort}
             onChange={(e) => setSort(e.target.value as typeof sort)}
-            className="h-10 rounded-full border border-white/10 bg-night px-4 text-[13px] font-semibold text-white/80 outline-none"
+            className="h-10 min-w-0 flex-1 rounded-full border border-white/10 bg-night px-4 text-[13px] font-semibold text-white/80 outline-none lg:flex-none"
             aria-label="Trier"
           >
             <option value="recent">Plus récentes</option>
@@ -234,7 +234,8 @@ export default function MusicLibrary({ embedded = false }: { embedded?: boolean 
                 nav('/connexion?suite=' + encodeURIComponent(embedded ? '/boutique?onglet=musiques' : '/musiques'))
               }}
             >
-              Ajouter (organisateurs)
+              <span className="sm:hidden">Ajouter</span>
+              <span className="hidden sm:inline">Ajouter (organisateurs)</span>
             </Button>
           )}
         </div>
@@ -385,7 +386,7 @@ function NowPlaying({
   const pct = Math.min(100, (elapsed / len) * 100)
   const ended = !playing && elapsed >= len - 0.3
   return createPortal(
-    <div className="fixed inset-x-0 bottom-[68px] z-[45] px-3 pb-[env(safe-area-inset-bottom)] lg:bottom-4 lg:pl-[276px] lg:pr-6">
+    <div className="fixed inset-x-0 bottom-[calc(70px+env(safe-area-inset-bottom))] z-[45] px-3 lg:bottom-4 lg:pl-[276px] lg:pr-6">
       <div className="glass mx-auto max-w-3xl animate-slideUp rounded-2xl border border-gold/35 p-3 shadow-gold">
         <div className="flex items-center gap-3">
           <TrackCover track={track} playing={playing} className="h-14 w-14 shrink-0" />
@@ -508,7 +509,7 @@ function UploadModal({ onClose }: { onClose: () => void }) {
       <form
         onSubmit={submit}
         onClick={(e) => e.stopPropagation()}
-        className="w-full max-w-lg animate-slideUp rounded-t-3xl border border-gold/30 bg-ink p-5 lg:rounded-3xl lg:p-7"
+        className="max-h-[92dvh] w-full max-w-lg animate-slideUp overflow-y-auto overscroll-contain rounded-t-3xl border border-gold/30 bg-ink p-5 pb-[max(20px,env(safe-area-inset-bottom))] lg:rounded-3xl lg:p-7"
       >
         <div className="mb-4 flex items-start justify-between gap-3">
           <div>
