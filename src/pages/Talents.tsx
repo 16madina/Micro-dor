@@ -58,10 +58,8 @@ function FeaturedBanner() {
           <Button to={`/talents/${t.id}`} size="sm" className="lg:h-11 lg:px-6 lg:text-sm">
             Voir le profil
           </Button>
-          <SupportButton talentId={t.id} size="sm" className="hidden sm:inline-flex" />
-          <SupportButton talentId={t.id} iconOnly size="sm" className="sm:hidden" />
-          <VoteButton talentId={t.id} size="sm" className="hidden sm:inline-flex" />
-          <VoteButton talentId={t.id} iconOnly size="sm" className="sm:hidden" />
+          <SupportButton talentId={t.id} size="sm" />
+          <VoteButton talentId={t.id} size="sm" />
         </div>
       </div>
     </section>
